@@ -15,27 +15,27 @@ export function VerificationGrid({ dark = false, className }: VerificationGridPr
           <div
             key={b.label}
             className={cn(
-              'p-5 sm:p-6 rounded-lg border transition-all text-left flex flex-col justify-between',
+              'group p-5 sm:p-6 rounded-xl border transition-all duration-300 text-left flex flex-col justify-between hover:-translate-y-1 hover:shadow-card-hover',
               dark
-                ? 'bg-dark-card border-dark-border text-white'
-                : 'bg-white border-border-hairline text-content-primary'
+                ? 'bg-slate-900/90 border-slate-800 text-white hover:border-veytrix-cyan/40'
+                : 'bg-canvas-elevated border-border-hairline text-content-primary hover:border-veytrix-cyan/30 hover:bg-veytrix-surface/30'
             )}
           >
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-3">
                 <span
                   className={cn(
-                    'font-mono text-2xl sm:text-3xl font-bold tracking-tight',
-                    dark ? 'text-white' : 'text-content-primary'
+                    'font-mono text-2xl sm:text-3xl font-bold tracking-tight transition-colors',
+                    dark ? 'text-white group-hover:text-veytrix-cyan' : 'text-veytrix-navy group-hover:text-veytrix-electric'
                   )}
                 >
                   {b.metric}
                 </span>
                 <span
                   className={cn(
-                    'font-mono text-[10px] px-1.5 py-0.5 rounded border uppercase',
+                    'font-mono text-[10px] px-2 py-0.5 rounded border uppercase font-medium',
                     dark
-                      ? 'bg-slate-800 text-emerald-400 border-slate-700'
+                      ? 'bg-emerald-950/80 text-emerald-400 border-emerald-800/80'
                       : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                   )}
                 >

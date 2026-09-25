@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { X } from 'lucide-react';
 import { SITE_CONFIG } from '@/lib/constants/site';
 import { Button } from '@/components/ui/button';
+import { BrandMark } from '@/components/ui/brand-mark';
 
 export interface MobileNavDrawerProps {
   isOpen: boolean;
@@ -61,9 +62,7 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
         <div>
           {/* Top Bar */}
           <div className="flex items-center justify-between pb-6 border-b border-border-hairline">
-            <span className="font-display font-bold text-sm tracking-tight text-content-primary">
-              NAVIGATION
-            </span>
+            <BrandMark size="sm" />
             <button
               ref={firstFocusableRef}
               type="button"

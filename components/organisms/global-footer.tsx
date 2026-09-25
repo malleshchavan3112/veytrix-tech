@@ -81,7 +81,7 @@ export function GlobalFooter() {
               <li>
                 <Link
                   href="/work/aahar-nearby"
-                  className="text-content-secondary hover:text-content-primary transition-colors py-1 inline-block"
+                  className="text-content-secondary hover:text-veytrix-electric transition-colors py-1 inline-block"
                 >
                   Aahar Nearby
                 </Link>
@@ -89,10 +89,21 @@ export function GlobalFooter() {
               <li>
                 <Link
                   href="/work/dateinvite"
-                  className="text-content-secondary hover:text-content-primary transition-colors py-1 inline-block"
+                  className="text-content-secondary hover:text-veytrix-electric transition-colors py-1 inline-block"
                 >
                   DateInvite
                 </Link>
+              </li>
+              <li>
+                <a
+                  href="https://www.dateinvite.me/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-mono text-veytrix-cyan hover:text-veytrix-blue transition-colors py-1 inline-flex items-center gap-1"
+                >
+                  <span>dateinvite.me</span>
+                  <span className="text-[10px]">↗</span>
+                </a>
               </li>
             </ul>
           </div>

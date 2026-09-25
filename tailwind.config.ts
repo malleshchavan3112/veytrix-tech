@@ -32,13 +32,24 @@ const config: Config = {
         border: {
           hairline: '#E2E8F0',
           default: '#CBD5E1',
-          focus: '#3B82F6',
+          focus: '#2563EB',
+        },
+        veytrix: {
+          navy: '#071A52',
+          blue: '#1D4ED8',
+          electric: '#2563EB',
+          cyan: '#06B6D4',
+          teal: '#14B8A6',
+          surface: '#F0F7FF',
+          dark: '#0A192F',
         },
         accent: {
-          blue: '#3B82F6',
-          hover: '#2563EB',
-          subtle: 'rgba(59, 130, 246, 0.08)',
-          glow: 'rgba(59, 130, 246, 0.20)',
+          blue: '#2563EB',
+          hover: '#1D4ED8',
+          cyan: '#06B6D4',
+          teal: '#14B8A6',
+          subtle: 'rgba(37, 99, 235, 0.06)',
+          glow: 'rgba(6, 182, 212, 0.20)',
         },
         dark: {
           base: '#0F172A',
@@ -67,10 +78,33 @@ const config: Config = {
         sm: '4px',
         md: '6px',
         lg: '10px',
+        xl: '14px',
         pill: '9999px',
       },
       boxShadow: {
-        'card-hover': '0 4px 12px rgba(15, 23, 42, 0.04)',
+        'card-hover': '0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04)',
+        'veytrix-glow': '0 0 30px -5px rgba(6, 182, 212, 0.25)',
+        'btn-primary': '0 2px 8px -1px rgba(37, 99, 235, 0.35)',
+        'btn-hover': '0 6px 16px -2px rgba(37, 99, 235, 0.45)',
+      },
+      keyframes: {
+        'pulse-subtle': {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.85', transform: 'scale(1.02)' },
+        },
+        'line-flow': {
+          '0%': { strokeDashoffset: '100' },
+          '100%': { strokeDashoffset: '0' },
+        },
+        'blink': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0' },
+        },
+      },
+      animation: {
+        'pulse-subtle': 'pulse-subtle 4s ease-in-out infinite',
+        'line-flow': 'line-flow 3s linear infinite',
+        'blink': 'blink 1.2s infinite',
       },
       transitionTimingFunction: {
         editorial: 'cubic-bezier(0.2, 0, 0, 1)',

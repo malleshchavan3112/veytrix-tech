@@ -1,7 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Metadata } from 'next';
-import { ArrowLeft, ArrowRight, ShieldCheck, Sparkles, Lock, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShieldCheck, Sparkles, Lock, Check, ExternalLink, Monitor, Smartphone } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import { MonospaceBadge } from '@/components/ui/monospace-badge';
@@ -53,12 +54,22 @@ export default function DateInviteCaseStudyPage() {
       {/* ========================================================================= */}
       {/* 2. HERO SPREAD & METADATA MATRIX                                          */}
       {/* ========================================================================= */}
-      <section className="w-full pt-16 sm:pt-24 pb-16 sm:pb-24 border-b border-border-hairline">
+      <section className="relative w-full pt-16 sm:pt-24 pb-16 sm:pb-24 border-b border-border-hairline overflow-hidden">
+        {/* Ambient atmospheric glow */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-veytrix-blue/5 rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-veytrix-cyan/5 rounded-full blur-3xl pointer-events-none -z-10" />
+
         <Container size="ultra">
           <div className="max-w-4xl">
-            <span className="font-mono text-xs font-semibold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200 inline-block mb-4">
-              FULL-STACK WEB APPLICATION · HIGH-TOUCH INTERACTION // 02
-            </span>
+            <div className="flex flex-wrap items-center gap-2.5 mb-4">
+              <span className="font-mono text-xs font-semibold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200 inline-block">
+                FULL-STACK WEB APPLICATION · HIGH-TOUCH INTERACTION // 02
+              </span>
+              <span className="font-mono text-[11px] text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200 inline-flex items-center gap-1.5 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>LIVE URL: VERIFIED (PRODUCTION LIVE)</span>
+              </span>
+            </div>
 
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-content-primary leading-[1.1]">
               DateInvite — Playful Interactive Scheduling &amp; Invitation Engine
@@ -67,6 +78,25 @@ export default function DateInviteCaseStudyPage() {
             <p className="mt-6 text-lg sm:text-xl text-content-secondary leading-relaxed">
               {dateinvite.editorialSummary}
             </p>
+
+            {/* Verified External Live Link CTA */}
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Button
+                variant="primary"
+                size="default"
+                href="https://www.dateinvite.me/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-veytrix-blue hover:bg-veytrix-electric text-white shadow-veytrix-glow"
+              >
+                <span>View Live Product</span>
+                <ExternalLink className="w-4 h-4 ml-2" />
+              </Button>
+              <div className="font-mono text-xs text-content-tertiary flex items-center gap-1.5 py-2">
+                <span>https://www.dateinvite.me/</span>
+                <span className="text-emerald-600 font-semibold">(Status 200 OK)</span>
+              </div>
+            </div>
           </div>
 
           {/* Structured Metadata Matrix Rail (4 Columns) */}
@@ -142,20 +172,121 @@ export default function DateInviteCaseStudyPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 4. ASYMMETRIC TWO-SIDED ARCHITECTURAL TOPOLOGY                            */}
+      {/* 4. ASYMMETRIC TWO-SIDED ARCHITECTURAL TOPOLOGY & PRODUCT PREVIEW          */}
       {/* ========================================================================= */}
-      <section className="w-full py-20 sm:py-28 border-b border-border-hairline">
+      <section className="w-full py-20 sm:py-28 border-b border-border-hairline bg-canvas-subtle/20">
         <Container size="std">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="font-mono text-xs uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
-              SYSTEM ARCHITECTURE
+              PRODUCTION INTERFACE &amp; ARCHITECTURE // LIVE PRODUCT
             </span>
             <h2 className="mt-4 font-display text-3xl sm:text-4xl font-bold tracking-tight text-content-primary">
-              Two-Sided Asymmetric Interaction Topology
+              High-Touch Proposal Canvas &amp; Reciprocal Flow
             </h2>
             <p className="mt-3 text-base text-content-secondary">
-              Mapping the decoupled zero-auth handoff between sender link creation and recipient proposal completion.
+              Actual interface captures from the deployed DateInvite platform: showing the playful Framer Motion proposal card and asymmetric link workflow.
             </p>
+          </div>
+
+          {/* Large Hero Browser Viewport */}
+          <div className="max-w-4xl mx-auto mb-16 rounded-2xl bg-white border border-border-hairline shadow-2xl overflow-hidden group">
+            {/* Browser Top Navigation Chrome */}
+            <div className="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs font-mono text-slate-400">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-rose-500/80 inline-block" />
+                <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block" />
+                <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
+              </div>
+              <div className="px-4 py-1 rounded bg-slate-800 text-[11px] text-slate-300 font-mono flex items-center gap-2 border border-slate-700/60 max-w-sm w-full justify-center">
+                <Lock className="w-3 h-3 text-emerald-400" />
+                <span className="truncate">https://www.dateinvite.me/invite/dinner-date</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[10px] text-emerald-400 uppercase">Interactive</span>
+              </div>
+            </div>
+
+            {/* Real Interactive Card Screenshot */}
+            <div className="relative aspect-[16/10] w-full bg-slate-950 overflow-hidden">
+              <Image
+                src="/projects/dateinvite/interactive_card.png"
+                alt="DateInvite Real Production Interactive Proposal Card"
+                fill
+                className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
+                sizes="(max-width: 1024px) 100vw, 896px"
+                priority
+              />
+            </div>
+            
+            <div className="p-4 sm:p-5 bg-white border-t border-border-hairline flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-veytrix-blue" />
+                <span className="font-semibold text-content-primary">Framer Motion Spring Physics Engine</span>
+                <span className="text-content-tertiary">·</span>
+                <span className="text-content-secondary">Cursor dodge vector deflection upon hovering &quot;No&quot;</span>
+              </div>
+              <a
+                href="https://www.dateinvite.me/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-xs text-veytrix-blue hover:text-veytrix-electric font-semibold inline-flex items-center gap-1"
+              >
+                <span>Test in Production</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+
+          {/* Dual Supporting Previews: Share Modal + Mobile View */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
+            {/* Share Flow */}
+            <div className="p-5 rounded-2xl bg-white border border-border-hairline shadow-sm flex flex-col group">
+              <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-slate-900 border border-slate-200">
+                <Image
+                  src="/projects/dateinvite/desktop_share.png"
+                  alt="DateInvite 1-Tap Cryptographic Share Modal"
+                  fill
+                  className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 450px"
+                />
+              </div>
+              <div className="mt-4 flex items-center justify-between">
+                <h4 className="font-display text-sm font-bold text-content-primary">
+                  1-Tap Native Cryptographic Share
+                </h4>
+                <span className="font-mono text-[10px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                  ZERO-AUTH
+                </span>
+              </div>
+              <p className="text-xs text-content-secondary mt-1">
+                Generates unguessable client-side links with instant clipboard sync and native Web Share API hooks.
+              </p>
+            </div>
+
+            {/* Mobile Recipient View */}
+            <div className="p-5 rounded-2xl bg-white border border-border-hairline shadow-sm flex flex-col group">
+              <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-slate-900 border border-slate-200">
+                <Image
+                  src="/projects/dateinvite/mobile_card.png"
+                  alt="DateInvite Mobile Recipient Experience"
+                  fill
+                  className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 450px"
+                />
+              </div>
+              <div className="mt-4 flex items-center justify-between">
+                <h4 className="font-display text-sm font-bold text-content-primary">
+                  Mobile Touch Containment
+                </h4>
+                <span className="font-mono text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  TOUCH VECTOR
+                </span>
+              </div>
+              <p className="text-xs text-content-secondary mt-1">
+                Touchscreen evasion vector physics with bounded viewport collision to prevent off-screen button overflow.
+              </p>
+            </div>
           </div>
 
           {/* Topology Workflow Container */}

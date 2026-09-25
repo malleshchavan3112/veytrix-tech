@@ -26,23 +26,27 @@ export default function HomePage() {
       <section
         id="hero"
         aria-label="Studio Overview and Positioning"
-        className="w-full pt-16 sm:pt-24 pb-20 sm:pb-28 border-b border-border-hairline"
+        className="relative w-full pt-16 sm:pt-24 pb-20 sm:pb-28 border-b border-border-hairline bg-tech-grid bg-hero-glow overflow-hidden"
       >
         <Container size="ultra">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             {/* Left Column: Typographic Triad Authority (7 cols) */}
             <div className="lg:col-span-7 flex flex-col items-start text-left">
               {/* Monospace Eyebrow Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-canvas-subtle border border-border-hairline font-mono text-xs text-content-tertiary mb-6">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent-blue" />
-                <span className="font-semibold uppercase tracking-wider">
+              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-veytrix-surface/90 border border-veytrix-cyan/30 font-mono text-xs text-veytrix-navy shadow-sm mb-6">
+                <span className="w-2 h-2 rounded-full bg-veytrix-cyan animate-pulse" />
+                <span className="font-semibold uppercase tracking-wider text-[11px]">
                   DIGITAL PRODUCT &amp; TECHNOLOGY STUDIO
+                </span>
+                <span className="text-veytrix-cyan/60 hidden sm:inline">·</span>
+                <span className="text-[10px] text-veytrix-electric font-medium hidden sm:inline">
+                  PRECISION CRAFT
                 </span>
               </div>
 
               {/* Primary Display Headline */}
               <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-content-primary leading-[1.08] max-w-2xl">
-                Design + Technology + Product Thinking
+                Design <span className="text-content-muted font-normal">+</span> Technology <span className="text-content-muted font-normal">+</span> <span className="text-gradient-veytrix">Product Thinking</span>
               </h1>
 
               {/* Supporting Editorial Statement */}
@@ -52,12 +56,18 @@ export default function HomePage() {
 
               {/* Action Button Cluster */}
               <div className="mt-8 sm:mt-10 flex flex-wrap items-center gap-4">
-                <Button variant="primary" size="lg" href="/#contact">
-                  Start a Project
+                <Button
+                  variant="primary"
+                  size="lg"
+                  href="/#contact"
+                  className="shadow-btn-primary hover:shadow-btn-hover group"
+                >
+                  <span>Initiate Inquiry</span>
+                  <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                 </Button>
                 <Button variant="secondary" size="lg" href="/#work" className="group">
                   <span>Explore Selected Work</span>
-                  <ArrowDown className="w-4 h-4 ml-2 transition-transform group-hover:translate-y-0.5" />
+                  <ArrowDown className="w-4 h-4 ml-2 transition-transform group-hover:translate-y-0.5 text-veytrix-blue" />
                 </Button>
               </div>
 
@@ -65,7 +75,7 @@ export default function HomePage() {
               <div className="mt-12 pt-6 border-t border-border-hairline w-full flex flex-wrap items-center gap-6 text-xs font-mono text-content-tertiary">
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span>TYPE-SAFE CONTRACTS</span>
+                  <span className="text-content-secondary font-medium">TYPE-SAFE CONTRACTS</span>
                 </div>
                 <div>·</div>
                 <div>SUB-SECOND LATENCY TARGETS</div>
@@ -88,7 +98,7 @@ export default function HomePage() {
       <section
         id="work"
         aria-label="Selected Flagship Case Studies"
-        className="w-full py-20 sm:py-28 border-b border-border-hairline"
+        className="w-full py-20 sm:py-28 border-b border-border-hairline bg-canvas-base"
       >
         <Container size="ultra">
           <SectionHeader
@@ -124,6 +134,7 @@ export default function HomePage() {
               benchmarkMetric="Zero"
               benchmarkLabel="Cross-User PII Exposure Verified via Automated RLS Audit"
               deviceType="browser"
+              liveUrl="https://www.dateinvite.me/"
               reverse
             />
           </div>

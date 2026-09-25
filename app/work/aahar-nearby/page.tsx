@@ -1,7 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Metadata } from 'next';
-import { ArrowLeft, ArrowRight, ShieldCheck, MapPin, Smartphone, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShieldCheck, MapPin, Smartphone, Check, Sparkles, Layers } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import { MonospaceBadge } from '@/components/ui/monospace-badge';
@@ -54,20 +55,44 @@ export default function AaharNearbyCaseStudyPage() {
       {/* ========================================================================= */}
       {/* 2. HERO SPREAD & METADATA MATRIX                                          */}
       {/* ========================================================================= */}
-      <section className="w-full pt-16 sm:pt-24 pb-16 sm:pb-24 border-b border-border-hairline">
+      <section className="relative w-full pt-16 sm:pt-24 pb-16 sm:pb-24 border-b border-border-hairline overflow-hidden">
+        {/* Ambient atmospheric glow */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-veytrix-cyan/5 rounded-full blur-3xl pointer-events-none -z-10" />
+
         <Container size="ultra">
-          <div className="max-w-4xl">
-            <span className="font-mono text-xs font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200 inline-block mb-4">
-              MOBILE APPLICATION &amp; ECOSYSTEM // 01
-            </span>
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8 max-w-6xl">
+            <div className="max-w-3xl">
+              <div className="flex flex-wrap items-center gap-2.5 mb-4">
+                <span className="font-mono text-xs font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200 inline-block">
+                  MOBILE APPLICATION &amp; ECOSYSTEM // 01
+                </span>
+                <span className="font-mono text-[11px] text-content-tertiary bg-canvas-subtle px-2.5 py-1 rounded border border-border-hairline inline-flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                  <span>LIVE URL: NOT VERIFIED (NATIVE MOBILE REPO)</span>
+                </span>
+              </div>
 
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-content-primary leading-[1.1]">
-              Aahar Nearby — Hyperlocal Food Discovery &amp; Menu Intelligence
-            </h1>
+              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-content-primary leading-[1.1]">
+                Aahar Nearby — Hyperlocal Food Discovery &amp; Menu Intelligence
+              </h1>
 
-            <p className="mt-6 text-lg sm:text-xl text-content-secondary leading-relaxed">
-              {aahar.editorialSummary}
-            </p>
+              <p className="mt-6 text-lg sm:text-xl text-content-secondary leading-relaxed">
+                {aahar.editorialSummary}
+              </p>
+            </div>
+
+            {/* Official Logo Display */}
+            <div className="flex-shrink-0 p-5 rounded-2xl bg-white border border-border-hairline shadow-sm flex items-center justify-center max-w-[200px]">
+              <Image
+                src="/projects/aahar-nearby/logo.png"
+                alt="Aahar Nearby Official Logo"
+                width={160}
+                height={160}
+                className="w-32 h-auto object-contain"
+                priority
+              />
+            </div>
           </div>
 
           {/* Structured Metadata Matrix Rail (4 Columns) */}
@@ -145,93 +170,147 @@ export default function AaharNearbyCaseStudyPage() {
       {/* ========================================================================= */}
       {/* 4. HIGH-FIDELITY MOBILE PRODUCT VIEWPORT (Visual Showcase)                */}
       {/* ========================================================================= */}
-      <section className="w-full py-20 sm:py-28 border-b border-border-hairline">
+      <section className="w-full py-20 sm:py-28 border-b border-border-hairline bg-canvas-subtle/20">
         <Container size="std">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="font-mono text-xs uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
-              PRODUCT EXPERIENCE // 10 CORE SCREENS
+              PRODUCTION APPLICATION SCREENS // REAL FLUTTER BUILD
             </span>
             <h2 className="mt-4 font-display text-3xl sm:text-4xl font-bold tracking-tight text-content-primary">
-              Dark Emerald Luxury Food Discovery
+              Real Mobile Experience &amp; Dual-Sided Portals
             </h2>
             <p className="mt-3 text-base text-content-secondary">
-              A high-contrast visual environment engineered for bright outdoor sunlight legibility and rapid 30-second ordering.
+              Actual screens from the active Flutter 3.x codebase: high-contrast diner discovery feed alongside the multi-role owner operations console.
             </p>
           </div>
 
-          {/* Dual Simulated iPhone Frames */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center justify-center max-w-4xl mx-auto select-none">
-            {/* Viewport 1: Diner Discovery */}
-            <div className="rounded-2xl bg-[#061E14] text-white p-6 sm:p-8 shadow-2xl border border-emerald-950/80 flex flex-col justify-between min-h-[460px]">
-              <div>
-                <div className="flex items-center justify-between pb-4 border-b border-emerald-900/40 text-xs">
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-mono text-[11px]">
-                    <MapPin className="w-3.5 h-3.5" />
-                    <span>Cyber Towers, Madhapur</span>
-                  </div>
-                  <span className="font-mono text-[10px] text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
-                    &lt; 500m
-                  </span>
+          {/* Dual Mobile Device Showcase */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start justify-center max-w-5xl mx-auto">
+            {/* Screen 1: Real Diner Discovery Feed */}
+            <div className="flex flex-col items-center">
+              <div className="w-full max-w-[340px] rounded-[36px] bg-dark-base p-3 shadow-2xl border-4 border-slate-800 ring-1 ring-white/10 group transition-all duration-300 hover:shadow-veytrix-glow">
+                {/* Mobile Speaker / Camera Notch */}
+                <div className="w-24 h-4 bg-slate-900 mx-auto rounded-full mb-2 flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-slate-800" />
                 </div>
-
-                <div className="mt-6">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400 block mb-1">
-                    TODAY&apos;S LUNCH SPECIALS
-                  </span>
-                  <h3 className="font-display text-xl font-bold text-white">
-                    Special South Indian Thali with Mysore Pak
-                  </h3>
-                  <p className="mt-1 text-xs text-slate-300">
-                    Includes 3 vegetable gravies, sambar, rasam, freshly pressed hot puris &amp; curd.
-                  </p>
-                </div>
-
-                <div className="mt-6 p-4 rounded-lg bg-emerald-950/60 border border-emerald-800/40 flex items-center justify-between">
-                  <div>
-                    <span className="text-xs text-slate-300 block">Sri Venkateswara Mess</span>
-                    <span className="font-mono text-sm font-bold text-emerald-400">$6.50 · Dine-in Ready</span>
-                  </div>
-                  <span className="text-[11px] font-mono text-slate-400">180m away</span>
+                
+                {/* Real Screenshot Image */}
+                <div className="relative rounded-[26px] overflow-hidden aspect-[9/19.5] bg-slate-950 border border-slate-800/80">
+                  <Image
+                    src="/projects/aahar-nearby/discovery_feed.png"
+                    alt="Aahar Nearby Real Diner Discovery Feed"
+                    fill
+                    className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
+                    sizes="(max-width: 768px) 100vw, 340px"
+                  />
                 </div>
               </div>
 
-              <div className="mt-8 pt-4 border-t border-emerald-900/40 flex items-center justify-between text-xs font-mono text-emerald-400">
-                <span>HAIVERSINE DISTANCE SYNC</span>
-                <span>30-SEC DISCOVERY</span>
+              <div className="mt-6 text-center max-w-xs">
+                <span className="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  01 // DINER DISCOVERY STREAM
+                </span>
+                <h3 className="font-display text-base font-bold text-content-primary mt-2">
+                  Sub-Second Hyperlocal Feed
+                </h3>
+                <p className="text-xs text-content-secondary mt-1">
+                  Haversine-sorted dynamic lunch menus with deterministic distance rings (&lt;500m) and vegetarian categorization.
+                </p>
               </div>
             </div>
 
-            {/* Viewport 2: Owner 15-Sec AI Formatter */}
-            <div className="rounded-2xl bg-[#0B291D] text-white p-6 sm:p-8 shadow-2xl border border-emerald-900/80 flex flex-col justify-between min-h-[460px]">
-              <div>
-                <div className="flex items-center justify-between pb-4 border-b border-emerald-900/40 text-xs font-mono">
-                  <span className="text-emerald-400">HOTEL OWNER DASHBOARD</span>
-                  <span className="text-slate-400">OUTLET #842</span>
+            {/* Screen 2: Real Menu Details / Order Flow */}
+            <div className="flex flex-col items-center">
+              <div className="w-full max-w-[340px] rounded-[36px] bg-dark-base p-3 shadow-2xl border-4 border-slate-800 ring-1 ring-white/10 group transition-all duration-300 hover:shadow-veytrix-glow">
+                {/* Mobile Speaker / Camera Notch */}
+                <div className="w-24 h-4 bg-slate-900 mx-auto rounded-full mb-2 flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-slate-800" />
                 </div>
-
-                <div className="mt-6">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-300 block mb-1">
-                    AI MENU FORMATTER
-                  </span>
-                  <h3 className="font-display text-xl font-bold text-white">
-                    Raw Chalkboard Text to Live Menu
-                  </h3>
-                  <p className="mt-1 text-xs text-slate-300">
-                    Owner pastes raw text; parser extracts dish titles, prices, and veg/non-veg tags instantly.
-                  </p>
-                </div>
-
-                <div className="mt-4 p-3 rounded-lg bg-[#061E14] border border-emerald-900/60 font-mono text-xs text-slate-300 space-y-1">
-                  <div className="text-emerald-400">&gt; Parsing: &quot;Podi Idli 60, Masala Dosa 90&quot;</div>
-                  <div>✔ Podi Idli ($2.00) [Strict Veg]</div>
-                  <div>✔ Masala Dosa ($3.00) [Strict Veg]</div>
-                  <div className="text-[10px] text-emerald-500 pt-1">STATUS: READY TO PUBLISH IN 15 SEC</div>
+                
+                {/* Real Screenshot Image */}
+                <div className="relative rounded-[26px] overflow-hidden aspect-[9/19.5] bg-slate-950 border border-slate-800/80">
+                  <Image
+                    src="/projects/aahar-nearby/menu_details.png"
+                    alt="Aahar Nearby Real Dynamic Menu Details"
+                    fill
+                    className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
+                    sizes="(max-width: 768px) 100vw, 340px"
+                  />
                 </div>
               </div>
 
-              <div className="mt-8 pt-4 border-t border-emerald-900/40 flex items-center justify-between text-xs font-mono text-emerald-400">
-                <span>1-TAP RE-PUBLISH</span>
-                <span>MULTI-ROLE SECURED</span>
+              <div className="mt-6 text-center max-w-xs">
+                <span className="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  02 // REAL-TIME MENU DETAILS
+                </span>
+                <h3 className="font-display text-base font-bold text-content-primary mt-2">
+                  Dynamic Thali &amp; Item Breakdown
+                </h3>
+                <p className="text-xs text-content-secondary mt-1">
+                  Live pricing, daily rotational menu items, dietary badges, and 1-tap Google Maps walking directions.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Supporting Management Screens Spread (Owner & Employee) */}
+          <div className="mt-16 pt-12 border-t border-border-hairline">
+            <div className="text-center mb-10">
+              <span className="font-mono text-xs uppercase tracking-wider text-content-tertiary">
+                BACK-OF-HOUSE OPERATIONS
+              </span>
+              <h3 className="font-display text-2xl font-bold text-content-primary mt-2">
+                Multi-Role Owner Dashboard &amp; Verification
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {/* Owner Dashboard */}
+              <div className="p-5 rounded-2xl bg-white border border-border-hairline shadow-sm flex flex-col group">
+                <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-slate-900 border border-slate-200">
+                  <Image
+                    src="/projects/aahar-nearby/screen_owner_dashboard.png"
+                    alt="Aahar Nearby Hotel Owner Console"
+                    fill
+                    className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 450px"
+                  />
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <h4 className="font-display text-sm font-bold text-content-primary">
+                    Hotel Owner Daily Publisher
+                  </h4>
+                  <span className="font-mono text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    15-SEC DISPATCH
+                  </span>
+                </div>
+                <p className="text-xs text-content-secondary mt-1">
+                  Rapid menu publishing console allowing restaurant operators to toggle daily specials and availability with single-tap persistence.
+                </p>
+              </div>
+
+              {/* Employee / Admin Verification */}
+              <div className="p-5 rounded-2xl bg-white border border-border-hairline shadow-sm flex flex-col group">
+                <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-slate-900 border border-slate-200">
+                  <Image
+                    src="/projects/aahar-nearby/screen_employee_portal.png"
+                    alt="Aahar Nearby Employee Portal"
+                    fill
+                    className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 450px"
+                  />
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <h4 className="font-display text-sm font-bold text-content-primary">
+                    Employee Portal &amp; Kitchen Relay
+                  </h4>
+                  <span className="font-mono text-[10px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                    LIVE STATUS SYNC
+                  </span>
+                </div>
+                <p className="text-xs text-content-secondary mt-1">
+                  Staff role interface for real-time order acknowledgment, stock depletion tags, and lunch rush queue status updates.
+                </p>
               </div>
             </div>
           </div>

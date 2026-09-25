@@ -111,12 +111,14 @@ export function SingleInquiryForm() {
   if (status === 'success') {
     return (
       <div
-        className="w-full max-w-form mx-auto p-8 sm:p-12 rounded-xl bg-white border border-border-hairline shadow-sm text-center select-none"
-        role="alert"
+        className="relative w-full max-w-form mx-auto p-8 sm:p-12 rounded-2xl bg-canvas-elevated border border-emerald-200/80 shadow-card-hover text-center select-none overflow-hidden"
+        role="status"
         aria-live="polite"
       >
-        <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto mb-6">
-          <CheckCircle2 className="w-6 h-6" />
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/80 flex items-center justify-center mx-auto mb-6 shadow-sm">
+          <CheckCircle2 className="w-7 h-7" />
         </div>
 
         <span className="font-mono text-xs uppercase tracking-wider text-emerald-700 font-semibold block mb-2">
@@ -132,7 +134,7 @@ export function SingleInquiryForm() {
         </p>
 
         <div className="mt-8 pt-6 border-t border-border-hairline flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-content-tertiary gap-3">
-          <span>DISPATCH // LOGGED SECURELY</span>
+          <span className="text-emerald-700 font-medium">DISPATCH // LOGGED SECURELY</span>
           <span>DIRECT INTAKE: {SITE_CONFIG.email}</span>
         </div>
 
@@ -165,9 +167,12 @@ export function SingleInquiryForm() {
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="w-full max-w-form mx-auto p-6 sm:p-10 rounded-xl bg-white border border-border-hairline shadow-sm text-left"
+      className="relative w-full max-w-form mx-auto p-6 sm:p-10 rounded-2xl bg-canvas-elevated border border-border-hairline shadow-card-hover text-left overflow-hidden"
       aria-label="Studio Architecture Consultation Form"
     >
+      {/* Ambient background soft glow */}
+      <div className="absolute -top-32 -right-32 w-72 h-72 bg-veytrix-cyan/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -left-32 w-72 h-72 bg-veytrix-blue/10 rounded-full blur-3xl pointer-events-none" />
       {/* Rate Limit / Network Error Banner */}
       {status === 'error' && (
         <div
