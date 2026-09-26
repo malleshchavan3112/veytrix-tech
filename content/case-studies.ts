@@ -147,7 +147,7 @@ Stream<List<RestaurantEntity>> watchNearbyOutlets({
       {
         value: '< 300ms',
         label: 'GPS Spatial Sync',
-        context: 'Haversine distance calculation and deterministic bounding radius',
+        context: 'Engineering Target · Haversine distance calculation and deterministic bounding radius',
         verified: false, // Engineering Target / Source Required
       },
     ],
@@ -188,7 +188,7 @@ Stream<List<RestaurantEntity>> watchNearbyOutlets({
       },
     ],
     architectureSummary:
-      'Built as a high-performance Next.js App Router application with React Server Components, Tailwind CSS, Supabase (PostgreSQL with Row-Level Security), Framer Motion physics, and Resend transactional email dispatch. Senders generate unpredictable cryptographic slugs without credentials, while Supabase RLS guarantees zero PII exposure to public recipient endpoints.',
+      'Built as a high-performance Next.js App Router application with React Server Components, Tailwind CSS, Supabase (PostgreSQL with Row-Level Security), Framer Motion physics, and Resend transactional email dispatch. Senders generate unpredictable cryptographic slugs without credentials, while Supabase RLS enforces zero PII exposure to public recipient endpoints.',
     techStack: [
       { category: 'Frontend & Runtime', technologies: ['Next.js App Router', 'React', 'TypeScript'] },
       { category: 'Database & Security', technologies: ['Supabase PostgreSQL', 'Row-Level Security (RLS)'] },
@@ -260,7 +260,7 @@ REVOKE SELECT (creator_email) ON public.invitations FROM anon, authenticated;`,
       {
         value: '< 420ms',
         label: 'Transactional Delivery',
-        context: 'Resend API serverless dispatch latency benchmark',
+        context: 'Engineering Target · Resend API serverless dispatch latency benchmark',
         verified: false, // Engineering Target / Source Required
       },
     ],

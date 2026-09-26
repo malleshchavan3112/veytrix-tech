@@ -9,7 +9,21 @@ export interface StudioTriadArtifactProps {
 
 export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
   const [activeNode, setActiveNode] = useState<'design' | 'tech' | 'product' | 'nexus' | null>(null);
+  const [displayedNode, setDisplayedNode] = useState<'design' | 'tech' | 'product' | 'nexus' | null>(null);
+  const [isTextFading, setIsTextFading] = useState(false);
   const [scrollParallax, setScrollParallax] = useState(0);
+
+  // Smooth status text cross-fade transition (~300ms total, fixed container geometry)
+  useEffect(() => {
+    if (activeNode !== displayedNode) {
+      setIsTextFading(true);
+      const fadeTimer = setTimeout(() => {
+        setDisplayedNode(activeNode);
+        setIsTextFading(false);
+      }, 120); // ~120ms fade-out
+      return () => clearTimeout(fadeTimer);
+    }
+  }, [activeNode, displayedNode]);
 
   // Subtle scroll-linked parallax response (max 4-6px, strictly clamped)
   useEffect(() => {
@@ -42,7 +56,7 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
     },
     tech: {
       title: '02 // RESILIENT TECHNOLOGY',
-      subtitle: 'Static Optimization · Strict Type Safety · Sub-Second Latency',
+      subtitle: 'Static Optimization · Strict Type Safety · Sub-Second Latency Target',
       metric: '990+ AUTOMATED TESTS PASS',
     },
     product: {
@@ -57,7 +71,7 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
     },
   };
 
-  const currentInfo = activeNode ? nodeInfo[activeNode] : null;
+  const currentInfo = displayedNode ? nodeInfo[displayedNode] : null;
 
   return (
     <div
@@ -98,7 +112,7 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
           viewBox="0 0 420 360"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-full max-w-[420px] h-auto drop-shadow-sm"
+          className="w-full max-w-[420px] h-auto drop-shadow-sm focus:outline-none"
           aria-label="Veytrix Studio Triad Nexus: The Convergence of Design, Technology, and Product Thinking"
         >
           <defs>
@@ -110,36 +124,36 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
             </linearGradient>
 
             <linearGradient id="glowRay" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#2563EB" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#06B6D4" stopOpacity="0.8" />
+              <stop offset="0%" stopColor="#2563EB" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="#06B6D4" stopOpacity="0.6" />
             </linearGradient>
 
             <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feGaussianBlur stdDeviation="2.5" result="blur" />
               <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
           </defs>
 
           {/* Coordinate Grid & Stationary Center Axes */}
-          <line x1="20" y1="180" x2="400" y2="180" stroke="#E2E8F0" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.6" />
-          <line x1="210" y1="20" x2="210" y2="340" stroke="#E2E8F0" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.6" />
+          <line x1="20" y1="180" x2="400" y2="180" stroke="#E2E8F0" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.5" />
+          <line x1="210" y1="20" x2="210" y2="340" stroke="#E2E8F0" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.5" />
 
-          {/* Outer Radar Rings (Controlled slow continuous orbital rotation) */}
+          {/* Outer Radar Rings (Subtle technical drafting guide appearance) */}
           <g className="nexus-enter-rings">
             {/* Inner Radar Ring (24s clockwise) */}
             <g className="animate-nexus-ring-slow" style={{ transformOrigin: '210px 180px' }}>
-              <circle cx="210" cy="180" r="110" stroke="#CBD5E1" strokeWidth="0.8" strokeDasharray="4 6" opacity="0.65" />
+              <circle cx="210" cy="180" r="110" stroke="#CBD5E1" strokeWidth="0.75" strokeDasharray="4 6" opacity="0.38" />
               {/* Subtle orbital calibration ticks */}
-              <circle cx="210" cy="70" r="1.5" fill="#06B6D4" opacity="0.5" />
-              <circle cx="210" cy="290" r="1.5" fill="#06B6D4" opacity="0.5" />
-              <circle cx="100" cy="180" r="1.5" fill="#06B6D4" opacity="0.5" />
-              <circle cx="320" cy="180" r="1.5" fill="#06B6D4" opacity="0.5" />
+              <circle cx="210" cy="70" r="1.5" fill="#06B6D4" opacity="0.25" />
+              <circle cx="210" cy="290" r="1.5" fill="#06B6D4" opacity="0.25" />
+              <circle cx="100" cy="180" r="1.5" fill="#06B6D4" opacity="0.25" />
+              <circle cx="320" cy="180" r="1.5" fill="#06B6D4" opacity="0.25" />
             </g>
 
             {/* Outer Radar Ring (32s counter-clockwise) */}
             <g className="animate-nexus-ring-reverse" style={{ transformOrigin: '210px 180px' }}>
-              <circle cx="210" cy="180" r="145" stroke="rgba(6, 182, 212, 0.28)" strokeWidth="0.8" strokeDasharray="6 10" opacity="0.55" />
-              <circle cx="210" cy="180" r="145" stroke="#E2E8F0" strokeWidth="0.4" opacity="0.4" />
+              <circle cx="210" cy="180" r="145" stroke="rgba(6, 182, 212, 0.22)" strokeWidth="0.75" strokeDasharray="5 9" opacity="0.28" />
+              <circle cx="210" cy="180" r="145" stroke="#E2E8F0" strokeWidth="0.4" opacity="0.22" />
             </g>
           </g>
 
@@ -148,17 +162,17 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
             <polygon
               points="210,50 350,290 70,290"
               fill="url(#veytrixTriadGrad)"
-              fillOpacity="0.04"
+              fillOpacity="0.03"
               stroke="url(#veytrixTriadGrad)"
-              strokeWidth="1.8"
+              strokeWidth="1.6"
               className="transition-all duration-300"
             />
 
             {/* Static subtle background path rails */}
-            <line x1="210" y1="50" x2="210" y2="210" stroke="#E2E8F0" strokeWidth="1" opacity="0.6" />
-            <line x1="210" y1="210" x2="350" y2="290" stroke="#E2E8F0" strokeWidth="1" opacity="0.6" />
-            <line x1="350" y1="290" x2="70" y2="290" stroke="#E2E8F0" strokeWidth="1" opacity="0.6" />
-            <line x1="70" y1="290" x2="210" y2="210" stroke="#E2E8F0" strokeWidth="1" opacity="0.6" />
+            <line x1="210" y1="50" x2="210" y2="210" stroke="#E2E8F0" strokeWidth="0.9" opacity="0.5" />
+            <line x1="210" y1="210" x2="350" y2="290" stroke="#E2E8F0" strokeWidth="0.9" opacity="0.5" />
+            <line x1="350" y1="290" x2="70" y2="290" stroke="#E2E8F0" strokeWidth="0.9" opacity="0.5" />
+            <line x1="70" y1="290" x2="210" y2="210" stroke="#E2E8F0" strokeWidth="0.9" opacity="0.5" />
 
             {/* Signal Flow Overlay Traces: DESIGN ↓ NEXUS ↓ TECHNOLOGY ↓ PRODUCT THINKING */}
             {/* Segment 1: DESIGN -> NEXUS */}
@@ -168,10 +182,10 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
               x2="210"
               y2="210"
               stroke={activeNode === 'design' ? '#2563EB' : 'url(#glowRay)'}
-              strokeWidth={activeNode === 'design' ? '2.4' : '1.5'}
-              strokeDasharray="6 20"
-              opacity={activeNode === 'design' ? '1' : '0.65'}
-              className="animate-signal-flow transition-all duration-200"
+              strokeWidth={activeNode === 'design' ? '1.8' : '1.3'}
+              strokeDasharray="4 24"
+              opacity={activeNode === 'design' ? '0.85' : '0.38'}
+              className="animate-signal-flow transition-all duration-[220ms] ease-out"
             />
 
             {/* Segment 2: NEXUS -> TECHNOLOGY */}
@@ -181,10 +195,10 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
               x2="350"
               y2="290"
               stroke={activeNode === 'tech' ? '#06B6D4' : 'url(#glowRay)'}
-              strokeWidth={activeNode === 'tech' ? '2.4' : '1.5'}
-              strokeDasharray="6 20"
-              opacity={activeNode === 'tech' ? '1' : '0.65'}
-              className="animate-signal-flow transition-all duration-200"
+              strokeWidth={activeNode === 'tech' ? '1.8' : '1.3'}
+              strokeDasharray="4 24"
+              opacity={activeNode === 'tech' ? '0.85' : '0.38'}
+              className="animate-signal-flow transition-all duration-[220ms] ease-out"
             />
 
             {/* Segment 3: TECHNOLOGY -> PRODUCT THINKING */}
@@ -194,10 +208,10 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
               x2="70"
               y2="290"
               stroke={activeNode === 'product' || activeNode === 'tech' ? '#06B6D4' : 'url(#glowRay)'}
-              strokeWidth={activeNode === 'product' || activeNode === 'tech' ? '2.2' : '1.5'}
-              strokeDasharray="6 20"
-              opacity={activeNode === 'product' || activeNode === 'tech' ? '1' : '0.55'}
-              className="animate-signal-flow transition-all duration-200"
+              strokeWidth={activeNode === 'product' || activeNode === 'tech' ? '1.8' : '1.3'}
+              strokeDasharray="4 24"
+              opacity={activeNode === 'product' || activeNode === 'tech' ? '0.85' : '0.35'}
+              className="animate-signal-flow transition-all duration-[220ms] ease-out"
             />
 
             {/* Segment 4: PRODUCT THINKING -> NEXUS */}
@@ -207,16 +221,16 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
               x2="210"
               y2="210"
               stroke={activeNode === 'product' ? '#14B8A6' : 'url(#glowRay)'}
-              strokeWidth={activeNode === 'product' ? '2.4' : '1.5'}
-              strokeDasharray="6 20"
-              opacity={activeNode === 'product' ? '1' : '0.65'}
-              className="animate-signal-flow transition-all duration-200"
+              strokeWidth={activeNode === 'product' ? '1.8' : '1.3'}
+              strokeDasharray="4 24"
+              opacity={activeNode === 'product' ? '0.85' : '0.38'}
+              className="animate-signal-flow transition-all duration-[220ms] ease-out"
             />
           </g>
 
-          {/* Center Nexus Hub (Active digital system breathing pulse) */}
+          {/* Center Nexus Hub (Restrained digital breathing pulse with circular focus ring) */}
           <g
-            className="cursor-pointer group/nexus nexus-enter-center"
+            className="cursor-pointer group/nexus nexus-enter-center outline-none focus:outline-none focus-visible:outline-none select-none"
             role="button"
             tabIndex={0}
             aria-label="Core Nexus: The Convergence of Design, Technology, and Product Thinking"
@@ -232,14 +246,25 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
             }}
             style={{ transformOrigin: '210px 210px' }}
           >
+            {/* Custom Circular Focus Ring for keyboard accessibility (no black rectangle) */}
+            <circle
+              cx="210"
+              cy="210"
+              r="28"
+              fill="none"
+              stroke="#06B6D4"
+              strokeWidth="1.5"
+              strokeDasharray="3 3"
+              className="opacity-0 group-focus-visible/nexus:opacity-100 transition-opacity duration-200 pointer-events-none"
+            />
             {/* Outer breathing aura halo */}
             <circle
               cx="210"
               cy="210"
-              r="26"
-              fill="rgba(6, 182, 212, 0.06)"
-              stroke="rgba(6, 182, 212, 0.25)"
-              strokeWidth="1"
+              r="25"
+              fill="rgba(6, 182, 212, 0.05)"
+              stroke="rgba(6, 182, 212, 0.18)"
+              strokeWidth="0.8"
               className="animate-nexus-halo"
             />
             {/* Breathing core hub circle */}
@@ -249,19 +274,20 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
               r="22"
               fill="#FFFFFF"
               stroke={activeNode === 'nexus' ? '#2563EB' : '#071A52'}
-              strokeWidth={activeNode === 'nexus' ? '2.5' : '1.8'}
+              strokeWidth={activeNode === 'nexus' ? '2.2' : '1.8'}
               filter="url(#softGlow)"
-              className="animate-nexus-breath transition-colors duration-200"
+              className="animate-nexus-breath transition-colors duration-[220ms] ease-out"
             />
             {/* Inner micro orbital ring */}
             <circle
               cx="210"
               cy="210"
               r="15"
-              fill="rgba(37, 99, 235, 0.05)"
+              fill="rgba(37, 99, 235, 0.04)"
               stroke="#06B6D4"
-              strokeWidth="1"
+              strokeWidth="0.9"
               strokeDasharray="2 3"
+              opacity="0.4"
               className="animate-nexus-ring-slow"
             />
             {/* Solid central kernel */}
@@ -270,7 +296,7 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
               cy="210"
               r="6.5"
               fill="#2563EB"
-              className="transition-transform duration-200 group-hover/nexus:scale-125"
+              className="transition-transform duration-[220ms] ease-out group-hover/nexus:scale-115"
             />
             {/* Static typography label */}
             <text
@@ -282,17 +308,17 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
               fontFamily="monospace"
               fontWeight="700"
               letterSpacing="0.08em"
-              className="transition-colors duration-200"
+              className="transition-colors duration-[220ms] ease-out"
             >
               NEXUS
             </text>
           </g>
 
-          {/* Node 1: DESIGN (Top) — Staggered pulse 1 */}
+          {/* Node 1: DESIGN (Top) — Custom circular focus ring, smooth 220ms hover */}
           <g
             className={cn(
-              'cursor-pointer transition-all duration-200 group/node1 nexus-enter-nodes',
-              activeNode === 'design' ? 'scale-105' : 'animate-node-pulse-1'
+              'cursor-pointer transition-all duration-[220ms] ease-out group/node1 nexus-enter-nodes outline-none focus:outline-none focus-visible:outline-none select-none',
+              activeNode === 'design' ? 'scale-[1.04]' : 'animate-node-pulse-1'
             )}
             role="button"
             tabIndex={0}
@@ -309,17 +335,28 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
             }}
             style={{
               transformOrigin: '210px 50px',
-              opacity: activeNode && activeNode !== 'design' ? 0.8 : 1,
+              opacity: activeNode && activeNode !== 'design' ? 0.82 : 1,
             }}
           >
+            {/* Custom Circular Focus Ring for keyboard navigation */}
+            <circle
+              cx="210"
+              cy="50"
+              r="26"
+              fill="none"
+              stroke="#2563EB"
+              strokeWidth="1.5"
+              strokeDasharray="3 3"
+              className="opacity-0 group-focus-visible/node1:opacity-100 transition-opacity duration-200 pointer-events-none"
+            />
             <circle
               cx="210"
               cy="50"
               r="20"
               fill={activeNode === 'design' ? '#2563EB' : '#FFFFFF'}
               stroke="#2563EB"
-              strokeWidth={activeNode === 'design' ? '2.5' : '2'}
-              className="transition-all duration-200 shadow-sm"
+              strokeWidth={activeNode === 'design' ? '2.2' : '1.8'}
+              className="transition-all duration-[220ms] ease-out shadow-sm group-focus-visible/node1:stroke-[2.5px]"
               filter={activeNode === 'design' ? 'url(#softGlow)' : undefined}
             />
             <text
@@ -342,7 +379,7 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
               fontFamily="sans-serif"
               fontWeight={activeNode === 'design' ? '800' : '700'}
               letterSpacing="0.04em"
-              className="transition-colors duration-200"
+              className="transition-colors duration-[220ms] ease-out"
             >
               DESIGN
             </text>
@@ -353,17 +390,17 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
               fill={activeNode === 'design' ? '#334155' : '#64748B'}
               fontSize="8.5"
               fontFamily="monospace"
-              className="transition-colors duration-200"
+              className="transition-colors duration-[220ms] ease-out"
             >
               CRAFT · TOKENS · AESTHETICS
             </text>
           </g>
 
-          {/* Node 2: TECHNOLOGY (Bottom Right) — Staggered pulse 2 */}
+          {/* Node 2: TECHNOLOGY (Bottom Right) — Custom circular focus ring, smooth 220ms hover */}
           <g
             className={cn(
-              'cursor-pointer transition-all duration-200 group/node2 nexus-enter-nodes',
-              activeNode === 'tech' ? 'scale-105' : 'animate-node-pulse-2'
+              'cursor-pointer transition-all duration-[220ms] ease-out group/node2 nexus-enter-nodes outline-none focus:outline-none focus-visible:outline-none select-none',
+              activeNode === 'tech' ? 'scale-[1.04]' : 'animate-node-pulse-2'
             )}
             role="button"
             tabIndex={0}
@@ -380,17 +417,28 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
             }}
             style={{
               transformOrigin: '350px 290px',
-              opacity: activeNode && activeNode !== 'tech' ? 0.8 : 1,
+              opacity: activeNode && activeNode !== 'tech' ? 0.82 : 1,
             }}
           >
+            {/* Custom Circular Focus Ring for keyboard navigation */}
+            <circle
+              cx="350"
+              cy="290"
+              r="26"
+              fill="none"
+              stroke="#06B6D4"
+              strokeWidth="1.5"
+              strokeDasharray="3 3"
+              className="opacity-0 group-focus-visible/node2:opacity-100 transition-opacity duration-200 pointer-events-none"
+            />
             <circle
               cx="350"
               cy="290"
               r="20"
               fill={activeNode === 'tech' ? '#06B6D4' : '#FFFFFF'}
               stroke="#06B6D4"
-              strokeWidth={activeNode === 'tech' ? '2.5' : '2'}
-              className="transition-all duration-200"
+              strokeWidth={activeNode === 'tech' ? '2.2' : '1.8'}
+              className="transition-all duration-[220ms] ease-out group-focus-visible/node2:stroke-[2.5px]"
               filter={activeNode === 'tech' ? 'url(#softGlow)' : undefined}
             />
             <text
@@ -413,7 +461,7 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
               fontFamily="sans-serif"
               fontWeight={activeNode === 'tech' ? '800' : '700'}
               letterSpacing="0.04em"
-              className="transition-colors duration-200"
+              className="transition-colors duration-[220ms] ease-out"
             >
               TECHNOLOGY
             </text>
@@ -424,17 +472,17 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
               fill={activeNode === 'tech' ? '#334155' : '#64748B'}
               fontSize="8.5"
               fontFamily="monospace"
-              className="transition-colors duration-200"
+              className="transition-colors duration-[220ms] ease-out"
             >
               TYPE-SAFE · RESILIENT · FAST
             </text>
           </g>
 
-          {/* Node 3: PRODUCT THINKING (Bottom Left) — Staggered pulse 3 */}
+          {/* Node 3: PRODUCT THINKING (Bottom Left) — Custom circular focus ring, smooth 220ms hover */}
           <g
             className={cn(
-              'cursor-pointer transition-all duration-200 group/node3 nexus-enter-nodes',
-              activeNode === 'product' ? 'scale-105' : 'animate-node-pulse-3'
+              'cursor-pointer transition-all duration-[220ms] ease-out group/node3 nexus-enter-nodes outline-none focus:outline-none focus-visible:outline-none select-none',
+              activeNode === 'product' ? 'scale-[1.04]' : 'animate-node-pulse-3'
             )}
             role="button"
             tabIndex={0}
@@ -451,17 +499,28 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
             }}
             style={{
               transformOrigin: '70px 290px',
-              opacity: activeNode && activeNode !== 'product' ? 0.8 : 1,
+              opacity: activeNode && activeNode !== 'product' ? 0.82 : 1,
             }}
           >
+            {/* Custom Circular Focus Ring for keyboard navigation */}
+            <circle
+              cx="70"
+              cy="290"
+              r="26"
+              fill="none"
+              stroke="#14B8A6"
+              strokeWidth="1.5"
+              strokeDasharray="3 3"
+              className="opacity-0 group-focus-visible/node3:opacity-100 transition-opacity duration-200 pointer-events-none"
+            />
             <circle
               cx="70"
               cy="290"
               r="20"
               fill={activeNode === 'product' ? '#14B8A6' : '#FFFFFF'}
               stroke="#14B8A6"
-              strokeWidth={activeNode === 'product' ? '2.5' : '2'}
-              className="transition-all duration-200"
+              strokeWidth={activeNode === 'product' ? '2.2' : '1.8'}
+              className="transition-all duration-[220ms] ease-out group-focus-visible/node3:stroke-[2.5px]"
               filter={activeNode === 'product' ? 'url(#softGlow)' : undefined}
             />
             <text
@@ -484,7 +543,7 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
               fontFamily="sans-serif"
               fontWeight={activeNode === 'product' ? '800' : '700'}
               letterSpacing="0.04em"
-              className="transition-colors duration-200"
+              className="transition-colors duration-[220ms] ease-out"
             >
               PRODUCT THINKING
             </text>
@@ -495,7 +554,7 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
               fill={activeNode === 'product' ? '#334155' : '#64748B'}
               fontSize="8.5"
               fontFamily="monospace"
-              className="transition-colors duration-200"
+              className="transition-colors duration-[220ms] ease-out"
             >
               PROBLEM SPACE · UTILITY · SCALE
             </text>
@@ -503,26 +562,35 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
         </svg>
       </div>
 
-      {/* Dynamic Interactive Node Inspection Strip */}
-      <div className="min-h-[44px] pt-3 pb-1 border-t border-border-hairline flex flex-col justify-center transition-all duration-200">
-        {currentInfo ? (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
-            <span className="font-mono font-semibold text-veytrix-blue tracking-tight">
-              {currentInfo.title}
-            </span>
-            <span className="font-mono text-[11px] text-content-tertiary">
-              {currentInfo.metric}
-            </span>
-          </div>
-        ) : (
-          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-content-tertiary">
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-veytrix-cyan animate-dot-breathe" />
-              <span>HOVER NODES TO INSPECT DISCIPLINE</span>
+      {/* Dynamic Interactive Node Inspection Strip with Fixed Geometry & Smooth Cross-Fade (~300ms) */}
+      <div className="h-[48px] min-h-[48px] pt-3 pb-1 border-t border-border-hairline flex flex-col justify-center overflow-hidden">
+        <div
+          className={cn(
+            'w-full transition-opacity duration-180 ease-out',
+            isTextFading ? 'opacity-0' : 'opacity-100'
+          )}
+        >
+          {currentInfo ? (
+            <div className="flex items-center justify-between gap-2 text-xs">
+              <span className="font-mono font-semibold text-veytrix-blue tracking-tight truncate">
+                {currentInfo.title}
+              </span>
+              <span className="font-mono text-[11px] text-content-tertiary flex-shrink-0">
+                {currentInfo.metric}
+              </span>
             </div>
-            <span className="text-content-secondary font-medium">DISCIPLINED DIGITAL ENGINEERING</span>
-          </div>
-        )}
+          ) : (
+            <div className="flex items-center justify-between gap-2 text-[11px] font-mono text-content-tertiary">
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="w-1.5 h-1.5 rounded-full bg-veytrix-cyan animate-dot-breathe flex-shrink-0" />
+                <span className="truncate">HOVER NODES TO INSPECT DISCIPLINE</span>
+              </div>
+              <span className="text-content-secondary font-medium flex-shrink-0 hidden xs:inline">
+                DISCIPLINED DIGITAL ENGINEERING
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

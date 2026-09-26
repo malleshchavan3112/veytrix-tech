@@ -176,7 +176,7 @@ export default function HomePage() {
           <SectionHeader
             eyebrow="03 // METHODOLOGY"
             title="Disciplined 4-Stage Lifecycle"
-            subtitle="How we eliminate ambiguity, enforce mathematical design rigor, and guarantee production resilience."
+            subtitle="How we reduce ambiguity, apply design rigor, and build for production resilience."
           />
 
           <ApproachLifecycleRail />

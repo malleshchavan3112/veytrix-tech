@@ -305,7 +305,7 @@ export default function DateInviteCaseStudyPage() {
                   Creator inputs recipient name, date vibe, and private notification email. System hashes an unguessable cryptographic slug (`/invite/[slug]`) and provisions Supabase record.
                 </p>
                 <div className="mt-4 p-3 rounded-md bg-canvas-subtle font-mono text-xs text-content-secondary space-y-1">
-                  <div>• Sub-300ms Generation Latency</div>
+                  <div>• Sub-300ms Latency (Engineering Target)</div>
                   <div>• Creator Email Never Stored in HTML</div>
                   <div>• 1-Tap Native Web Share Hook</div>
                 </div>

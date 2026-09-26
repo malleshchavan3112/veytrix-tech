@@ -109,6 +109,14 @@ body {
   outline-offset: 2px;
 }
 
+/* Suppress browser-default rectangular outline on SVG groups/interactive nodes */
+svg g:focus,
+svg g:focus-visible,
+svg [role="button"]:focus,
+svg [role="button"]:focus-visible {
+  outline: none !important;
+}
+
 /* ========================================================================= */
 /* HERO NEXUS & MOTION REFINEMENTS                                           */
 /* ========================================================================= */
@@ -228,26 +236,26 @@ body {
 @keyframes nexusNodeStaggerPulse {
   0% {
     transform: scale(1);
-    opacity: 0.92;
+    opacity: 0.94;
   }
   8% {
-    transform: scale(1.03);
+    transform: scale(1.02);
     opacity: 1;
   }
   18% {
     transform: scale(1);
-    opacity: 0.92;
+    opacity: 0.94;
   }
   100% {
     transform: scale(1);
-    opacity: 0.92;
+    opacity: 0.94;
   }
 }
 
 /* 5. Signal Flow along circuit paths (calm and subtle) */
 @keyframes nexusSignalFlow {
   0% {
-    stroke-dashoffset: 104;
+    stroke-dashoffset: 120;
   }
   100% {
     stroke-dashoffset: 0;
@@ -357,7 +365,7 @@ body {
 }
 
 .animate-signal-flow {
-  animation: nexusSignalFlow 8s linear infinite;
+  animation: nexusSignalFlow 11s linear infinite;
   will-change: stroke-dashoffset;
 }
 
