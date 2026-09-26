@@ -109,6 +109,268 @@ body {
   outline-offset: 2px;
 }
 
+/* ========================================================================= */
+/* HERO NEXUS & MOTION REFINEMENTS                                           */
+/* ========================================================================= */
+
+/* 1. Page Load Controlled Entrance Sequence (900–1400ms total) */
+@keyframes nexusEntranceContainer {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nexusEntranceTelemetry {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes nexusEntranceRings {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes nexusEntranceLines {
+  0% {
+    stroke-dashoffset: 360;
+    opacity: 0.15;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes nexusEntranceNodes {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes nexusEntranceCenter {
+  0% {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 2. Outer Rings Slow Orbital Rotation */
+@keyframes nexusRingSpinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes nexusRingSpinReverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+/* 3. Central Nexus Hub Subtle Breathing */
+@keyframes nexusCoreBreath {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    transform: scale(1.035);
+    opacity: 1;
+  }
+}
+
+@keyframes nexusCoreHaloPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.25;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.55;
+  }
+}
+
+/* 4. Staggered Node Micro-Pulse (Design -> Technology -> Product Thinking) */
+@keyframes nexusNodeStaggerPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.92;
+  }
+  8% {
+    transform: scale(1.03);
+    opacity: 1;
+  }
+  18% {
+    transform: scale(1);
+    opacity: 0.92;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.92;
+  }
+}
+
+/* 5. Signal Flow along circuit paths (calm and subtle) */
+@keyframes nexusSignalFlow {
+  0% {
+    stroke-dashoffset: 104;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* 6. Status Indicators Calm Pulse */
+@keyframes nexusDotBreathe {
+  0%, 100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes nexusBadgeBreathe {
+  0%, 100% {
+    opacity: 0.82;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Nexus Utility & State Classes */
+.nexus-enter-container {
+  animation: nexusEntranceContainer 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.nexus-enter-telemetry {
+  animation: nexusEntranceTelemetry 500ms ease-out 200ms forwards;
+  opacity: 0;
+}
+
+.nexus-enter-rings {
+  animation: nexusEntranceRings 650ms cubic-bezier(0.16, 1, 0.3, 1) 300ms forwards;
+  opacity: 0;
+  transform-origin: 210px 180px;
+}
+
+.nexus-enter-lines {
+  animation: nexusEntranceLines 750ms ease-out 450ms forwards;
+  opacity: 0;
+}
+
+.nexus-enter-nodes {
+  animation: nexusEntranceNodes 600ms cubic-bezier(0.16, 1, 0.3, 1) 700ms forwards;
+  opacity: 0;
+}
+
+.nexus-enter-center {
+  animation: nexusEntranceCenter 600ms cubic-bezier(0.16, 1, 0.3, 1) 950ms forwards;
+  opacity: 0;
+  transform-origin: 210px 210px;
+}
+
+.animate-nexus-ring-slow {
+  animation: nexusRingSpinSlow 24s linear infinite;
+  transform-origin: 210px 180px;
+  will-change: transform;
+}
+
+.animate-nexus-ring-reverse {
+  animation: nexusRingSpinReverse 32s linear infinite;
+  transform-origin: 210px 180px;
+  will-change: transform;
+}
+
+.animate-nexus-breath {
+  animation: nexusCoreBreath 5s ease-in-out infinite;
+  transform-origin: 210px 210px;
+  will-change: transform, opacity;
+}
+
+.animate-nexus-halo {
+  animation: nexusCoreHaloPulse 5s ease-in-out infinite;
+  transform-origin: 210px 210px;
+  will-change: transform, opacity;
+}
+
+.animate-node-pulse-1 {
+  animation: nexusNodeStaggerPulse 6s ease-in-out infinite;
+  animation-delay: 0s;
+  transform-origin: 210px 50px;
+  will-change: transform;
+}
+
+.animate-node-pulse-2 {
+  animation: nexusNodeStaggerPulse 6s ease-in-out infinite;
+  animation-delay: 0.7s;
+  transform-origin: 350px 290px;
+  will-change: transform;
+}
+
+.animate-node-pulse-3 {
+  animation: nexusNodeStaggerPulse 6s ease-in-out infinite;
+  animation-delay: 1.4s;
+  transform-origin: 70px 290px;
+  will-change: transform;
+}
+
+.animate-node-pulse-1:hover,
+.animate-node-pulse-2:hover,
+.animate-node-pulse-3:hover {
+  animation-play-state: paused;
+}
+
+.animate-signal-flow {
+  animation: nexusSignalFlow 8s linear infinite;
+  will-change: stroke-dashoffset;
+}
+
+.animate-dot-breathe {
+  animation: nexusDotBreathe 3.6s ease-in-out infinite;
+  will-change: opacity;
+}
+
+.animate-badge-breathe {
+  animation: nexusBadgeBreathe 4.2s ease-in-out infinite;
+  will-change: opacity;
+}
+
 /* Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -118,5 +380,27 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .nexus-enter-container,
+  .nexus-enter-telemetry,
+  .nexus-enter-rings,
+  .nexus-enter-lines,
+  .nexus-enter-nodes,
+  .nexus-enter-center,
+  .animate-nexus-ring-slow,
+  .animate-nexus-ring-reverse,
+  .animate-nexus-breath,
+  .animate-nexus-halo,
+  .animate-node-pulse-1,
+  .animate-node-pulse-2,
+  .animate-node-pulse-3,
+  .animate-signal-flow,
+  .animate-dot-breathe,
+  .animate-badge-breathe {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+    stroke-dashoffset: 0 !important;
   }
 }

@@ -50,12 +50,12 @@ export function GlobalHeader() {
       >
         <Container size="ultra" className="h-full flex items-center justify-between">
           {/* Studio Brand Mark */}
-          <div className="flex items-center gap-6">
-            <BrandMark size="md" priority />
+          <div className="flex items-center gap-5 sm:gap-6">
+            <BrandMark size="md" priority className="flex-shrink-0" />
 
             {/* Operational Telemetry Badge (Desktop only) */}
             <div className="hidden xl:inline-flex items-center gap-2 px-2.5 py-1 rounded bg-canvas-subtle/80 border border-border-hairline font-mono text-[11px] text-content-tertiary">
-              <span className="w-1.5 h-1.5 rounded-full bg-veytrix-cyan animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-veytrix-cyan animate-dot-breathe" />
               <span className="text-content-secondary font-medium tracking-tight">VTX-CORE // 01</span>
               <span className="text-content-muted">·</span>
               <span className="text-veytrix-teal text-[10px]">ACTIVE</span>
