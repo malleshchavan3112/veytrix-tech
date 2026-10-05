@@ -9,22 +9,20 @@ import {
   ShieldCheck,
   Clock,
   Sparkles,
-  CheckCircle2,
   AlertCircle,
   Plus,
   RefreshCw,
   Navigation,
   ArrowLeft,
-  SlidersHorizontal,
-  Flame,
   User,
-  Coffee,
-  Check,
   X,
   Building2,
   TrendingUp,
   Eye,
   CheckCheck,
+  Footprints,
+  ChevronRight,
+  SlidersHorizontal,
 } from 'lucide-react';
 import {
   BusinessOutlet,
@@ -51,7 +49,7 @@ export function InteractiveProductDemo() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedOutletId, setSelectedOutletId] = useState<string | null>(null);
-  const [directionsNotice, setDirectionsNotice] = useState<string | null>(null);
+  const [showDirectionsPanel, setShowDirectionsPanel] = useState<boolean>(false);
 
   // Owner State
   const [isAddingItem, setIsAddingItem] = useState(false);
@@ -74,9 +72,9 @@ export function InteractiveProductDemo() {
     setAdminStats(INITIAL_ADMIN_STATS);
     setReports(INITIAL_MODERATION_REPORTS);
     setSelectedOutletId(null);
+    setShowDirectionsPanel(false);
     setSearchQuery('');
     setSelectedCategory('All');
-    setDirectionsNotice(null);
     setOwnerNotification(null);
     setAdminNotification(null);
     setIsAddingItem(false);
@@ -100,15 +98,6 @@ export function InteractiveProductDemo() {
         return o;
       })
     );
-  };
-
-  const handleSimulateDirections = (outlet: BusinessOutlet) => {
-    setDirectionsNotice(
-      `Simulated walking route: ${outlet.walkTime} (${outlet.distanceText}) to ${outlet.name}. Real-time Google Maps trigger activated in production.`
-    );
-    setTimeout(() => {
-      setDirectionsNotice(null);
-    }, 4500);
   };
 
   // Filtered outlets for employee
@@ -138,7 +127,6 @@ export function InteractiveProductDemo() {
   const handleToggleOwnerOpenStatus = () => {
     const nextState = !ownerData.isOpen;
     setOwnerData((prev) => ({ ...prev, isOpen: nextState }));
-    // Sync to outlets list
     setOutlets((prev) =>
       prev.map((o) => (o.id === 'out-01' ? { ...o, isOpen: nextState } : o))
     );
@@ -210,7 +198,7 @@ export function InteractiveProductDemo() {
 
     setNewItemName('');
     setIsAddingItem(false);
-    setOwnerNotification(`Published Special: "${newItem.name}" is now live for all diners.`);
+    setOwnerNotification(`Published Special: "${newItem.name}" is now live in diner feed.`);
     setTimeout(() => setOwnerNotification(null), 3500);
   };
 
@@ -270,7 +258,7 @@ export function InteractiveProductDemo() {
         : prev.pendingVerificationCount - 1,
     }));
 
-    setAdminNotification('Outlet verification state updated successfully.');
+    setAdminNotification('Outlet verification state updated.');
     setTimeout(() => setAdminNotification(null), 3000);
   };
 
@@ -292,39 +280,57 @@ export function InteractiveProductDemo() {
       aria-label="Aahar Nearby Interactive Product Demo"
     >
       {/* ===================================================================== */}
-      {/* 1. TOP DEMO DISCLOSURE & ROLE CONTROLS BAR                            */}
+      {/* 1. TOP DEMO SHELL CHROME & PRODUCT NAVIGATION                         */}
       {/* ===================================================================== */}
-      <div className="bg-slate-950 text-white px-4 sm:px-6 py-3.5 border-b border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Left: Product Eyebrow & Status Disclosure */}
-        <div className="flex items-center gap-3">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
-          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-            <span className="font-mono text-xs font-bold tracking-wider text-emerald-400 uppercase">
-              INTERACTIVE PRODUCT DEMO
-            </span>
-            <span className="hidden sm:inline text-slate-500">·</span>
-            <span className="font-mono text-[11px] text-slate-400">
-              Simulated product environment · Demo data only
-            </span>
+      <div className="bg-slate-950 text-white px-4 sm:px-6 py-4 border-b border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* Brand & Disclosure Status */}
+        <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
+          <div className="flex items-center gap-2.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-bold tracking-wider text-white">
+                  AAHAR NEARBY
+                </span>
+                <span className="font-mono text-[10px] text-emerald-400 bg-emerald-950/80 px-1.5 py-0.2 rounded border border-emerald-800/60 uppercase">
+                  DEMO MODE ●
+                </span>
+              </div>
+              <span className="font-mono text-[10px] text-slate-400 mt-0.5">
+                SIMULATED PRODUCT ENVIRONMENT · DEMO DATA ONLY
+              </span>
+            </div>
           </div>
+
+          {/* Reset Demo State Button */}
+          <button
+            onClick={handleResetDemo}
+            title="Reset interactive demo to default state"
+            className="md:hidden p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-colors"
+            aria-label="Reset demo state"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
         </div>
 
-        {/* Right: Role Switcher & Reset Button */}
-        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-          {/* Role Switcher with 200ms smooth transition */}
+        {/* Right: Role Navigation Switcher & Desktop Reset */}
+        <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
           <div
             role="tablist"
-            aria-label="Demo User Roles"
-            className="inline-flex p-1 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono"
+            aria-label="Aahar Ecosystem Roles"
+            className="w-full sm:w-auto inline-flex p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono select-none"
           >
             <button
               role="tab"
               aria-selected={activeRole === 'employee'}
-              onClick={() => setActiveRole('employee')}
-              className={`px-3 py-1.5 rounded-md font-semibold transition-all duration-200 min-h-[36px] flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+              onClick={() => {
+                setActiveRole('employee');
+                setShowDirectionsPanel(false);
+              }}
+              className={`flex-1 sm:flex-initial px-3.5 py-2 rounded-lg font-semibold transition-all duration-200 min-h-[38px] flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                 activeRole === 'employee'
-                  ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-emerald-500 text-slate-950 shadow-md font-bold'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <User className="w-3.5 h-3.5" />
@@ -334,11 +340,14 @@ export function InteractiveProductDemo() {
             <button
               role="tab"
               aria-selected={activeRole === 'owner'}
-              onClick={() => setActiveRole('owner')}
-              className={`px-3 py-1.5 rounded-md font-semibold transition-all duration-200 min-h-[36px] flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+              onClick={() => {
+                setActiveRole('owner');
+                setShowDirectionsPanel(false);
+              }}
+              className={`flex-1 sm:flex-initial px-3.5 py-2 rounded-lg font-semibold transition-all duration-200 min-h-[38px] flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                 activeRole === 'owner'
-                  ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-emerald-500 text-slate-950 shadow-md font-bold'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <Store className="w-3.5 h-3.5" />
@@ -348,11 +357,14 @@ export function InteractiveProductDemo() {
             <button
               role="tab"
               aria-selected={activeRole === 'admin'}
-              onClick={() => setActiveRole('admin')}
-              className={`px-3 py-1.5 rounded-md font-semibold transition-all duration-200 min-h-[36px] flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+              onClick={() => {
+                setActiveRole('admin');
+                setShowDirectionsPanel(false);
+              }}
+              className={`flex-1 sm:flex-initial px-3.5 py-2 rounded-lg font-semibold transition-all duration-200 min-h-[38px] flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                 activeRole === 'admin'
-                  ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-emerald-500 text-slate-950 shadow-md font-bold'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <Building2 className="w-3.5 h-3.5" />
@@ -360,11 +372,10 @@ export function InteractiveProductDemo() {
             </button>
           </div>
 
-          {/* Reset Demo State Button */}
           <button
             onClick={handleResetDemo}
             title="Reset interactive demo to default state"
-            className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+            className="hidden md:inline-flex p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
             aria-label="Reset demo state"
           >
             <RefreshCw className="w-4 h-4" />
@@ -373,11 +384,11 @@ export function InteractiveProductDemo() {
       </div>
 
       {/* ===================================================================== */}
-      {/* 2. DEMO BODY / SIMULATED APPLICATION CHROME                           */}
+      {/* 2. DEMO BODY / PRODUCT CANVAS                                         */}
       {/* ===================================================================== */}
-      <div className="bg-canvas-subtle/20 p-3 sm:p-6 md:p-8 min-h-[640px]">
-        {/* Notification Toast Banner */}
-        {(directionsNotice || ownerNotification || adminNotification) && (
+      <div className="bg-canvas-subtle/30 p-3 sm:p-6 md:p-8 min-h-[640px]">
+        {/* Real-Time Operational Banner Notifications */}
+        {(ownerNotification || adminNotification) && (
           <div
             role="status"
             aria-live="polite"
@@ -385,15 +396,14 @@ export function InteractiveProductDemo() {
           >
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-              <span>{directionsNotice || ownerNotification || adminNotification}</span>
+              <span>{ownerNotification || adminNotification}</span>
             </div>
             <button
               onClick={() => {
-                setDirectionsNotice(null);
                 setOwnerNotification(null);
                 setAdminNotification(null);
               }}
-              className="text-slate-400 hover:text-white"
+              className="text-slate-400 hover:text-white p-1"
               aria-label="Dismiss notice"
             >
               <X className="w-3.5 h-3.5" />
@@ -406,35 +416,34 @@ export function InteractiveProductDemo() {
         {/* ------------------------------------------------------------------- */}
         {activeRole === 'employee' && (
           <div className="w-full max-w-4xl mx-auto space-y-6 transition-all duration-200">
-            {/* Context Sub-bar */}
+            {/* GPS Telemetry Bar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border-hairline gap-3 text-xs">
               <div className="flex items-center gap-2 text-content-secondary font-mono">
-                <MapPin className="w-4 h-4 text-emerald-600" />
-                <span>Simulated GPS Anchor:</span>
+                <MapPin className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span className="text-content-tertiary">Current Office Complex:</span>
                 <span className="font-semibold text-content-primary">
-                  Cyber City Complex (Latitude: 17.4435, Longitude: 78.3772)
+                  Cyber City Complex (Sub-500m Bounding Ring Active)
                 </span>
               </div>
-              <div className="font-mono text-content-tertiary">
-                Showing outlets sorted by Haversine Distance
+              <div className="font-mono text-content-tertiary text-[11px]">
+                Deterministic Haversine Sort
               </div>
             </div>
 
-            {/* Screen 1A: Outlets Discovery List */}
+            {/* Screen 1A: Outlets Discovery Stream */}
             {!selectedOutletId ? (
               <div className="space-y-6">
-                {/* Search & Category Filter Matrix */}
+                {/* Search & Category Filter Controls */}
                 <div className="space-y-3">
-                  {/* Search Bar */}
                   <div className="relative w-full">
                     <Search className="w-4 h-4 text-content-tertiary absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       type="text"
-                      placeholder="Search rotational thalis, specials, or nearby mess..."
+                      placeholder="Search daily rotational thalis, dishes, or nearby mess..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full h-11 pl-10 pr-4 rounded-xl border border-border-default bg-white text-sm text-content-primary placeholder:text-content-tertiary focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors"
-                      aria-label="Search food or outlets"
+                      aria-label="Search rotational menus or outlets"
                     />
                     {searchQuery && (
                       <button
@@ -447,7 +456,7 @@ export function InteractiveProductDemo() {
                     )}
                   </div>
 
-                  {/* Horizontal Category Filters */}
+                  {/* Horizontal Scroll Category Pills */}
                   <div
                     className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none"
                     role="tablist"
@@ -476,7 +485,7 @@ export function InteractiveProductDemo() {
 
                 {/* Outlets Grid */}
                 {filteredOutlets.length === 0 ? (
-                  <div className="p-12 text-center rounded-xl bg-white border border-border-hairline">
+                  <div className="p-12 text-center rounded-2xl bg-white border border-border-hairline">
                     <p className="text-sm text-content-secondary">
                       No nearby outlets matched &ldquo;{searchQuery}&rdquo;. Try another food keyword or clear filters.
                     </p>
@@ -485,7 +494,7 @@ export function InteractiveProductDemo() {
                         setSearchQuery('');
                         setSelectedCategory('All');
                       }}
-                      className="mt-4 px-4 py-2 rounded-lg bg-slate-900 text-white text-xs font-mono"
+                      className="mt-4 px-4 py-2 rounded-lg bg-slate-900 text-white text-xs font-mono font-semibold"
                     >
                       Reset Discovery Filters
                     </button>
@@ -570,7 +579,7 @@ export function InteractiveProductDemo() {
 
                           {/* Card Footer: CTA */}
                           <div className="mt-4 pt-3 border-t border-border-hairline flex items-center justify-between text-xs font-mono text-emerald-700 font-semibold">
-                            <span>{outlet.menu.length} Items Live Today</span>
+                            <span>{outlet.menu.length} Dishes Live Today</span>
                             <span className="group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
                               View Menu →
                             </span>
@@ -582,14 +591,17 @@ export function InteractiveProductDemo() {
                 )}
               </div>
             ) : (
-              /* Screen 1B: Outlet Detail View with Today's Full Menu */
+              /* Screen 1B: Outlet Detail View with Full Rotational Menu */
               activeOutlet && (
                 <div className="space-y-6 animate-fadeIn">
                   {/* Back to Outlets Header */}
-                  <div className="flex items-center justify-between pb-4 border-b border-border-hairline">
+                  <div className="flex items-center justify-between pb-4 border-b border-border-hairline gap-3">
                     <button
-                      onClick={() => setSelectedOutletId(null)}
-                      className="inline-flex items-center gap-2 text-xs font-mono text-content-secondary hover:text-content-primary py-1 px-2.5 rounded-lg border border-border-default hover:bg-white transition-colors"
+                      onClick={() => {
+                        setSelectedOutletId(null);
+                        setShowDirectionsPanel(false);
+                      }}
+                      className="inline-flex items-center gap-2 text-xs font-mono text-content-secondary hover:text-content-primary py-1.5 px-3 rounded-lg border border-border-default hover:bg-white transition-colors"
                     >
                       <ArrowLeft className="w-3.5 h-3.5" />
                       <span>Back to Nearby Outlets</span>
@@ -611,16 +623,68 @@ export function InteractiveProductDemo() {
                       </button>
 
                       <button
-                        onClick={() => handleSimulateDirections(activeOutlet)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-mono font-semibold transition-colors"
+                        onClick={() => setShowDirectionsPanel(!showDirectionsPanel)}
+                        className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold transition-colors ${
+                          showDirectionsPanel
+                            ? 'bg-emerald-700 text-white'
+                            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                        }`}
                       >
                         <Navigation className="w-3.5 h-3.5" />
-                        <span>Get Walking Directions</span>
+                        <span>{showDirectionsPanel ? 'Hide Directions' : 'Walking Directions'}</span>
                       </button>
                     </div>
                   </div>
 
-                  {/* Outlet Hero Banner */}
+                  {/* Integrated Walking Route Panel */}
+                  {showDirectionsPanel && (
+                    <div className="p-5 rounded-2xl bg-slate-900 text-white border border-emerald-500/40 shadow-xl space-y-4 animate-fadeIn">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Footprints className="w-4 h-4 text-emerald-400" />
+                          <h4 className="font-display text-sm font-bold text-white">
+                            Turn-by-Turn Walking Route to {activeOutlet.name}
+                          </h4>
+                        </div>
+                        <span className="font-mono text-xs font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
+                          {activeOutlet.distanceText} · {activeOutlet.walkTime}
+                        </span>
+                      </div>
+
+                      <div className="space-y-2 text-xs font-mono text-slate-300 divide-y divide-slate-800/80">
+                        <div className="pt-2 flex items-start gap-2">
+                          <span className="w-5 h-5 rounded-full bg-slate-800 text-emerald-400 flex items-center justify-center flex-shrink-0 text-[11px]">
+                            1
+                          </span>
+                          <span>Exit Cyber City Tower 3 via the West Pedestrian Plaza (80m)</span>
+                        </div>
+                        <div className="pt-2 flex items-start gap-2">
+                          <span className="w-5 h-5 rounded-full bg-slate-800 text-emerald-400 flex items-center justify-center flex-shrink-0 text-[11px]">
+                            2
+                          </span>
+                          <span>Cross Avenue 4 toward Galaxy Tech Plaza walkway (120m)</span>
+                        </div>
+                        <div className="pt-2 flex items-start gap-2">
+                          <span className="w-5 h-5 rounded-full bg-slate-800 text-emerald-400 flex items-center justify-center flex-shrink-0 text-[11px]">
+                            3
+                          </span>
+                          <span>Enter Ground Floor Arcade; {activeOutlet.address} (80m)</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                        <span>Production hook: Dispatches native Google / Apple Maps intent</span>
+                        <button
+                          onClick={() => setShowDirectionsPanel(false)}
+                          className="text-emerald-400 hover:underline"
+                        >
+                          Close Route Panel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Outlet Profile Banner */}
                   <div className="p-6 rounded-2xl bg-white border border-border-hairline shadow-sm">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                       <span className="font-mono text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded">
@@ -667,7 +731,6 @@ export function InteractiveProductDemo() {
                           className="p-4 rounded-xl bg-white border border-border-hairline flex items-start justify-between gap-4 shadow-sm"
                         >
                           <div className="flex items-start gap-3">
-                            {/* Veg / Non-Veg Indicator Icon */}
                             <span
                               className={`w-4 h-4 mt-0.5 rounded-sm border flex items-center justify-center flex-shrink-0 ${
                                 dish.dietary === 'veg'
@@ -742,12 +805,12 @@ export function InteractiveProductDemo() {
         {/* ------------------------------------------------------------------- */}
         {activeRole === 'owner' && (
           <div className="w-full max-w-4xl mx-auto space-y-6 transition-all duration-200">
-            {/* Header with Business Status Toggle */}
+            {/* Header: Today's Operations */}
             <div className="p-6 rounded-2xl bg-white border border-border-hairline shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-mono text-[11px] uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-semibold">
-                    OUTLET CONSOLE // {ownerData.outletId}
+                    TODAY&apos;S OPERATIONS // {ownerData.outletId}
                   </span>
                   <span className="font-mono text-xs text-content-tertiary">
                     Proprietor: {ownerData.proprietorName}
@@ -786,58 +849,69 @@ export function InteractiveProductDemo() {
               </div>
             </div>
 
-            {/* Performance Summary Matrix */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="p-4 rounded-xl bg-white border border-border-hairline shadow-sm">
-                <div className="flex items-center justify-between text-content-tertiary mb-1">
-                  <span className="font-mono text-[11px] uppercase">Diners Reached</span>
-                  <Eye className="w-3.5 h-3.5" />
-                </div>
-                <span className="font-mono text-2xl font-bold text-content-primary">
-                  {ownerData.metrics.dinersReachedToday}
+            {/* Performance Summary Matrix — Clearly Labeled Simulated Metrics */}
+            <div>
+              <div className="flex items-center justify-between mb-2 px-1">
+                <span className="font-mono text-xs text-content-tertiary uppercase tracking-wider">
+                  TODAY&apos;S PERFORMANCE SUMMARY
                 </span>
-                <span className="block mt-1 text-[11px] text-emerald-600 font-mono">
-                  +18% vs yesterday
+                <span className="font-mono text-[10px] text-content-tertiary bg-canvas-subtle px-2 py-0.5 rounded border border-border-hairline">
+                  SIMULATED METRICS · DEMO DATA
                 </span>
               </div>
 
-              <div className="p-4 rounded-xl bg-white border border-border-hairline shadow-sm">
-                <div className="flex items-center justify-between text-content-tertiary mb-1">
-                  <span className="font-mono text-[11px] uppercase">Menu Views</span>
-                  <TrendingUp className="w-3.5 h-3.5" />
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="p-4 rounded-xl bg-white border border-border-hairline shadow-sm">
+                  <div className="flex items-center justify-between text-content-tertiary mb-1">
+                    <span className="font-mono text-[11px] uppercase">Diners Reached</span>
+                    <Eye className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="font-mono text-2xl font-bold text-content-primary">
+                    {ownerData.metrics.dinersReachedToday}
+                  </span>
+                  <span className="block mt-1 text-[11px] text-emerald-600 font-mono">
+                    +18% vs yesterday (Simulated)
+                  </span>
                 </div>
-                <span className="font-mono text-2xl font-bold text-content-primary">
-                  {ownerData.metrics.menuViewsToday}
-                </span>
-                <span className="block mt-1 text-[11px] text-content-tertiary font-mono">
-                  Today&apos;s lunch peak
-                </span>
-              </div>
 
-              <div className="p-4 rounded-xl bg-white border border-border-hairline shadow-sm">
-                <div className="flex items-center justify-between text-content-tertiary mb-1">
-                  <span className="font-mono text-[11px] uppercase">Active Fans</span>
-                  <Heart className="w-3.5 h-3.5" />
+                <div className="p-4 rounded-xl bg-white border border-border-hairline shadow-sm">
+                  <div className="flex items-center justify-between text-content-tertiary mb-1">
+                    <span className="font-mono text-[11px] uppercase">Menu Views</span>
+                    <TrendingUp className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="font-mono text-2xl font-bold text-content-primary">
+                    {ownerData.metrics.menuViewsToday}
+                  </span>
+                  <span className="block mt-1 text-[11px] text-content-tertiary font-mono">
+                    Peak lunch rush
+                  </span>
                 </div>
-                <span className="font-mono text-2xl font-bold text-content-primary">
-                  {ownerData.metrics.activeFavorites}
-                </span>
-                <span className="block mt-1 text-[11px] text-content-tertiary font-mono">
-                  Saved this mess
-                </span>
-              </div>
 
-              <div className="p-4 rounded-xl bg-white border border-border-hairline shadow-sm">
-                <div className="flex items-center justify-between text-content-tertiary mb-1">
-                  <span className="font-mono text-[11px] uppercase">Publish Speed</span>
-                  <Clock className="w-3.5 h-3.5" />
+                <div className="p-4 rounded-xl bg-white border border-border-hairline shadow-sm">
+                  <div className="flex items-center justify-between text-content-tertiary mb-1">
+                    <span className="font-mono text-[11px] uppercase">Active Fans</span>
+                    <Heart className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="font-mono text-2xl font-bold text-content-primary">
+                    {ownerData.metrics.activeFavorites}
+                  </span>
+                  <span className="block mt-1 text-[11px] text-content-tertiary font-mono">
+                    Saved this mess
+                  </span>
                 </div>
-                <span className="font-mono text-2xl font-bold text-emerald-700">
-                  {ownerData.metrics.avgPublishSpeedSeconds}s
-                </span>
-                <span className="block mt-1 text-[11px] text-content-tertiary font-mono">
-                  Target &lt; 30s
-                </span>
+
+                <div className="p-4 rounded-xl bg-white border border-border-hairline shadow-sm">
+                  <div className="flex items-center justify-between text-content-tertiary mb-1">
+                    <span className="font-mono text-[11px] uppercase">Publish Speed</span>
+                    <Clock className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="font-mono text-2xl font-bold text-emerald-700">
+                    {ownerData.metrics.avgPublishSpeedSeconds}s
+                  </span>
+                  <span className="block mt-1 text-[11px] text-content-tertiary font-mono">
+                    Target &lt; 30s
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -852,7 +926,7 @@ export function InteractiveProductDemo() {
                     15-Second AI Menu Formatter Simulator
                   </h3>
                   <p className="text-xs text-slate-300">
-                    Simulate chalkboard text parser: parse raw notes into structured dishes automatically.
+                    Simulate chalkboard text parser: parses raw notes into structured dishes automatically.
                   </p>
                 </div>
               </div>
@@ -1080,14 +1154,14 @@ export function InteractiveProductDemo() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-[11px] uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-semibold">
-                      SUPERADMIN // REGIONAL HUB 01
+                      PLATFORM OVERVIEW &amp; MODERATION
                     </span>
-                    <span className="font-mono text-xs text-content-tertiary">
-                      Hyperlocal Audit Authority
+                    <span className="font-mono text-[10px] text-content-tertiary bg-canvas-subtle px-2 py-0.5 rounded border border-border-hairline">
+                      DEMO DATA ONLY
                     </span>
                   </div>
                   <h2 className="mt-2 font-display text-2xl font-bold text-content-primary">
-                    Platform Moderation &amp; Verification Console
+                    Regional Kitchen Verification &amp; Compliance
                   </h2>
                 </div>
 
@@ -1121,7 +1195,7 @@ export function InteractiveProductDemo() {
               </div>
             </div>
 
-            {/* Platform Overview Telemetry Cards */}
+            {/* Platform Overview Telemetry Cards — Labeled Demo Metrics */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="p-4 rounded-xl bg-white border border-border-hairline shadow-sm">
                 <span className="font-mono text-[11px] text-content-tertiary block mb-1">
@@ -1131,7 +1205,7 @@ export function InteractiveProductDemo() {
                   {adminStats.registeredOutlets}
                 </span>
                 <span className="text-[11px] text-content-tertiary font-mono block mt-1">
-                  Total in tech corridor
+                  Corridor total (Demo)
                 </span>
               </div>
 
@@ -1143,7 +1217,7 @@ export function InteractiveProductDemo() {
                   {adminStats.verifiedOutlets}
                 </span>
                 <span className="text-[11px] text-emerald-600 font-mono block mt-1">
-                  Compliance certified
+                  Audit certified (Demo)
                 </span>
               </div>
 
@@ -1167,7 +1241,7 @@ export function InteractiveProductDemo() {
                   {adminStats.uptimePercentage}
                 </span>
                 <span className="text-[11px] text-content-tertiary font-mono block mt-1">
-                  Haversine geo service
+                  Haversine geo stream
                 </span>
               </div>
             </div>
@@ -1309,7 +1383,7 @@ export function InteractiveProductDemo() {
       <div className="px-6 py-3 bg-white border-t border-border-hairline flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-content-tertiary">
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-          <span>Local React State Only · Zero production database calls</span>
+          <span>Local React State Only · Zero production database or API calls</span>
         </div>
         <div>
           <span>Role: {activeRole.toUpperCase()} · 180ms State Switcher</span>
