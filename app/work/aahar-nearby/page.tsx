@@ -248,7 +248,7 @@ export default function AaharNearbyCaseStudyPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. PRIMARY STORY: FROM MENU UPDATE TO LUNCH DISCOVERY                     */}
+      {/* 3. PRIMARY STORY: FROM MENU UPDATE TO LUNCH                               */}
       {/* ========================================================================= */}
       <section
         id="product-journey"
@@ -257,13 +257,13 @@ export default function AaharNearbyCaseStudyPage() {
         <Container size="ultra">
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
             <span className="font-mono text-xs uppercase tracking-wider text-[#0D5C35] bg-[#E8F5EE] px-2.5 py-1 rounded border border-emerald-200">
-              AAHAR NEARBY · GUIDED PRODUCT JOURNEY
+              AAHAR NEARBY · PRODUCT FLOW
             </span>
             <h2 className="mt-4 font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-content-primary">
-              From Menu Update to Lunch Discovery
+              From Menu Update to Lunch
             </h2>
             <p className="mt-3 text-base sm:text-lg text-content-secondary leading-relaxed">
-              See how one menu update travels through the Aahar Nearby ecosystem. Follow the complete cycle from the mess owner adding today&apos;s special to an office worker discovering and walking to lunch.
+              Follow one menu update as it travels from the mess owner&apos;s kitchen to an employee&apos;s lunch discovery.
             </p>
           </div>
 
@@ -282,13 +282,13 @@ export default function AaharNearbyCaseStudyPage() {
         <Container size="ultra">
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
             <span className="font-mono text-xs uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
-              GOVERNANCE ARCHITECTURE · MODERATION LAYER
+              PLATFORM GOVERNANCE
             </span>
             <h2 className="mt-4 font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-content-primary">
               Platform Governance
             </h2>
             <p className="mt-3 text-base sm:text-lg text-content-secondary leading-relaxed">
-              Behind every discovery experience is a verification and moderation layer. Inspect how platform administrators audit FSSAI licensing and sync verified partner credentials to consumer discovery feeds.
+              How verified partners enter the discovery ecosystem.
             </p>
           </div>
 
