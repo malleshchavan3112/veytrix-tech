@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React, { useState, useMemo } from 'react';
 import {
   MapPin,
   Heart,
@@ -15,839 +14,1572 @@ import {
   ChevronRight,
   ChevronLeft,
   Search,
-  Filter,
   CheckCircle2,
   AlertTriangle,
   Flame,
-  Smartphone,
-  Info,
-  RefreshCw,
+  Plus,
+  Trash2,
+  RotateCcw,
+  SlidersHorizontal,
+  PhoneCall,
+  Share2,
+  FileCheck,
+  XCircle,
+  HelpCircle,
+  TrendingUp,
+  X,
 } from 'lucide-react';
 
-export type DemoRole = 'employee' | 'owner' | 'admin';
+// =============================================================================
+// DATA CONTRACTS (Aligned with Aahar Nearby Flutter Models)
+// =============================================================================
 
-interface MenuItemState {
+export interface MockMenuItem {
   id: string;
   name: string;
-  category: string;
+  description: string;
   price: number;
+  category: 'Breakfast' | 'Lunch' | 'Snacks' | 'Dinner' | 'Daily Special';
   isVeg: boolean;
   isAvailable: boolean;
 }
 
-interface VerificationItem {
+export interface MockOutlet {
   id: string;
   name: string;
+  category: string;
+  address: string;
   hub: string;
-  distance: string;
-  status: 'pending' | 'verified' | 'flagged';
+  distanceMeters: number;
+  rating: number;
+  totalRatings: number;
+  isOpen: boolean; // Mutated by Owner
+  verificationStatus: 'approved' | 'pending' | 'flagged'; // Mutated by Admin
   fssaiNumber: string;
-  submittedAt: string;
+  phone: string;
+  isFavorite: boolean; // Mutated by Employee
+  menu: MockMenuItem[];
 }
 
-const INITIAL_MENU_ITEMS: MenuItemState[] = [
-  { id: 'm1', name: 'Executive South Indian Thali', category: 'Lunch', price: 80, isVeg: true, isAvailable: true },
-  { id: 'm2', name: 'Special Paneer Butter Masala Meal', category: 'Lunch', price: 110, isVeg: true, isAvailable: true },
-  { id: 'm3', name: 'Curd Rice with Tadka & Pickle', category: 'Light Lunch', price: 50, isVeg: true, isAvailable: true },
-  { id: 'm4', name: 'Steamed Idli with Sambar (3 pcs)', category: 'Breakfast', price: 40, isVeg: true, isAvailable: false },
-];
+export interface MockReport {
+  id: string;
+  outletId: string;
+  outletName: string;
+  issue: string;
+  status: 'open' | 'resolved' | 'dismissed';
+  reportedAt: string;
+}
 
-const INITIAL_VERIFICATIONS: VerificationItem[] = [
+// Initial Seed Data directly matching Aahar Nearby Phase 2 E2E Mock State
+const INITIAL_OUTLETS: MockOutlet[] = [
   {
-    id: 'v1',
-    name: 'Sri Udupi Grand Pure Veg',
-    hub: 'Cyber Park, Sector 33',
-    distance: '280 m',
-    status: 'verified',
-    fssaiNumber: '10822001000492',
-    submittedAt: 'Today, 09:30 AM',
-  },
-  {
-    id: 'v2',
-    name: 'Annapurna Executive Mess',
-    hub: 'Cyber Park, Sector 33',
-    distance: '420 m',
-    status: 'pending',
-    fssaiNumber: '10824003001844',
-    submittedAt: 'Today, 11:15 AM',
-  },
-  {
-    id: 'v3',
-    name: 'Balaji Tiffin & Meals',
-    hub: 'DLF Phase 2 Hub',
-    distance: '850 m',
-    status: 'flagged',
-    fssaiNumber: '10821004000312',
-    submittedAt: 'Yesterday, 04:20 PM',
-  },
-];
-
-export function InteractiveProductDemo() {
-  const [activeRole, setActiveRole] = useState<DemoRole>('employee');
-  const [employeeSubView, setEmployeeSubView] = useState<'feed' | 'detail'>('feed');
-  const [employeeSearch, setEmployeeSearch] = useState('');
-  const [employeeFilter, setEmployeeFilter] = useState('All');
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [showDirections, setShowDirections] = useState(false);
-
-  // Owner state
-  const [isKitchenOpen, setIsKitchenOpen] = useState(true);
-  const [menuItems, setMenuItems] = useState<MenuItemState[]>(INITIAL_MENU_ITEMS);
-  const [aiScanning, setAiScanning] = useState(false);
-  const [ownerToast, setOwnerToast] = useState<string | null>(null);
-
-  // Admin state
-  const [verifications, setVerifications] = useState<VerificationItem[]>(INITIAL_VERIFICATIONS);
-  const [adminToast, setAdminToast] = useState<string | null>(null);
-
-  // Toggle item availability
-  const toggleItemAvailability = (id: string) => {
-    setMenuItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, isAvailable: !item.isAvailable } : item))
-    );
-  };
-
-  // Simulate AI chalkboard scan
-  const handleSimulateAiScan = () => {
-    setAiScanning(true);
-    setTimeout(() => {
-      setAiScanning(false);
-      const newItem: MenuItemState = {
-        id: `ai-${Date.now()}`,
-        name: 'Mysore Masala Dosa with Chutney',
-        category: 'Daily Special',
-        price: 65,
+    id: 'htl_01',
+    name: 'Annapurna Pure Veg Mess',
+    category: 'North Indian Thali, Executive Meals',
+    address: 'Opposite Tower B, DLF Cyber Park, Sector 24',
+    hub: 'Cyber Park Hub',
+    distanceMeters: 280,
+    rating: 4.8,
+    totalRatings: 142,
+    isOpen: true,
+    verificationStatus: 'approved',
+    fssaiNumber: '10023045678901',
+    phone: '+91 98765 43201',
+    isFavorite: false,
+    menu: [
+      {
+        id: 'm1',
+        name: 'Executive South Indian Thali',
+        description: '3 Rotis, Dal Tadka, Seasonal Sabzi, Sambar, Steamed Rice, Papad & Curd',
+        price: 80,
+        category: 'Lunch',
         isVeg: true,
         isAvailable: true,
-      };
-      setMenuItems((prev) => [newItem, ...prev]);
-      setOwnerToast('AI parsed 1 new special from chalkboard snapshot');
-      setTimeout(() => setOwnerToast(null), 3500);
-    }, 1200);
+      },
+      {
+        id: 'm2',
+        name: 'Special Paneer Butter Masala Meal',
+        description: '2 Butter Naan / 4 Rotis, Paneer Gravy, Jeera Rice & Green Salad',
+        price: 110,
+        category: 'Lunch',
+        isVeg: true,
+        isAvailable: true,
+      },
+      {
+        id: 'm3',
+        name: 'Curd Rice with Tadka & Lemon Pickle',
+        description: 'Tempered mustard seed curd rice, digestive and light',
+        price: 50,
+        category: 'Lunch',
+        isVeg: true,
+        isAvailable: true,
+      },
+      {
+        id: 'm4',
+        name: 'Steamed Idli with Sambar & 2 Chutneys',
+        description: '3 pieces fluffy steamed idli served with piping hot sambar',
+        price: 40,
+        category: 'Breakfast',
+        isVeg: true,
+        isAvailable: true,
+      },
+    ],
+  },
+  {
+    id: 'htl_02',
+    name: 'Krishna South Indian Tiffin',
+    category: 'South Indian, Tiffin & Fast Meals',
+    address: 'Shop 14, Main Market, Sector 33',
+    hub: 'Cyber Park Hub',
+    distanceMeters: 420,
+    rating: 4.6,
+    totalRatings: 98,
+    isOpen: true,
+    verificationStatus: 'pending', // Starts pending to test Admin Verification flow!
+    fssaiNumber: '10824003001844',
+    phone: '+91 98765 43210',
+    isFavorite: false,
+    menu: [
+      {
+        id: 'k1',
+        name: 'Ghee Roast Masala Dosa',
+        description: 'Crispy golden crepe with spiced potato filling & coconut chutney',
+        price: 70,
+        category: 'Breakfast',
+        isVeg: true,
+        isAvailable: true,
+      },
+      {
+        id: 'k2',
+        name: 'Mini Meals (Rice, Sambar, Rasam, Curd)',
+        description: 'Quick executive lunch plate for office lunch break',
+        price: 65,
+        category: 'Lunch',
+        isVeg: true,
+        isAvailable: true,
+      },
+    ],
+  },
+  {
+    id: 'htl_03',
+    name: 'Balaji Executive Tiffin & Mess',
+    category: 'Homestyle Meals, Daily Roti',
+    address: 'Plot 42, Sector 33 Plaza',
+    hub: 'Cyber Park Hub',
+    distanceMeters: 650,
+    rating: 4.5,
+    totalRatings: 76,
+    isOpen: false,
+    verificationStatus: 'flagged',
+    fssaiNumber: '10821004000312',
+    phone: '+91 98765 43299',
+    isFavorite: false,
+    menu: [
+      {
+        id: 'b1',
+        name: 'Dal Khichdi with Roasted Papad',
+        description: 'Comforting moong dal khichdi with ghee tempering',
+        price: 60,
+        category: 'Lunch',
+        isVeg: true,
+        isAvailable: true,
+      },
+      {
+        id: 'b2',
+        name: 'Aloo Paratha with Curd & Pickle (2 pcs)',
+        description: 'Stuffed potato whole wheat flatbreads with fresh curd',
+        price: 55,
+        category: 'Breakfast',
+        isVeg: true,
+        isAvailable: true,
+      },
+    ],
+  },
+];
+
+const INITIAL_REPORTS: MockReport[] = [
+  {
+    id: 'rep_01',
+    outletId: 'htl_01',
+    outletName: 'Annapurna Pure Veg Mess',
+    issue: 'Price mismatch reported on Paneer Thali menu item',
+    status: 'open',
+    reportedAt: 'Today, 11:20 AM',
+  },
+  {
+    id: 'rep_02',
+    outletId: 'htl_03',
+    outletName: 'Balaji Executive Tiffin',
+    issue: 'FSSAI hygiene audit certificate renewal due',
+    status: 'open',
+    reportedAt: 'Yesterday, 04:45 PM',
+  },
+];
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+export function InteractiveProductDemo() {
+  // Shared Multi-Role State Engine
+  const [outlets, setOutlets] = useState<MockOutlet[]>(INITIAL_OUTLETS);
+  const [reports, setReports] = useState<MockReport[]>(INITIAL_REPORTS);
+  const [activeRole, setActiveRole] = useState<'employee' | 'owner' | 'admin'>('employee');
+  const [syncToast, setSyncToast] = useState<string | null>(null);
+
+  // Helper to trigger cross-role sync notification
+  const triggerSyncToast = (msg: string) => {
+    setSyncToast(msg);
+    setTimeout(() => setSyncToast(null), 3500);
   };
 
-  // Admin verification actions
-  const handleVerify = (id: string, action: 'verified' | 'flagged') => {
-    setVerifications((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status: action } : item))
-    );
-    setAdminToast(
-      action === 'verified'
-        ? 'Outlet approved & verified for Cyber Park zone'
-        : 'Audit flagged: FSSAI document re-verification requested'
-    );
-    setTimeout(() => setAdminToast(null), 3500);
+  // Reset entire demo to fresh seed
+  const handleResetDemo = () => {
+    setOutlets(INITIAL_OUTLETS);
+    setReports(INITIAL_REPORTS);
+    triggerSyncToast('Demo reset to initial baseline data');
   };
+
+  // ---------------------------------------------------------------------------
+  // SHARED MUTATIONS (Connecting Employee, Owner, Admin)
+  // ---------------------------------------------------------------------------
+
+  // 1. Owner toggles kitchen open / closed
+  const handleToggleKitchenStatus = (outletId: string) => {
+    setOutlets((prev) =>
+      prev.map((o) => {
+        if (o.id === outletId) {
+          const nextState = !o.isOpen;
+          triggerSyncToast(
+            nextState
+              ? `[OWNER SYNC] ${o.name} is now OPEN. Diners can order!`
+              : `[OWNER SYNC] ${o.name} marked CLOSED. Diners see Closed badge.`
+          );
+          return { ...o, isOpen: nextState };
+        }
+        return o;
+      })
+    );
+  };
+
+  // 2. Owner toggles menu item in/out of stock
+  const handleToggleItemAvailability = (outletId: string, itemId: string) => {
+    setOutlets((prev) =>
+      prev.map((o) => {
+        if (o.id === outletId) {
+          const updatedMenu = o.menu.map((m) =>
+            m.id === itemId ? { ...m, isAvailable: !m.isAvailable } : m
+          );
+          const changedItem = updatedMenu.find((m) => m.id === itemId);
+          triggerSyncToast(
+            `[MENU SYNC] "${changedItem?.name}" marked ${
+              changedItem?.isAvailable ? 'IN STOCK' : 'SOLD OUT'
+            }`
+          );
+          return { ...o, menu: updatedMenu };
+        }
+        return o;
+      })
+    );
+  };
+
+  // 3. Owner adds a new dish
+  const handleAddDish = (outletId: string, newDish: Omit<MockMenuItem, 'id'>) => {
+    const dishWithId: MockMenuItem = {
+      ...newDish,
+      id: `dish_${Date.now()}`,
+    };
+    setOutlets((prev) =>
+      prev.map((o) => {
+        if (o.id === outletId) {
+          triggerSyncToast(`[MENU SYNC] Added "${dishWithId.name}" (₹${dishWithId.price}) to Today's Menu!`);
+          return { ...o, menu: [dishWithId, ...o.menu] };
+        }
+        return o;
+      })
+    );
+  };
+
+  // 4. Owner deletes a dish
+  const handleDeleteDish = (outletId: string, itemId: string) => {
+    setOutlets((prev) =>
+      prev.map((o) => {
+        if (o.id === outletId) {
+          const target = o.menu.find((m) => m.id === itemId);
+          triggerSyncToast(`[MENU SYNC] Removed "${target?.name}" from Today's Menu`);
+          return { ...o, menu: o.menu.filter((m) => m.id !== itemId) };
+        }
+        return o;
+      })
+    );
+  };
+
+  // 5. Employee toggles favorite
+  const handleToggleFavorite = (outletId: string) => {
+    setOutlets((prev) =>
+      prev.map((o) => (o.id === outletId ? { ...o, isFavorite: !o.isFavorite } : o))
+    );
+  };
+
+  // 6. Admin updates outlet verification status
+  const handleSetVerification = (outletId: string, status: 'approved' | 'flagged') => {
+    setOutlets((prev) =>
+      prev.map((o) => {
+        if (o.id === outletId) {
+          triggerSyncToast(
+            status === 'approved'
+              ? `[ADMIN SYNC] Approved "${o.name}". Verified Partner badge active!`
+              : `[ADMIN SYNC] Flagged "${o.name}" for hygiene re-audit.`
+          );
+          return { ...o, verificationStatus: status };
+        }
+        return o;
+      })
+    );
+  };
+
+  // 7. Admin resolves report
+  const handleResolveReport = (reportId: string, nextStatus: 'resolved' | 'dismissed') => {
+    setReports((prev) =>
+      prev.map((r) => (r.id === reportId ? { ...r, status: nextStatus } : r))
+    );
+    triggerSyncToast(`[AUDIT SYNC] Report marked ${nextStatus}`);
+  };
+
+  // Owner managed outlet in this demo is htl_01 (Annapurna)
+  const ownerOutlet = outlets.find((o) => o.id === 'htl_01') || outlets[0];
 
   return (
-    <div className="w-full flex flex-col items-center">
-      {/* ========================================================================= */}
-      {/* 1. COMPACT SIMULATED DEMO CHROME & ROLE SELECTOR                         */}
-      {/* ========================================================================= */}
-      <div className="w-full max-w-4xl mx-auto mb-8 sm:mb-12">
-        {/* Subtle environment disclaimer */}
-        <div className="flex items-center justify-between px-3 sm:px-4 py-2 rounded-xl bg-canvas-subtle/80 border border-border-hairline mb-5">
+    <div className="w-full flex flex-col items-center select-none">
+      {/* ======================================================================= */}
+      {/* 1. COMPACT SIMULATED DEMO CONTROL BAR                                   */}
+      {/* ======================================================================= */}
+      <div className="w-full max-w-4xl mx-auto mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-canvas-subtle/80 border border-border-hairline mb-4">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-            <span className="font-mono text-[11px] font-semibold tracking-wider uppercase text-emerald-800">
-              AAHAR NEARBY · THREE-ROLE MOBILE ECOSYSTEM
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse" />
+            <span className="font-mono text-xs font-bold tracking-wider uppercase text-emerald-800">
+              AAHAR NEARBY · LIVE MULTI-ROLE ECOSYSTEM
             </span>
           </div>
-          <span className="font-mono text-[10px] sm:text-[11px] text-content-tertiary">
-            SIMULATED ENVIRONMENT · DEMO DATA ONLY
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-[10px] sm:text-[11px] text-content-tertiary">
+              SIMULATED REACT STATE · ZERO BACKEND
+            </span>
+            <button
+              type="button"
+              onClick={handleResetDemo}
+              className="font-mono text-[11px] text-content-secondary hover:text-emerald-700 flex items-center gap-1 transition-colors px-2 py-0.5 rounded border border-border-hairline bg-white"
+              title="Reset state to initial seed"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Reset State</span>
+            </button>
+          </div>
         </div>
 
-        {/* 3-Role Editorial Switcher Tabs */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 p-1.5 rounded-2xl bg-canvas-subtle/60 border border-border-hairline">
-          {/* Role 1: Employee */}
+        {/* Global Cross-Role Sync Toast Banner */}
+        {syncToast && (
+          <div className="mb-4 px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-mono text-xs flex items-center justify-between shadow-lg animate-fadeIn">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-200" />
+              <span>{syncToast}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSyncToast(null)}
+              className="text-emerald-200 hover:text-white"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
+        {/* 3-Role Focus Switcher Bar */}
+        <div className="grid grid-cols-3 gap-2 p-1.5 rounded-2xl bg-canvas-subtle/70 border border-border-hairline">
           <button
             type="button"
             onClick={() => setActiveRole('employee')}
-            className={`flex flex-col items-start text-left p-3.5 sm:p-4 rounded-xl transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 ${
+            className={`py-2.5 px-3 rounded-xl text-left transition-all duration-200 ${
               activeRole === 'employee'
-                ? 'bg-white shadow-md border border-emerald-600/30 ring-1 ring-emerald-600/20'
+                ? 'bg-white shadow-sm border border-emerald-600/30 ring-1 ring-emerald-600/20'
                 : 'hover:bg-white/60 text-content-secondary'
             }`}
           >
-            <div className="flex items-center justify-between w-full mb-1">
-              <span className="font-mono text-[11px] font-bold text-emerald-700">01 // EMPLOYEE</span>
-              <span className={`w-2 h-2 rounded-full ${activeRole === 'employee' ? 'bg-emerald-600' : 'bg-transparent'}`} />
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="font-mono text-[10px] font-bold text-emerald-700">01 // DINER</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${activeRole === 'employee' ? 'bg-emerald-600' : 'bg-transparent'}`} />
             </div>
-            <span className="font-display text-sm sm:text-base font-bold text-content-primary">
+            <span className="font-display text-xs sm:text-sm font-bold text-content-primary block leading-tight">
+              Employee App
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveRole('owner')}
+            className={`py-2.5 px-3 rounded-xl text-left transition-all duration-200 ${
+              activeRole === 'owner'
+                ? 'bg-white shadow-sm border border-emerald-600/30 ring-1 ring-emerald-600/20'
+                : 'hover:bg-white/60 text-content-secondary'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="font-mono text-[10px] font-bold text-emerald-700">02 // OWNER</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${activeRole === 'owner' ? 'bg-emerald-600' : 'bg-transparent'}`} />
+            </div>
+            <span className="font-display text-xs sm:text-sm font-bold text-content-primary block leading-tight">
+              Mess Owner App
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveRole('admin')}
+            className={`py-2.5 px-3 rounded-xl text-left transition-all duration-200 ${
+              activeRole === 'admin'
+                ? 'bg-white shadow-sm border border-emerald-600/30 ring-1 ring-emerald-600/20'
+                : 'hover:bg-white/60 text-content-secondary'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="font-mono text-[10px] font-bold text-emerald-700">03 // ADMIN</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${activeRole === 'admin' ? 'bg-emerald-600' : 'bg-transparent'}`} />
+            </div>
+            <span className="font-display text-xs sm:text-sm font-bold text-content-primary block leading-tight">
+              Platform Admin
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* ======================================================================= */}
+      {/* 2. THE THREE INTERACTIVE PHONES                                         */}
+      {/* ======================================================================= */}
+
+      {/* Desktop / Tablet Composition: Three Phones Side-by-Side */}
+      <div className="hidden md:grid md:grid-cols-3 gap-6 lg:gap-8 items-start justify-center w-full max-w-6xl mx-auto py-2">
+        {/* PHONE 01: EMPLOYEE APP */}
+        <div
+          onClick={() => setActiveRole('employee')}
+          className={`flex flex-col items-center transition-all duration-300 ${
+            activeRole === 'employee'
+              ? 'scale-[1.03] z-20 opacity-100'
+              : 'scale-[0.97] opacity-85 hover:opacity-100'
+          }`}
+        >
+          <div className="mb-2.5 text-center">
+            <span className="font-mono text-[11px] font-bold tracking-wider uppercase text-emerald-700 block">
+              01 // EMPLOYEE
+            </span>
+            <span className="font-display text-xs text-content-secondary font-medium">
               Hyperlocal Discovery
             </span>
-            <span className="text-[11px] text-content-tertiary mt-0.5 line-clamp-1">
-              Workplace search &amp; today&apos;s menu
-            </span>
-          </button>
+          </div>
 
-          {/* Role 2: Owner */}
-          <button
-            type="button"
-            onClick={() => setActiveRole('owner')}
-            className={`flex flex-col items-start text-left p-3.5 sm:p-4 rounded-xl transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 ${
-              activeRole === 'owner'
-                ? 'bg-white shadow-md border border-emerald-600/30 ring-1 ring-emerald-600/20'
-                : 'hover:bg-white/60 text-content-secondary'
-            }`}
-          >
-            <div className="flex items-center justify-between w-full mb-1">
-              <span className="font-mono text-[11px] font-bold text-emerald-700">02 // MESS OWNER</span>
-              <span className={`w-2 h-2 rounded-full ${activeRole === 'owner' ? 'bg-emerald-600' : 'bg-transparent'}`} />
-            </div>
-            <span className="font-display text-sm sm:text-base font-bold text-content-primary">
+          <SmartphoneFrame active={activeRole === 'employee'}>
+            <EmployeeApp
+              outlets={outlets}
+              onToggleFavorite={handleToggleFavorite}
+            />
+          </SmartphoneFrame>
+        </div>
+
+        {/* PHONE 02: OWNER APP */}
+        <div
+          onClick={() => setActiveRole('owner')}
+          className={`flex flex-col items-center transition-all duration-300 ${
+            activeRole === 'owner'
+              ? 'scale-[1.03] z-20 opacity-100'
+              : 'scale-[0.97] opacity-85 hover:opacity-100'
+          }`}
+        >
+          <div className="mb-2.5 text-center">
+            <span className="font-mono text-[11px] font-bold tracking-wider uppercase text-emerald-700 block">
+              02 // MESS OWNER
+            </span>
+            <span className="font-display text-xs text-content-secondary font-medium">
               Menu Operations
             </span>
-            <span className="text-[11px] text-content-tertiary mt-0.5 line-clamp-1">
-              Kitchen toggle &amp; menu publishing
-            </span>
-          </button>
+          </div>
 
-          {/* Role 3: Admin */}
-          <button
-            type="button"
-            onClick={() => setActiveRole('admin')}
-            className={`flex flex-col items-start text-left p-3.5 sm:p-4 rounded-xl transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 ${
-              activeRole === 'admin'
-                ? 'bg-white shadow-md border border-emerald-600/30 ring-1 ring-emerald-600/20'
-                : 'hover:bg-white/60 text-content-secondary'
-            }`}
-          >
-            <div className="flex items-center justify-between w-full mb-1">
-              <span className="font-mono text-[11px] font-bold text-emerald-700">03 // PLATFORM ADMIN</span>
-              <span className={`w-2 h-2 rounded-full ${activeRole === 'admin' ? 'bg-emerald-600' : 'bg-transparent'}`} />
-            </div>
-            <span className="font-display text-sm sm:text-base font-bold text-content-primary">
+          <SmartphoneFrame active={activeRole === 'owner'}>
+            <OwnerApp
+              outlet={ownerOutlet}
+              onToggleKitchen={() => handleToggleKitchenStatus(ownerOutlet.id)}
+              onToggleItem={(itemId) => handleToggleItemAvailability(ownerOutlet.id, itemId)}
+              onAddDish={(dish) => handleAddDish(ownerOutlet.id, dish)}
+              onDeleteDish={(itemId) => handleDeleteDish(ownerOutlet.id, itemId)}
+            />
+          </SmartphoneFrame>
+        </div>
+
+        {/* PHONE 03: ADMIN APP */}
+        <div
+          onClick={() => setActiveRole('admin')}
+          className={`flex flex-col items-center transition-all duration-300 ${
+            activeRole === 'admin'
+              ? 'scale-[1.03] z-20 opacity-100'
+              : 'scale-[0.97] opacity-85 hover:opacity-100'
+          }`}
+        >
+          <div className="mb-2.5 text-center">
+            <span className="font-mono text-[11px] font-bold tracking-wider uppercase text-emerald-700 block">
+              03 // PLATFORM ADMIN
+            </span>
+            <span className="font-display text-xs text-content-secondary font-medium">
               Governance &amp; Verification
             </span>
-            <span className="text-[11px] text-content-tertiary mt-0.5 line-clamp-1">
-              FSSAI compliance &amp; audit queue
+          </div>
+
+          <SmartphoneFrame active={activeRole === 'admin'}>
+            <AdminApp
+              outlets={outlets}
+              reports={reports}
+              onVerifyOutlet={handleSetVerification}
+              onResolveReport={handleResolveReport}
+            />
+          </SmartphoneFrame>
+        </div>
+      </div>
+
+      {/* Mobile Viewport: Single Focused Interactive Phone with Left/Right Controls */}
+      <div className="md:hidden flex flex-col items-center w-full">
+        {/* Navigation Selector */}
+        <div className="flex items-center justify-between w-full max-w-[310px] mb-3 px-2">
+          <button
+            type="button"
+            onClick={() => {
+              if (activeRole === 'admin') setActiveRole('owner');
+              else if (activeRole === 'owner') setActiveRole('employee');
+              else setActiveRole('admin');
+            }}
+            className="p-1.5 rounded-lg bg-canvas-subtle border border-border-hairline text-content-secondary"
+            aria-label="Previous role phone"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+
+          <div className="text-center">
+            <span className="font-mono text-[11px] font-bold text-emerald-700 uppercase block">
+              {activeRole === 'employee' && '01 // EMPLOYEE DINER'}
+              {activeRole === 'owner' && '02 // MESS OWNER'}
+              {activeRole === 'admin' && '03 // PLATFORM ADMIN'}
             </span>
+            <span className="text-xs font-semibold text-content-primary">
+              {activeRole === 'employee' && 'Discovery Feed & Menus'}
+              {activeRole === 'owner' && 'Menu Operations Console'}
+              {activeRole === 'admin' && 'Platform Governance Queue'}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (activeRole === 'employee') setActiveRole('owner');
+              else if (activeRole === 'owner') setActiveRole('admin');
+              else setActiveRole('employee');
+            }}
+            className="p-1.5 rounded-lg bg-canvas-subtle border border-border-hairline text-content-secondary"
+            aria-label="Next role phone"
+          >
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
+
+        {/* Focused Phone */}
+        <SmartphoneFrame active={true}>
+          {activeRole === 'employee' && (
+            <EmployeeApp
+              outlets={outlets}
+              onToggleFavorite={handleToggleFavorite}
+            />
+          )}
+          {activeRole === 'owner' && (
+            <OwnerApp
+              outlet={ownerOutlet}
+              onToggleKitchen={() => handleToggleKitchenStatus(ownerOutlet.id)}
+              onToggleItem={(itemId) => handleToggleItemAvailability(ownerOutlet.id, itemId)}
+              onAddDish={(dish) => handleAddDish(ownerOutlet.id, dish)}
+              onDeleteDish={(itemId) => handleDeleteDish(ownerOutlet.id, itemId)}
+            />
+          )}
+          {activeRole === 'admin' && (
+            <AdminApp
+              outlets={outlets}
+              reports={reports}
+              onVerifyOutlet={handleSetVerification}
+              onResolveReport={handleResolveReport}
+            />
+          )}
+        </SmartphoneFrame>
       </div>
 
-      {/* ========================================================================= */}
-      {/* 2. THE THREE MOBILE DEVICES PRESENTATION                                  */}
-      {/* ========================================================================= */}
-      <div className="w-full max-w-6xl mx-auto">
-        {/* Desktop & Tablet: Three vertical smartphones composition */}
-        <div className="hidden md:grid md:grid-cols-3 gap-6 lg:gap-8 items-center justify-center pt-2 pb-8">
-          {/* ------------------------------------------------------------------- */}
-          {/* PHONE 01: EMPLOYEE / DINER                                         */}
-          {/* ------------------------------------------------------------------- */}
-          <div
-            onClick={() => setActiveRole('employee')}
-            className={`relative flex flex-col items-center cursor-pointer transition-all duration-300 ${
-              activeRole === 'employee'
-                ? 'scale-105 z-20 opacity-100'
-                : 'scale-95 opacity-80 hover:opacity-100 hover:scale-[0.98]'
-            }`}
-          >
-            {/* Editorial device label */}
-            <div className="mb-3 text-center">
-              <span className="font-mono text-[11px] font-bold tracking-wider uppercase text-emerald-700 block">
-                01 // EMPLOYEE
-              </span>
-              <span className="font-display text-xs text-content-secondary font-medium">
-                Discovery &amp; Daily Menu
-              </span>
-            </div>
-
-            {/* Smartphone Frame */}
-            <div
-              className={`w-[260px] lg:w-[285px] aspect-[9/19.5] rounded-[38px] bg-slate-950 p-2.5 shadow-2xl border-4 transition-all duration-300 relative ${
-                activeRole === 'employee'
-                  ? 'border-emerald-600/70 shadow-emerald-950/20 ring-4 ring-emerald-500/20'
-                  : 'border-slate-800 shadow-xl'
-              }`}
-            >
-              {/* Dynamic Island / Speaker */}
-              <div className="w-20 h-3.5 bg-slate-900 mx-auto rounded-full mb-1.5 flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-slate-800" />
-              </div>
-
-              {/* Real Aahar Screen Display */}
-              <div className="relative w-full h-[calc(100%-18px)] rounded-[26px] overflow-hidden bg-slate-900">
-                <Image
-                  src={
-                    employeeSubView === 'detail'
-                      ? '/projects/aahar-nearby/menu_details.png'
-                      : '/projects/aahar-nearby/screen_employee_portal.png'
-                  }
-                  alt="Aahar Nearby Authentic Employee Discovery App Screen"
-                  fill
-                  className="object-cover object-top"
-                  sizes="(max-width: 1024px) 260px, 285px"
-                  priority
-                />
-              </div>
-
-              {/* Active Indicator Glow Badge */}
-              {activeRole === 'employee' && (
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white font-mono text-[10px] px-2.5 py-0.5 rounded-full shadow-md whitespace-nowrap">
-                  ACTIVE PREVIEW
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* ------------------------------------------------------------------- */}
-          {/* PHONE 02: HOTEL / MESS OWNER                                       */}
-          {/* ------------------------------------------------------------------- */}
-          <div
-            onClick={() => setActiveRole('owner')}
-            className={`relative flex flex-col items-center cursor-pointer transition-all duration-300 ${
-              activeRole === 'owner'
-                ? 'scale-105 z-20 opacity-100'
-                : 'scale-95 opacity-80 hover:opacity-100 hover:scale-[0.98]'
-            }`}
-          >
-            {/* Editorial device label */}
-            <div className="mb-3 text-center">
-              <span className="font-mono text-[11px] font-bold tracking-wider uppercase text-emerald-700 block">
-                02 // MESS OWNER
-              </span>
-              <span className="font-display text-xs text-content-secondary font-medium">
-                Daily Menu &amp; Operations
-              </span>
-            </div>
-
-            {/* Smartphone Frame */}
-            <div
-              className={`w-[260px] lg:w-[285px] aspect-[9/19.5] rounded-[38px] bg-slate-950 p-2.5 shadow-2xl border-4 transition-all duration-300 relative ${
-                activeRole === 'owner'
-                  ? 'border-emerald-600/70 shadow-emerald-950/20 ring-4 ring-emerald-500/20'
-                  : 'border-slate-800 shadow-xl'
-              }`}
-            >
-              {/* Dynamic Island / Speaker */}
-              <div className="w-20 h-3.5 bg-slate-900 mx-auto rounded-full mb-1.5 flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-slate-800" />
-              </div>
-
-              {/* Real Aahar Screen Display */}
-              <div className="relative w-full h-[calc(100%-18px)] rounded-[26px] overflow-hidden bg-slate-900">
-                <Image
-                  src="/projects/aahar-nearby/screen_owner_dashboard.png"
-                  alt="Aahar Nearby Authentic Mess Owner Dashboard Screen"
-                  fill
-                  className="object-cover object-top"
-                  sizes="(max-width: 1024px) 260px, 285px"
-                  priority
-                />
-              </div>
-
-              {/* Active Indicator Glow Badge */}
-              {activeRole === 'owner' && (
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white font-mono text-[10px] px-2.5 py-0.5 rounded-full shadow-md whitespace-nowrap">
-                  ACTIVE PREVIEW
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* ------------------------------------------------------------------- */}
-          {/* PHONE 03: PLATFORM ADMIN                                           */}
-          {/* ------------------------------------------------------------------- */}
-          <div
-            onClick={() => setActiveRole('admin')}
-            className={`relative flex flex-col items-center cursor-pointer transition-all duration-300 ${
-              activeRole === 'admin'
-                ? 'scale-105 z-20 opacity-100'
-                : 'scale-95 opacity-80 hover:opacity-100 hover:scale-[0.98]'
-            }`}
-          >
-            {/* Editorial device label */}
-            <div className="mb-3 text-center">
-              <span className="font-mono text-[11px] font-bold tracking-wider uppercase text-emerald-700 block">
-                03 // PLATFORM ADMIN
-              </span>
-              <span className="font-display text-xs text-content-secondary font-medium">
-                Governance &amp; Verification
-              </span>
-            </div>
-
-            {/* Smartphone Frame */}
-            <div
-              className={`w-[260px] lg:w-[285px] aspect-[9/19.5] rounded-[38px] bg-slate-950 p-2.5 shadow-2xl border-4 transition-all duration-300 relative ${
-                activeRole === 'admin'
-                  ? 'border-emerald-600/70 shadow-emerald-950/20 ring-4 ring-emerald-500/20'
-                  : 'border-slate-800 shadow-xl'
-              }`}
-            >
-              {/* Dynamic Island / Speaker */}
-              <div className="w-20 h-3.5 bg-slate-900 mx-auto rounded-full mb-1.5 flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-slate-800" />
-              </div>
-
-              {/* Real Aahar Screen Display */}
-              <div className="relative w-full h-[calc(100%-18px)] rounded-[26px] overflow-hidden bg-slate-900">
-                <Image
-                  src="/projects/aahar-nearby/screen_admin_portal.png"
-                  alt="Aahar Nearby Authentic Platform Admin Mobile Screen"
-                  fill
-                  className="object-cover object-top"
-                  sizes="(max-width: 1024px) 260px, 285px"
-                  priority
-                />
-              </div>
-
-              {/* Active Indicator Glow Badge */}
-              {activeRole === 'admin' && (
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white font-mono text-[10px] px-2.5 py-0.5 rounded-full shadow-md whitespace-nowrap">
-                  ACTIVE PREVIEW
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Viewport: Single Focused Smartphone with Quick Left/Right Selector */}
-        <div className="md:hidden flex flex-col items-center">
-          {/* Role indicator header */}
-          <div className="flex items-center justify-between w-full max-w-[280px] mb-3">
-            <button
-              type="button"
-              onClick={() => {
-                if (activeRole === 'admin') setActiveRole('owner');
-                else if (activeRole === 'owner') setActiveRole('employee');
-                else setActiveRole('admin');
-              }}
-              className="p-1.5 rounded-lg bg-canvas-subtle border border-border-hairline text-content-secondary"
-              aria-label="Previous role"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-
-            <div className="text-center">
-              <span className="font-mono text-[11px] font-bold text-emerald-700 uppercase">
-                {activeRole === 'employee' && '01 // EMPLOYEE'}
-                {activeRole === 'owner' && '02 // MESS OWNER'}
-                {activeRole === 'admin' && '03 // PLATFORM ADMIN'}
-              </span>
-              <span className="block text-xs font-semibold text-content-primary">
-                {activeRole === 'employee' && 'Discovery & Daily Menu'}
-                {activeRole === 'owner' && 'Daily Menu & Operations'}
-                {activeRole === 'admin' && 'Governance & Verification'}
-              </span>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                if (activeRole === 'employee') setActiveRole('owner');
-                else if (activeRole === 'owner') setActiveRole('admin');
-                else setActiveRole('employee');
-              }}
-              className="p-1.5 rounded-lg bg-canvas-subtle border border-border-hairline text-content-secondary"
-              aria-label="Next role"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Focused Smartphone Frame */}
-          <div className="w-[260px] sm:w-[280px] aspect-[9/19.5] rounded-[38px] bg-slate-950 p-2.5 shadow-2xl border-4 border-emerald-600/70 relative">
-            <div className="w-20 h-3.5 bg-slate-900 mx-auto rounded-full mb-1.5 flex items-center justify-center">
-              <div className="w-2 h-2 rounded-full bg-slate-800" />
-            </div>
-
-            <div className="relative w-full h-[calc(100%-18px)] rounded-[26px] overflow-hidden bg-slate-900">
-              <Image
-                src={
-                  activeRole === 'employee'
-                    ? employeeSubView === 'detail'
-                      ? '/projects/aahar-nearby/menu_details.png'
-                      : '/projects/aahar-nearby/screen_employee_portal.png'
-                    : activeRole === 'owner'
-                    ? '/projects/aahar-nearby/screen_owner_dashboard.png'
-                    : '/projects/aahar-nearby/screen_admin_portal.png'
-                }
-                alt={`Aahar Nearby authentic ${activeRole} screen`}
-                fill
-                className="object-cover object-top"
-                sizes="280px"
-                priority
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 3. FOCUSED INTERACTIVE MOBILE PRODUCT DRILL-DOWN                          */}
-      {/* ========================================================================= */}
-      <div className="w-full max-w-4xl mx-auto mt-10 pt-8 border-t border-border-hairline">
-        <div className="text-center mb-6">
-          <span className="font-mono text-xs uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
-            FOCUSED PRODUCT WORKFLOW //{' '}
-            {activeRole === 'employee'
-              ? 'DINER EXPERIENCE'
-              : activeRole === 'owner'
-              ? 'OPERATIONS CONSOLE'
-              : 'GOVERNANCE AUDIT'}
+      {/* ======================================================================= */}
+      {/* 3. MULTI-ROLE INTERACTION WALKTHROUGH HINTS                             */}
+      {/* ======================================================================= */}
+      <div className="w-full max-w-4xl mx-auto mt-10 p-5 rounded-2xl bg-[#F7F8F6] border border-[#E7EBE8] text-left">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="w-4 h-4 text-[#168A4A]" />
+          <span className="font-mono text-xs font-bold text-[#168A4A] uppercase tracking-wider">
+            HOW TO TEST THE CONNECTED ECOSYSTEM IN REAL TIME
           </span>
-          <h3 className="mt-2 font-display text-xl sm:text-2xl font-bold text-content-primary">
-            {activeRole === 'employee' && 'Explore What Office Workers Experience'}
-            {activeRole === 'owner' && 'Test Hotel Kitchen Operations & Menu Controls'}
-            {activeRole === 'admin' && 'Audit Platform Verification Queue'}
-          </h3>
-          <p className="mt-1 text-sm text-content-secondary max-w-xl mx-auto">
-            Interact with simulated role controls styled in the authentic Aahar Nearby Flutter design language (Forest Green #168A4A, Pure White cards, and JetBrains Mono pricing).
-          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-[#66736B]">
+          <div className="p-3 bg-white rounded-xl border border-[#E7EBE8]">
+            <span className="font-bold text-[#17201B] block mb-1">
+              Step 1: Owner Kitchen Status
+            </span>
+            Switch to <strong className="text-[#168A4A]">Owner App</strong> and click{' '}
+            <em>&quot;Kitchen Open / Closed&quot;</em>. Then switch to{' '}
+            <strong className="text-[#168A4A]">Employee App</strong>: Annapurna will immediately show{' '}
+            <span className="text-red-600 font-bold">CLOSED</span>.
+          </div>
+
+          <div className="p-3 bg-white rounded-xl border border-[#E7EBE8]">
+            <span className="font-bold text-[#17201B] block mb-1">
+              Step 2: Add Dish or AI Scan
+            </span>
+            In <strong className="text-[#168A4A]">Owner App</strong>, click <em>&quot;+ Add Dish&quot;</em> or{' '}
+            <em>&quot;AI Scan&quot;</em>. Switch to <strong className="text-[#168A4A]">Employee App</strong> and tap
+            Annapurna to see the new dish live in the menu.
+          </div>
+
+          <div className="p-3 bg-white rounded-xl border border-[#E7EBE8]">
+            <span className="font-bold text-[#17201B] block mb-1">
+              Step 3: Admin Compliance Audit
+            </span>
+            In <strong className="text-[#168A4A]">Admin App</strong>, click{' '}
+            <em>&quot;Approve &amp; Verify&quot;</em> on Krishna Tiffin. In{' '}
+            <strong className="text-[#168A4A]">Employee App</strong>, Krishna will now display the green{' '}
+            <span className="text-[#168A4A] font-bold">Verified Partner</span> badge!
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// REUSABLE SMARTPHONE HARDWARE SHELL
+// =============================================================================
+
+function SmartphoneFrame({
+  children,
+  active,
+}: {
+  children: React.ReactNode;
+  active: boolean;
+}) {
+  return (
+    <div
+      className={`w-[290px] sm:w-[310px] h-[610px] rounded-[42px] bg-slate-950 p-2.5 shadow-2xl border-4 transition-all duration-300 relative flex flex-col ${
+        active
+          ? 'border-emerald-600 shadow-emerald-950/20 ring-4 ring-emerald-500/20'
+          : 'border-slate-800 shadow-xl'
+      }`}
+    >
+      {/* Top Dynamic Island / Camera & Speaker Pill */}
+      <div className="w-24 h-4 bg-slate-900 mx-auto rounded-full mb-1.5 flex items-center justify-between px-2.5 flex-shrink-0 z-30">
+        <div className="w-2 h-2 rounded-full bg-slate-950" />
+        <div className="w-2.5 h-2.5 rounded-full bg-slate-950 border border-slate-800" />
+      </div>
+
+      {/* Screen Container with Aahar Background */}
+      <div className="relative w-full flex-1 rounded-[30px] overflow-hidden bg-[#F7F8F6] flex flex-col border border-slate-900">
+        {/* Status Bar */}
+        <div className="w-full h-6 px-4 pt-1 flex items-center justify-between text-[10px] font-mono text-[#17201B] bg-white flex-shrink-0 border-b border-[#E7EBE8]/60">
+          <span className="font-bold">12:30</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[9px]">5G</span>
+            <div className="w-4 h-2 rounded-sm border border-[#17201B] p-0.5 flex items-center">
+              <div className="h-full w-full bg-[#168A4A] rounded-2xs" />
+            </div>
+          </div>
         </div>
 
-        {/* ----------------------------------------------------------------------- */}
-        {/* ROLE 01: EMPLOYEE INTERACTION PANEL                                    */}
-        {/* ----------------------------------------------------------------------- */}
-        {activeRole === 'employee' && (
-          <div className="bg-[#F7F8F6] p-5 sm:p-6 rounded-2xl border border-[#E7EBE8] text-left">
-            {/* Top Sub-view Selector */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#E7EBE8] mb-5">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#168A4A]" />
-                <span className="text-xs font-semibold text-[#17201B]">
-                  Location: <span className="text-[#168A4A]">Cyber Park, Sector 33</span>
-                </span>
-                <span className="text-[10px] bg-[#E8F5EE] text-[#168A4A] font-bold px-2 py-0.5 rounded-full">
-                  GPS Active
-                </span>
-              </div>
+        {/* Interactive App Screen Viewport */}
+        <div className="w-full flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col">
+          {children}
+        </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setEmployeeSubView('feed')}
-                  className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition-all ${
-                    employeeSubView === 'feed'
-                      ? 'bg-[#168A4A] text-white shadow-sm'
-                      : 'bg-white text-[#17201B] border border-[#E7EBE8] hover:bg-slate-50'
-                  }`}
-                >
-                  Discovery Feed
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEmployeeSubView('detail')}
-                  className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition-all ${
-                    employeeSubView === 'detail'
-                      ? 'bg-[#168A4A] text-white shadow-sm'
-                      : 'bg-white text-[#17201B] border border-[#E7EBE8] hover:bg-slate-50'
-                  }`}
-                >
-                  Outlet Menu View
-                </button>
-              </div>
+        {/* Bottom Gesture Bar */}
+        <div className="w-full h-4 bg-white flex items-center justify-center flex-shrink-0 border-t border-[#E7EBE8]/40">
+          <div className="w-24 h-1 rounded-full bg-slate-300" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// 1. EMPLOYEE DINER APPLICATION (React reproduction of Flutter E03 - E06)
+// =============================================================================
+
+function EmployeeApp({
+  outlets,
+  onToggleFavorite,
+}: {
+  outlets: MockOutlet[];
+  onToggleFavorite: (id: string) => void;
+}) {
+  const [selectedOutletId, setSelectedOutletId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [activeTab, setActiveTab] = useState<'home' | 'favorites'>('home');
+  const [showDirections, setShowDirections] = useState(false);
+
+  const selectedOutlet = outlets.find((o) => o.id === selectedOutletId);
+
+  // Filter outlets based on search, category, and favorites
+  const filteredOutlets = useMemo(() => {
+    return outlets.filter((o) => {
+      if (activeTab === 'favorites' && !o.isFavorite) return false;
+
+      // Category filter
+      if (selectedCategory !== 'All') {
+        if (selectedCategory === 'Pure Veg' && !o.category.toLowerCase().includes('pure veg')) {
+          return false;
+        }
+        if (selectedCategory === 'Mess' && !o.category.toLowerCase().includes('mess')) {
+          return false;
+        }
+        if (selectedCategory === 'Breakfast') {
+          const hasBreakfast = o.menu.some((m) => m.category === 'Breakfast');
+          if (!hasBreakfast) return false;
+        }
+        if (selectedCategory === 'Lunch') {
+          const hasLunch = o.menu.some((m) => m.category === 'Lunch');
+          if (!hasLunch) return false;
+        }
+      }
+
+      // Search Query filter
+      if (searchQuery.trim().length > 0) {
+        const q = searchQuery.toLowerCase();
+        const matchesName = o.name.toLowerCase().includes(q);
+        const matchesMenu = o.menu.some((m) => m.name.toLowerCase().includes(q));
+        return matchesName || matchesMenu;
+      }
+
+      return true;
+    });
+  }, [outlets, searchQuery, selectedCategory, activeTab]);
+
+  // If viewing outlet details
+  if (selectedOutlet) {
+    return (
+      <div className="flex-1 flex flex-col bg-[#F7F8F6] text-left">
+        {/* Detail App Bar */}
+        <div className="p-3 bg-white border-b border-[#E7EBE8] flex items-center justify-between sticky top-0 z-10">
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedOutletId(null);
+              setShowDirections(false);
+            }}
+            className="p-1 rounded-lg hover:bg-slate-100 text-[#17201B] flex items-center gap-1 text-xs font-semibold"
+          >
+            <ArrowLeft className="w-4 h-4 text-[#168A4A]" />
+            <span>Back</span>
+          </button>
+          <span className="font-bold text-xs text-[#17201B] truncate max-w-[150px]">
+            {selectedOutlet.name}
+          </span>
+          <button
+            type="button"
+            onClick={() => onToggleFavorite(selectedOutlet.id)}
+            className="p-1.5 rounded-full hover:bg-slate-100"
+          >
+            <Heart
+              className={`w-4 h-4 ${
+                selectedOutlet.isFavorite
+                  ? 'fill-red-500 text-red-500'
+                  : 'text-[#66736B]'
+              }`}
+            />
+          </button>
+        </div>
+
+        {/* Outlet Header Card */}
+        <div className="p-3.5 bg-white border-b border-[#E7EBE8]">
+          <div className="flex items-center gap-1.5 mb-1">
+            <h3 className="font-bold text-sm text-[#17201B] leading-tight">
+              {selectedOutlet.name}
+            </h3>
+            {selectedOutlet.verificationStatus === 'approved' && (
+              <span className="inline-flex items-center gap-0.5 text-[9px] bg-[#E8F5EE] text-[#168A4A] font-bold px-1.5 py-0.5 rounded">
+                <CheckCircle2 className="w-2.5 h-2.5" />
+                Verified
+              </span>
+            )}
+          </div>
+          <p className="text-[11px] text-[#66736B] leading-tight mb-2.5">
+            {selectedOutlet.address}
+          </p>
+
+          <div className="flex items-center justify-between text-[11px]">
+            <span
+              className={`font-bold px-2 py-0.5 rounded text-[10px] ${
+                selectedOutlet.isOpen
+                  ? 'bg-[#F0FDF4] text-[#1F9D55]'
+                  : 'bg-red-50 text-red-600'
+              }`}
+            >
+              {selectedOutlet.isOpen ? '● Open Now' : '● Closed'}
+            </span>
+            <span className="text-[#66736B]">★ {selectedOutlet.rating} ({selectedOutlet.totalRatings})</span>
+            <span className="font-mono text-[#168A4A] font-bold">{selectedOutlet.distanceMeters}m walk</span>
+          </div>
+
+          {/* Action Row */}
+          <div className="mt-3 pt-3 border-t border-[#E7EBE8] flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowDirections(!showDirections)}
+              className="flex-1 py-1.5 bg-[#168A4A] hover:bg-[#0D5C35] text-white text-[11px] font-bold rounded-lg flex items-center justify-center gap-1 transition-colors"
+            >
+              <Navigation className="w-3 h-3" />
+              <span>{showDirections ? 'Hide Directions' : 'Walking Route'}</span>
+            </button>
+            <a
+              href={`tel:${selectedOutlet.phone}`}
+              onClick={(e) => e.preventDefault()}
+              className="p-1.5 border border-[#E7EBE8] rounded-lg text-[#17201B] hover:bg-slate-50 flex items-center justify-center"
+              title="Call Mess"
+            >
+              <PhoneCall className="w-3.5 h-3.5 text-[#168A4A]" />
+            </a>
+          </div>
+
+          {/* Simulated Directions Route Panel */}
+          {showDirections && (
+            <div className="mt-2.5 p-2 rounded-lg bg-[#E8F5EE] border border-emerald-200 text-[10px] text-[#0D5C35] animate-fadeIn">
+              <span className="font-bold block mb-1">WALKING DIRECTIONS (4 MIN):</span>
+              <p>Exit Cyber Park via East Pedestrian Gate → 180m on Sector 33 Main Avenue → Turn right at Landmark ATM.</p>
             </div>
+          )}
+        </div>
 
-            {/* Simulated Live Outlet Interaction Card */}
-            <div className="bg-white rounded-xl p-4 sm:p-5 border border-[#E7EBE8] shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-display font-bold text-base text-[#17201B]">
-                      Sri Udupi Grand Pure Veg
+        {/* Menu Items List */}
+        <div className="p-3 flex-1">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-[#17201B]">Today&apos;s Live Menu</span>
+            <span className="text-[10px] font-mono text-[#168A4A] bg-[#E8F5EE] px-1.5 py-0.5 rounded">
+              {selectedOutlet.menu.length} items
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            {selectedOutlet.menu.map((dish) => (
+              <div
+                key={dish.id}
+                className="p-2.5 bg-white rounded-xl border border-[#E7EBE8] flex items-start justify-between gap-2 shadow-2xs"
+              >
+                <div className="flex items-start gap-2 flex-1">
+                  {/* Veg Indicator */}
+                  <span className="w-3 h-3 rounded-xs border border-[#168A4A] flex items-center justify-center p-0.5 mt-0.5 flex-shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#168A4A]" />
+                  </span>
+                  <div>
+                    <span className="font-bold text-xs text-[#17201B] block leading-tight">
+                      {dish.name}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[11px] bg-[#E8F5EE] text-[#168A4A] font-bold px-2 py-0.5 rounded">
-                      <CheckCircle2 className="w-3 h-3" />
-                      Verified
+                    <span className="text-[10px] text-[#66736B] line-clamp-2 mt-0.5">
+                      {dish.description}
                     </span>
                   </div>
-                  <p className="text-xs text-[#66736B]">
-                    South Indian · Thali · Fast Tiffin · 280 m from Cyber Park Exit
-                  </p>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#F0FDF4] text-[#1F9D55] border border-emerald-200">
-                    Open Now
+                <div className="flex flex-col items-end flex-shrink-0">
+                  <span className="font-mono text-xs font-bold text-[#168A4A]">
+                    ₹{dish.price}
                   </span>
+                  <span
+                    className={`text-[9px] font-bold mt-1 px-1 rounded ${
+                      dish.isAvailable
+                        ? 'bg-[#E8F5EE] text-[#168A4A]'
+                        : 'bg-red-50 text-red-600'
+                    }`}
+                  >
+                    {dish.isAvailable ? 'IN STOCK' : 'SOLD OUT'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Home Feed
+  return (
+    <div className="flex-1 flex flex-col bg-[#F7F8F6] text-left">
+      {/* Location Bar */}
+      <div className="px-3 py-2 bg-white border-b border-[#E7EBE8] flex items-center justify-between">
+        <div className="flex items-center gap-1.5 truncate">
+          <MapPin className="w-3.5 h-3.5 text-[#168A4A] flex-shrink-0" />
+          <div className="truncate">
+            <span className="text-[10px] text-[#66736B] block leading-none">Nearby Hub</span>
+            <span className="text-xs font-bold text-[#17201B] truncate">Cyber Park, Sector 33</span>
+          </div>
+        </div>
+        <span className="text-[9px] font-mono bg-[#E8F5EE] text-[#168A4A] font-bold px-1.5 py-0.5 rounded">
+          GPS ON
+        </span>
+      </div>
+
+      {/* Search Input */}
+      <div className="p-2.5 bg-white border-b border-[#E7EBE8]">
+        <div className="relative flex items-center">
+          <Search className="w-3.5 h-3.5 text-[#66736B] absolute left-2.5 pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search food, thali, mess..."
+            className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-[#EFF2EF] text-xs text-[#17201B] placeholder-[#66736B] outline-none focus:ring-1 focus:ring-[#168A4A]"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 text-slate-400 hover:text-slate-600 text-xs"
+            >
+              ×
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Horizontal Category Chips */}
+      <div className="px-2.5 py-2 bg-white border-b border-[#E7EBE8] flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+        {['All', 'Lunch', 'Breakfast', 'Pure Veg', 'Mess'].map((cat) => (
+          <button
+            key={cat}
+            type="button"
+            onClick={() => setSelectedCategory(cat)}
+            className={`text-[10px] font-semibold px-2 py-1 rounded-full whitespace-nowrap transition-colors ${
+              selectedCategory === cat
+                ? 'bg-[#168A4A] text-white'
+                : 'bg-[#EFF2EF] text-[#17201B] hover:bg-slate-200'
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* Sub-Tabs: All Outlets vs Favorites */}
+      <div className="flex border-b border-[#E7EBE8] bg-[#F7F8F6] text-xs font-bold text-[#66736B]">
+        <button
+          type="button"
+          onClick={() => setActiveTab('home')}
+          className={`flex-1 py-1.5 text-center ${
+            activeTab === 'home'
+              ? 'text-[#168A4A] border-b-2 border-[#168A4A] bg-white'
+              : 'hover:text-[#17201B]'
+          }`}
+        >
+          Nearby Outlets ({outlets.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('favorites')}
+          className={`flex-1 py-1.5 text-center ${
+            activeTab === 'favorites'
+              ? 'text-[#168A4A] border-b-2 border-[#168A4A] bg-white'
+              : 'hover:text-[#17201B]'
+          }`}
+        >
+          Favorites ({outlets.filter((o) => o.isFavorite).length})
+        </button>
+      </div>
+
+      {/* Outlets Stream */}
+      <div className="p-2.5 space-y-2.5 flex-1">
+        {filteredOutlets.length === 0 ? (
+          <div className="p-6 text-center text-xs text-[#66736B]">
+            No outlets found matching &quot;{searchQuery || selectedCategory}&quot;
+          </div>
+        ) : (
+          filteredOutlets.map((outlet) => {
+            const firstDish = outlet.menu[0];
+            return (
+              <div
+                key={outlet.id}
+                onClick={() => setSelectedOutletId(outlet.id)}
+                className="p-3 bg-white rounded-xl border border-[#E7EBE8] shadow-2xs cursor-pointer hover:border-[#168A4A]/50 transition-all text-left group"
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between gap-1.5">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-1">
+                      <span className="font-bold text-xs text-[#17201B] group-hover:text-[#168A4A] transition-colors leading-tight">
+                        {outlet.name}
+                      </span>
+                      {outlet.verificationStatus === 'approved' && (
+                        <CheckCircle2 className="w-3 h-3 text-[#168A4A] flex-shrink-0" />
+                      )}
+                    </div>
+                    <span className="text-[10px] text-[#66736B] block leading-tight mt-0.5">
+                      {outlet.category}
+                    </span>
+                  </div>
+
+                  {/* Favorite Heart */}
                   <button
                     type="button"
-                    onClick={() => setIsFavorite(!isFavorite)}
-                    className="p-2 rounded-lg border border-[#E7EBE8] hover:bg-slate-50 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleFavorite(outlet.id);
+                    }}
+                    className="p-1 rounded-full hover:bg-slate-100 flex-shrink-0"
                     aria-label="Toggle favorite"
                   >
                     <Heart
-                      className={`w-4 h-4 ${
-                        isFavorite ? 'fill-red-500 text-red-500' : 'text-[#66736B]'
+                      className={`w-3.5 h-3.5 ${
+                        outlet.isFavorite
+                          ? 'fill-red-500 text-red-500'
+                          : 'text-slate-400'
                       }`}
                     />
                   </button>
                 </div>
-              </div>
 
-              {/* Today's Special Dish Row */}
-              <div className="mt-4 pt-4 border-t border-[#E7EBE8] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-3.5 h-3.5 rounded border border-[#168A4A] flex items-center justify-center p-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#168A4A]" />
+                {/* Distance & Status Row */}
+                <div className="mt-2 flex items-center justify-between text-[10px]">
+                  <span
+                    className={`font-bold px-1.5 py-0.5 rounded text-[9px] ${
+                      outlet.isOpen
+                        ? 'bg-[#F0FDF4] text-[#1F9D55]'
+                        : 'bg-red-50 text-red-600'
+                    }`}
+                  >
+                    {outlet.isOpen ? '● Open Now' : '● Closed'}
                   </span>
-                  <div>
-                    <span className="text-sm font-bold text-[#17201B] block">
-                      Executive South Indian Lunch Thali
-                    </span>
-                    <span className="text-xs text-[#66736B]">
-                      Includes 3 Rotis, Dal Tadka, Seasonal Sabzi, Sambar, Rice &amp; Curd
-                    </span>
-                  </div>
+                  <span className="text-[#66736B]">★ {outlet.rating}</span>
+                  <span className="font-mono text-[#168A4A] font-bold">{outlet.distanceMeters}m</span>
                 </div>
 
-                <div className="flex items-center gap-3 sm:self-center">
-                  <span className="font-mono text-base font-bold text-[#168A4A]">₹80</span>
+                {/* Today's Special Dish Row */}
+                {firstDish && (
+                  <div className="mt-2 pt-2 border-t border-[#E7EBE8]/60 flex items-center justify-between text-[10px]">
+                    <div className="flex items-center gap-1.5 truncate flex-1">
+                      <span className="w-2.5 h-2.5 rounded-2xs border border-[#168A4A] flex items-center justify-center p-0.5 flex-shrink-0">
+                        <span className="w-1 h-1 rounded-full bg-[#168A4A]" />
+                      </span>
+                      <span className="font-medium text-[#17201B] truncate">
+                        {firstDish.name}
+                      </span>
+                    </div>
+                    <span className="font-mono font-bold text-[#168A4A] flex-shrink-0 ml-1">
+                      ₹{firstDish.price}
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// 2. HOTEL / MESS OWNER APPLICATION (React reproduction of Flutter H04 - H06)
+// =============================================================================
+
+function OwnerApp({
+  outlet,
+  onToggleKitchen,
+  onToggleItem,
+  onAddDish,
+  onDeleteDish,
+}: {
+  outlet: MockOutlet;
+  onToggleKitchen: () => void;
+  onToggleItem: (itemId: string) => void;
+  onAddDish: (dish: Omit<MockMenuItem, 'id'>) => void;
+  onDeleteDish: (itemId: string) => void;
+}) {
+  const [activeScreen, setActiveScreen] = useState<'dashboard' | 'add-dish' | 'ai-scanner'>('dashboard');
+
+  // Add Item form state
+  const [dishName, setDishName] = useState('');
+  const [dishPrice, setDishPrice] = useState('85');
+  const [dishCategory, setDishCategory] = useState<'Lunch' | 'Breakfast' | 'Snacks'>('Lunch');
+  const [dishDesc, setDishDesc] = useState('');
+
+  // AI Scanner simulator state
+  const [isScanning, setIsScanning] = useState(false);
+
+  // Submit new dish form
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!dishName.trim()) return;
+    onAddDish({
+      name: dishName.trim(),
+      description: dishDesc.trim() || 'Freshly prepared daily lunch special',
+      price: parseInt(dishPrice, 10) || 70,
+      category: dishCategory,
+      isVeg: true,
+      isAvailable: true,
+    });
+    setDishName('');
+    setDishDesc('');
+    setActiveScreen('dashboard');
+  };
+
+  // Simulate AI chalkboard scanner
+  const handleTriggerAiScan = () => {
+    setIsScanning(true);
+    setTimeout(() => {
+      setIsScanning(false);
+      onAddDish({
+        name: 'Special Ghee Roast Dosa & Chutney',
+        description: 'Crispy fermented crepe with pure ghee & spiced potato subzi',
+        price: 75,
+        category: 'Daily Special',
+        isVeg: true,
+        isAvailable: true,
+      });
+      setActiveScreen('dashboard');
+    }, 1200);
+  };
+
+  // Screen: Add Item
+  if (activeScreen === 'add-dish') {
+    return (
+      <div className="flex-1 flex flex-col bg-[#F7F8F6] text-left">
+        <div className="p-3 bg-white border-b border-[#E7EBE8] flex items-center justify-between sticky top-0 z-10">
+          <button
+            type="button"
+            onClick={() => setActiveScreen('dashboard')}
+            className="p-1 rounded-lg hover:bg-slate-100 text-[#17201B] flex items-center gap-1 text-xs font-semibold"
+          >
+            <ArrowLeft className="w-4 h-4 text-[#168A4A]" />
+            <span>Cancel</span>
+          </button>
+          <span className="font-bold text-xs text-[#17201B]">Add Today&apos;s Dish</span>
+          <div className="w-6" />
+        </div>
+
+        <form onSubmit={handleFormSubmit} className="p-3 space-y-3 flex-1 flex flex-col justify-between">
+          <div className="space-y-2.5">
+            <div>
+              <label className="text-[10px] font-bold text-[#66736B] block mb-1">DISH NAME</label>
+              <input
+                type="text"
+                required
+                value={dishName}
+                onChange={(e) => setDishName(e.target.value)}
+                placeholder="e.g. Special Chapati Meals"
+                className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-[#E7EBE8] text-xs text-[#17201B] outline-none focus:border-[#168A4A]"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] font-bold text-[#66736B] block mb-1">PRICE (₹)</label>
+                <input
+                  type="number"
+                  required
+                  value={dishPrice}
+                  onChange={(e) => setDishPrice(e.target.value)}
+                  className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-[#E7EBE8] text-xs font-mono font-bold text-[#168A4A] outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-[#66736B] block mb-1">MEAL SLOT</label>
+                <select
+                  value={dishCategory}
+                  onChange={(e) => setDishCategory(e.target.value as any)}
+                  className="w-full px-2 py-1.5 rounded-lg bg-white border border-[#E7EBE8] text-xs text-[#17201B] outline-none"
+                >
+                  <option value="Lunch">Lunch</option>
+                  <option value="Breakfast">Breakfast</option>
+                  <option value="Snacks">Snacks</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold text-[#66736B] block mb-1">DESCRIPTION</label>
+              <textarea
+                value={dishDesc}
+                onChange={(e) => setDishDesc(e.target.value)}
+                placeholder="Dishes included, roti count..."
+                rows={3}
+                className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-[#E7EBE8] text-xs text-[#17201B] outline-none focus:border-[#168A4A]"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-2 bg-[#168A4A] hover:bg-[#0D5C35] text-white text-xs font-bold rounded-xl transition-colors shadow-sm"
+          >
+            Publish to Today&apos;s Menu
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  // Screen: AI Scanner Simulation
+  if (activeScreen === 'ai-scanner') {
+    return (
+      <div className="flex-1 flex flex-col bg-[#F7F8F6] text-left">
+        <div className="p-3 bg-white border-b border-[#E7EBE8] flex items-center justify-between sticky top-0 z-10">
+          <button
+            type="button"
+            onClick={() => setActiveScreen('dashboard')}
+            className="p-1 rounded-lg hover:bg-slate-100 text-[#17201B] flex items-center gap-1 text-xs font-semibold"
+          >
+            <ArrowLeft className="w-4 h-4 text-[#168A4A]" />
+            <span>Cancel</span>
+          </button>
+          <span className="font-bold text-xs text-[#17201B]">AI Menu Assistant</span>
+          <div className="w-6" />
+        </div>
+
+        <div className="p-3.5 flex-1 flex flex-col justify-between">
+          <div className="space-y-3">
+            <div className="p-3 bg-white rounded-xl border border-[#E7EBE8]">
+              <span className="text-[10px] font-mono font-bold text-[#F47B20] block mb-1">
+                CHALKBOARD OCR &amp; PARSER
+              </span>
+              <p className="text-xs text-[#17201B]">
+                Take a quick photo of your handwritten chalkboard or paste raw daily notes.
+              </p>
+            </div>
+
+            <div className="p-3 bg-slate-900 rounded-xl text-white font-mono text-[11px] space-y-1">
+              <span className="text-slate-400 block text-[9px]">MOCK CHALKBOARD INPUT:</span>
+              <p className="text-emerald-400">&gt; &quot;Special Ghee Roast Dosa 75 Rs with 2 Chutneys &amp; Sambar&quot;</p>
+            </div>
+
+            {isScanning && (
+              <div className="p-3 bg-[#E8F5EE] rounded-xl border border-emerald-200 text-center animate-pulse">
+                <span className="font-bold text-xs text-[#168A4A] block">
+                  Analyzing menu with AI...
+                </span>
+                <span className="text-[10px] text-[#0D5C35]">Structuring items and pricing</span>
+              </div>
+            )}
+          </div>
+
+          <button
+            type="button"
+            disabled={isScanning}
+            onClick={handleTriggerAiScan}
+            className="w-full py-2 bg-[#F47B20] hover:bg-[#d96714] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{isScanning ? 'Parsing Notes...' : 'Parse & Publish to Today\'s Menu'}</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Screen: Dashboard
+  return (
+    <div className="flex-1 flex flex-col bg-[#F7F8F6] text-left">
+      {/* Owner Header */}
+      <div className="p-3 bg-white border-b border-[#E7EBE8] flex items-center justify-between">
+        <div>
+          <span className="text-[10px] text-[#66736B] block leading-none">Partner Portal</span>
+          <span className="text-xs font-bold text-[#17201B] truncate">{outlet.name}</span>
+        </div>
+        <div className="w-6 h-6 rounded-full bg-[#E8F5EE] text-[#168A4A] flex items-center justify-center font-bold text-[10px]">
+          AP
+        </div>
+      </div>
+
+      <div className="p-2.5 space-y-2.5 flex-1">
+        {/* Kitchen Status Toggle Card */}
+        <div className="p-3 bg-white rounded-xl border border-[#E7EBE8] shadow-2xs">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <span className="text-[10px] font-bold text-[#66736B] block">KITCHEN SERVICE</span>
+              <span className="text-xs font-bold text-[#17201B]">
+                {outlet.isOpen ? 'Accepting Diners' : 'Kitchen Closed'}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={onToggleKitchen}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 ${
+                outlet.isOpen
+                  ? 'bg-[#168A4A] text-white'
+                  : 'bg-red-600 text-white'
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+              <span>{outlet.isOpen ? 'OPEN' : 'CLOSED'}</span>
+            </button>
+          </div>
+          <span className="text-[10px] text-[#66736B] block">
+            Toggling this updates the Diner app in real-time.
+          </span>
+        </div>
+
+        {/* Action Buttons: Add Item & AI Assistant */}
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveScreen('add-dish')}
+            className="p-2 bg-white rounded-xl border border-[#E7EBE8] hover:border-[#168A4A] text-[#17201B] text-xs font-bold flex items-center justify-center gap-1 transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5 text-[#168A4A]" />
+            <span>+ Add Dish</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveScreen('ai-scanner')}
+            className="p-2 bg-white rounded-xl border border-[#E7EBE8] hover:border-[#F47B20] text-[#17201B] text-xs font-bold flex items-center justify-center gap-1 transition-colors"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#F47B20]" />
+            <span>AI Menu Scan</span>
+          </button>
+        </div>
+
+        {/* Today's Menu Inventory Control */}
+        <div className="p-3 bg-white rounded-xl border border-[#E7EBE8]">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-[#17201B]">Today&apos;s Live Menu</span>
+            <span className="text-[10px] font-mono text-[#168A4A]">{outlet.menu.length} items</span>
+          </div>
+
+          <div className="space-y-2">
+            {outlet.menu.map((item) => (
+              <div
+                key={item.id}
+                className="p-2 rounded-lg bg-[#F7F8F6] border border-[#E7EBE8] flex items-center justify-between gap-1.5"
+              >
+                <div className="flex-1 truncate">
+                  <span className="font-bold text-xs text-[#17201B] block truncate leading-tight">
+                    {item.name}
+                  </span>
+                  <span className="font-mono text-[10px] text-[#168A4A] font-bold">
+                    ₹{item.price} · {item.category}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-1 flex-shrink-0">
                   <button
                     type="button"
-                    onClick={() => setShowDirections(!showDirections)}
-                    className="text-xs font-bold px-3 py-1.5 rounded-lg bg-[#168A4A] hover:bg-[#0D5C35] text-white flex items-center gap-1.5 transition-colors"
+                    onClick={() => onToggleItem(item.id)}
+                    className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                      item.isAvailable
+                        ? 'bg-[#E8F5EE] text-[#168A4A] border border-emerald-300'
+                        : 'bg-red-50 text-red-600 border border-red-200'
+                    }`}
                   >
-                    <Navigation className="w-3.5 h-3.5" />
-                    <span>{showDirections ? 'Hide Route' : 'Get Walking Route'}</span>
+                    {item.isAvailable ? 'IN STOCK' : 'SOLD OUT'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onDeleteDish(item.id)}
+                    className="p-1 text-slate-400 hover:text-red-500 rounded"
+                    title="Remove item"
+                  >
+                    <Trash2 className="w-3 h-3" />
                   </button>
                 </div>
               </div>
-
-              {/* Directions Panel */}
-              {showDirections && (
-                <div className="mt-4 p-3.5 rounded-lg bg-[#E8F5EE] border border-emerald-200 text-xs text-[#0D5C35] animate-fadeIn">
-                  <div className="font-bold flex items-center justify-between mb-1">
-                    <span>WALKING ROUTE: 4 MIN WALK (280 M)</span>
-                    <span className="text-[10px] font-mono">SPEED: 1.2 m/s</span>
-                  </div>
-                  <ol className="list-decimal list-inside space-y-1 text-[11px] text-[#17201B]">
-                    <li>Exit Cyber Park Tower B via East Pedestrian Gate.</li>
-                    <li>Head straight on Sector 33 Main Avenue for 180 meters.</li>
-                    <li>Turn right at the Landmark Bank ATM; destination will be on the left.</li>
-                  </ol>
-                </div>
-              )}
-            </div>
+            ))}
           </div>
-        )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-        {/* ----------------------------------------------------------------------- */}
-        {/* ROLE 02: OWNER INTERACTION PANEL                                       */}
-        {/* ----------------------------------------------------------------------- */}
-        {activeRole === 'owner' && (
-          <div className="bg-[#F7F8F6] p-5 sm:p-6 rounded-2xl border border-[#E7EBE8] text-left">
-            {/* Owner Feedback Toast */}
-            {ownerToast && (
-              <div className="mb-4 p-3 rounded-lg bg-[#E8F5EE] border border-emerald-300 text-xs font-semibold text-[#0D5C35] flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#168A4A]" />
-                <span>{ownerToast}</span>
-              </div>
-            )}
+// =============================================================================
+// 3. PLATFORM ADMIN APPLICATION (React reproduction of Flutter A02 - A03)
+// =============================================================================
 
-            {/* Top Operations Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E7EBE8] mb-5">
-              <div>
-                <span className="font-display text-base font-bold text-[#17201B] block">
-                  Hotel Annapurna Kitchen Console
-                </span>
-                <span className="text-xs text-[#66736B]">
-                  Outlet ID: AH-CYBER-049 · Daily Broadcast Status: Live
-                </span>
-              </div>
+function AdminApp({
+  outlets,
+  reports,
+  onVerifyOutlet,
+  onResolveReport,
+}: {
+  outlets: MockOutlet[];
+  reports: MockReport[];
+  onVerifyOutlet: (id: string, status: 'approved' | 'flagged') => void;
+  onResolveReport: (id: string, status: 'resolved' | 'dismissed') => void;
+}) {
+  const [adminTab, setAdminTab] = useState<'verification' | 'reports'>('verification');
 
-              {/* Kitchen Open/Close Switch */}
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-semibold text-[#17201B]">
-                  Kitchen State:
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const next = !isKitchenOpen;
-                    setIsKitchenOpen(next);
-                    setOwnerToast(next ? 'Outlet marked OPEN to diners' : 'Outlet marked CLOSED');
-                    setTimeout(() => setOwnerToast(null), 3000);
-                  }}
-                  className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${
-                    isKitchenOpen
-                      ? 'bg-[#168A4A] text-white border-[#168A4A]'
-                      : 'bg-red-600 text-white border-red-600'
+  const pendingOutlets = outlets.filter((o) => o.verificationStatus !== 'approved');
+  const verifiedCount = outlets.filter((o) => o.verificationStatus === 'approved').length;
+
+  return (
+    <div className="flex-1 flex flex-col bg-[#F7F8F6] text-left">
+      {/* Top Admin Header */}
+      <div className="p-3 bg-white border-b border-[#E7EBE8] flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <ShieldCheck className="w-4 h-4 text-[#168A4A]" />
+          <div>
+            <span className="text-[10px] text-[#66736B] block leading-none">Control Center</span>
+            <span className="text-xs font-bold text-[#17201B]">Admin Portal</span>
+          </div>
+        </div>
+        <span className="text-[9px] font-mono bg-blue-50 text-blue-700 font-bold px-1.5 py-0.5 rounded">
+          SUPERADMIN
+        </span>
+      </div>
+
+      {/* KPI Bento Grid */}
+      <div className="p-2.5 grid grid-cols-3 gap-1.5 bg-white border-b border-[#E7EBE8]">
+        <div className="p-2 rounded-lg bg-[#F7F8F6] border border-[#E7EBE8] text-center">
+          <span className="text-[9px] font-mono text-[#66736B] block">TOTAL</span>
+          <span className="font-mono text-xs font-bold text-[#17201B]">{outlets.length}</span>
+        </div>
+        <div className="p-2 rounded-lg bg-[#E8F5EE] border border-emerald-200 text-center">
+          <span className="text-[9px] font-mono text-[#168A4A] block">VERIFIED</span>
+          <span className="font-mono text-xs font-bold text-[#168A4A]">{verifiedCount}</span>
+        </div>
+        <div className="p-2 rounded-lg bg-amber-50 border border-amber-200 text-center">
+          <span className="text-[9px] font-mono text-amber-700 block">PENDING</span>
+          <span className="font-mono text-xs font-bold text-amber-700">
+            {outlets.length - verifiedCount}
+          </span>
+        </div>
+      </div>
+
+      {/* Sub Tabs */}
+      <div className="flex border-b border-[#E7EBE8] bg-[#F7F8F6] text-xs font-bold text-[#66736B]">
+        <button
+          type="button"
+          onClick={() => setAdminTab('verification')}
+          className={`flex-1 py-1.5 text-center ${
+            adminTab === 'verification'
+              ? 'text-[#168A4A] border-b-2 border-[#168A4A] bg-white'
+              : 'hover:text-[#17201B]'
+          }`}
+        >
+          Verification ({outlets.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setAdminTab('reports')}
+          className={`flex-1 py-1.5 text-center ${
+            adminTab === 'reports'
+              ? 'text-[#168A4A] border-b-2 border-[#168A4A] bg-white'
+              : 'hover:text-[#17201B]'
+          }`}
+        >
+          Complaints ({reports.filter((r) => r.status === 'open').length})
+        </button>
+      </div>
+
+      {/* Admin Content Area */}
+      <div className="p-2.5 space-y-2 flex-1 overflow-y-auto">
+        {adminTab === 'verification' ? (
+          outlets.map((outlet) => (
+            <div
+              key={outlet.id}
+              className="p-3 bg-white rounded-xl border border-[#E7EBE8] shadow-2xs space-y-2"
+            >
+              <div className="flex items-start justify-between gap-1">
+                <div>
+                  <span className="font-bold text-xs text-[#17201B] block leading-tight">
+                    {outlet.name}
+                  </span>
+                  <span className="text-[10px] text-[#66736B] block">
+                    FSSAI: <span className="font-mono">{outlet.fssaiNumber}</span>
+                  </span>
+                </div>
+                <span
+                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
+                    outlet.verificationStatus === 'approved'
+                      ? 'bg-[#E8F5EE] text-[#168A4A]'
+                      : outlet.verificationStatus === 'pending'
+                      ? 'bg-amber-50 text-amber-700'
+                      : 'bg-red-50 text-red-600'
                   }`}
                 >
-                  <span className={`w-2 h-2 rounded-full ${isKitchenOpen ? 'bg-white' : 'bg-red-200'}`} />
-                  <span>{isKitchenOpen ? 'OPEN / SERVING' : 'CLOSED / OFF-PEAK'}</span>
+                  {outlet.verificationStatus}
+                </span>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-1.5 pt-1 border-t border-[#E7EBE8]/60">
+                <button
+                  type="button"
+                  onClick={() => onVerifyOutlet(outlet.id, 'approved')}
+                  disabled={outlet.verificationStatus === 'approved'}
+                  className="flex-1 py-1 bg-[#168A4A] hover:bg-[#0D5C35] text-white text-[10px] font-bold rounded-lg transition-colors disabled:opacity-40"
+                >
+                  Approve &amp; Verify
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onVerifyOutlet(outlet.id, 'flagged')}
+                  disabled={outlet.verificationStatus === 'flagged'}
+                  className="px-2 py-1 border border-red-300 text-red-600 hover:bg-red-50 text-[10px] font-bold rounded-lg transition-colors disabled:opacity-40"
+                >
+                  Flag
                 </button>
               </div>
             </div>
-
-            {/* Live Today's Menu Inventory Control */}
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <h4 className="font-display text-sm font-bold text-[#17201B]">
-                  Today&apos;s Live Menu Items
-                </h4>
-                <span className="text-[11px] text-[#66736B]">
-                  Toggle dishes in/out of stock in real time
-                </span>
-              </div>
-
-              {/* Simulated AI Chalkboard Scan Trigger */}
-              <button
-                type="button"
-                onClick={handleSimulateAiScan}
-                disabled={aiScanning}
-                className="text-xs font-bold px-3 py-1.5 rounded-lg bg-[#F47B20] hover:bg-[#d96714] text-white flex items-center gap-1.5 transition-colors disabled:opacity-50"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{aiScanning ? 'Parsing Chalkboard...' : 'Simulate AI Menu Scan'}</span>
-              </button>
-            </div>
-
-            {/* Menu Items List */}
-            <div className="space-y-2.5">
-              {menuItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white p-3.5 rounded-xl border border-[#E7EBE8] flex items-center justify-between gap-3 shadow-2xl-none"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span
-                      className={`w-3.5 h-3.5 rounded border flex items-center justify-center p-0.5 ${
-                        item.isVeg ? 'border-[#168A4A]' : 'border-red-600'
-                      }`}
-                    >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          item.isVeg ? 'bg-[#168A4A]' : 'bg-red-600'
-                        }`}
-                      />
-                    </span>
-                    <div>
-                      <span className="text-xs sm:text-sm font-bold text-[#17201B] block">
-                        {item.name}
-                      </span>
-                      <span className="text-[10px] text-[#66736B]">
-                        {item.category} · Price: <span className="font-mono text-[#168A4A] font-semibold">₹{item.price}</span>
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                        item.isAvailable
-                          ? 'bg-[#E8F5EE] text-[#168A4A]'
-                          : 'bg-red-50 text-red-600'
-                      }`}
-                    >
-                      {item.isAvailable ? 'IN STOCK' : 'SOLD OUT'}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => toggleItemAvailability(item.id)}
-                      className="text-xs px-2.5 py-1 rounded font-semibold border border-[#E7EBE8] hover:bg-slate-50 transition-colors"
-                    >
-                      Toggle
-                    </button>
-                  </div>
+          ))
+        ) : (
+          reports.map((rep) => (
+            <div
+              key={rep.id}
+              className="p-3 bg-white rounded-xl border border-[#E7EBE8] shadow-2xs space-y-2"
+            >
+              <div className="flex items-start justify-between gap-1">
+                <div>
+                  <span className="font-bold text-xs text-[#17201B] block leading-tight">
+                    {rep.outletName}
+                  </span>
+                  <span className="text-[10px] text-red-600 block mt-0.5 leading-tight">
+                    {rep.issue}
+                  </span>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ----------------------------------------------------------------------- */}
-        {/* ROLE 03: ADMIN INTERACTION PANEL                                       */}
-        {/* ----------------------------------------------------------------------- */}
-        {activeRole === 'admin' && (
-          <div className="bg-[#F7F8F6] p-5 sm:p-6 rounded-2xl border border-[#E7EBE8] text-left">
-            {/* Admin Feedback Toast */}
-            {adminToast && (
-              <div className="mb-4 p-3 rounded-lg bg-[#E8F5EE] border border-emerald-300 text-xs font-semibold text-[#0D5C35] flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#168A4A]" />
-                <span>{adminToast}</span>
-              </div>
-            )}
-
-            {/* Platform Overview Metrics */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-              <div className="bg-white p-3 rounded-xl border border-[#E7EBE8]">
-                <span className="text-[10px] font-mono text-[#66736B] uppercase block">
-                  Registered Outlets
-                </span>
-                <span className="font-mono text-lg font-bold text-[#17201B]">48</span>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-[#E7EBE8]">
-                <span className="text-[10px] font-mono text-[#66736B] uppercase block">
-                  Verified Outlets
-                </span>
-                <span className="font-mono text-lg font-bold text-[#168A4A]">42</span>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-[#E7EBE8]">
-                <span className="text-[10px] font-mono text-[#66736B] uppercase block">
-                  Pending Audit
-                </span>
-                <span className="font-mono text-lg font-bold text-[#F47B20]">6</span>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-[#E7EBE8]">
-                <span className="text-[10px] font-mono text-[#66736B] uppercase block">
-                  Spatial Engine
-                </span>
-                <span className="font-mono text-lg font-bold text-[#168A4A]">Healthy</span>
-              </div>
-            </div>
-
-            {/* Moderation Queue */}
-            <div className="mb-3 flex items-center justify-between">
-              <h4 className="font-display text-sm font-bold text-[#17201B]">
-                Outlet Verification &amp; Hygiene Compliance Queue
-              </h4>
-              <span className="text-[11px] font-mono text-[#66736B]">
-                Interactive Audit Actions
-              </span>
-            </div>
-
-            <div className="space-y-3">
-              {verifications.map((outlet) => (
-                <div
-                  key={outlet.id}
-                  className="bg-white p-4 rounded-xl border border-[#E7EBE8] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                <span
+                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
+                    rep.status === 'resolved'
+                      ? 'bg-[#E8F5EE] text-[#168A4A]'
+                      : 'bg-amber-50 text-amber-700'
+                  }`}
                 >
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-[#17201B]">{outlet.name}</span>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
-                          outlet.status === 'verified'
-                            ? 'bg-[#E8F5EE] text-[#168A4A]'
-                            : outlet.status === 'pending'
-                            ? 'bg-amber-50 text-amber-700'
-                            : 'bg-red-50 text-red-600'
-                        }`}
-                      >
-                        {outlet.status}
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#66736B] mt-0.5">
-                      Hub: {outlet.hub} · FSSAI: <span className="font-mono">{outlet.fssaiNumber}</span> · Submitted: {outlet.submittedAt}
-                    </p>
-                  </div>
+                  {rep.status}
+                </span>
+              </div>
 
-                  <div className="flex items-center gap-2 sm:self-center">
-                    <button
-                      type="button"
-                      onClick={() => handleVerify(outlet.id, 'verified')}
-                      className="text-xs font-bold px-3 py-1.5 rounded-lg bg-[#168A4A] hover:bg-[#0D5C35] text-white transition-colors"
-                    >
-                      Approve &amp; Verify
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleVerify(outlet.id, 'flagged')}
-                      className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      Flag
-                    </button>
-                  </div>
+              {rep.status === 'open' && (
+                <div className="flex items-center gap-1.5 pt-1 border-t border-[#E7EBE8]/60">
+                  <button
+                    type="button"
+                    onClick={() => onResolveReport(rep.id, 'resolved')}
+                    className="flex-1 py-1 bg-[#168A4A] text-white text-[10px] font-bold rounded-lg"
+                  >
+                    Resolve Issue
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onResolveReport(rep.id, 'dismissed')}
+                    className="px-2 py-1 border border-[#E7EBE8] text-[#66736B] text-[10px] font-bold rounded-lg"
+                  >
+                    Dismiss
+                  </button>
                 </div>
-              ))}
+              )}
             </div>
-          </div>
+          ))
         )}
       </div>
     </div>
