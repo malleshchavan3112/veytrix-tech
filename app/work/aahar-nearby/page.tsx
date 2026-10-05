@@ -23,10 +23,8 @@ import {
 } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
-import {
-  GuidedProductJourney,
-  PlatformGovernanceDemo,
-} from '@/components/organisms/interactive-product-demo';
+import { AaharProductStoryboard } from '@/components/organisms/aahar-product-storyboard';
+import { PlatformGovernanceDemo } from '@/components/organisms/platform-governance-demo';
 import { CASE_STUDIES } from '@/content/case-studies';
 import { SITE_CONFIG } from '@/lib/constants/site';
 
@@ -260,21 +258,21 @@ export default function AaharNearbyCaseStudyPage() {
         <Container size="ultra" className="relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
             <span className="font-mono text-xs uppercase tracking-wider text-[#0D5C35] bg-[#E8F5EE] px-2.5 py-1 rounded border border-emerald-200">
-              AAHAR NEARBY // PRODUCT FLOW
+              PRODUCT STORY // AAHAR NEARBY
             </span>
             <h2 className="mt-4 font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-content-primary">
-              From Menu Update to Lunch
+              From Menu Update to Lunch Discovery
             </h2>
             <p className="mt-2 font-display text-lg sm:text-xl text-[#0D5C35] font-semibold">
-              One menu update. One connected product experience.
+              One product. Connected across every role.
             </p>
             <p className="mt-2 text-sm sm:text-base text-content-secondary leading-relaxed">
-              Watch how a mess owner&apos;s menu update becomes a discoverable lunch option for a nearby employee.
+              One connected product experience across mess owners, employees, and platform operations.
             </p>
           </div>
 
-          {/* Guided Product Journey Component (8-Step Cinematic Experience) */}
-          <GuidedProductJourney />
+          {/* Interactive Product Storyboard Component */}
+          <AaharProductStoryboard />
         </Container>
       </section>
 
