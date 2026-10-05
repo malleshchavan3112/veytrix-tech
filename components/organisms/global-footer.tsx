@@ -136,8 +136,15 @@ export function GlobalFooter() {
 
         <HairlineDivider />
 
+        {/* Subtle Architectural Studio Watermark */}
+        <div className="pt-10 pb-4 overflow-hidden pointer-events-none select-none -mb-4">
+          <div className="font-display text-[12vw] sm:text-[14vw] font-black tracking-tighter text-slate-900/[0.025] text-center leading-none whitespace-nowrap">
+            VEYTRIX STUDIO
+          </div>
+        </div>
+
         {/* Bottom Metadata & Copyright */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-content-tertiary">
+        <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-content-tertiary">
           <div>
             © {currentYear} {SITE_CONFIG.legalName}. All rights reserved.
           </div>

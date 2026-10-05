@@ -42,13 +42,13 @@ export function GlobalHeader() {
       />
 
       <header
-        className={`sticky top-0 z-40 w-full h-16 transition-all duration-300 ${
+        className={`sticky top-0 z-40 w-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isScrolled
-            ? 'bg-canvas-base/85 backdrop-blur-md border-b border-border-hairline shadow-sm'
-            : 'bg-transparent border-b border-border-hairline/60'
+            ? 'h-14 sm:h-16 bg-white/90 backdrop-blur-md border-b border-border-hairline shadow-xs'
+            : 'h-20 sm:h-24 bg-transparent border-b border-transparent'
         }`}
       >
-        <Container size="ultra" className="h-full flex items-center justify-between">
+        <Container size="ultra" className="h-full flex items-center justify-between transition-all duration-300">
           {/* Studio Brand Mark */}
           <div className="flex items-center gap-5 sm:gap-6">
             <BrandMark size="md" priority className="flex-shrink-0" />

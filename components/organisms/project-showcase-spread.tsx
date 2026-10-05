@@ -142,7 +142,7 @@ export function ProjectShowcaseSpread({
             </div>
           ) : (
             /* =============================================================== */
-            /* Real Interactive Browser Preview for DateInvite                 */
+            /* Real Interactive Layered Preview for DateInvite                 */
             /* =============================================================== */
             <div className="relative mx-auto w-full rounded-2xl bg-canvas-elevated border border-border-hairline shadow-2xl overflow-hidden group">
               {/* Browser Chrome Header */}
@@ -163,9 +163,10 @@ export function ProjectShowcaseSpread({
                 </div>
               </div>
 
-              {/* Real Project Screen Content */}
-              <div className="relative bg-slate-50 p-2 sm:p-4 overflow-hidden">
-                <div className="relative rounded-lg overflow-hidden border border-border-hairline shadow-md transition-transform duration-300 group-hover:scale-[1.01]">
+              {/* Real Project Screen Content with Layered Mobile Device */}
+              <div className="relative bg-slate-100/70 p-3 sm:p-5 overflow-hidden">
+                {/* Primary Desktop Viewport */}
+                <div className="relative rounded-lg overflow-hidden border border-border-hairline shadow-md transition-transform duration-500 group-hover:scale-[1.01]">
                   <Image
                     src="/projects/dateinvite/interactive_card.png"
                     alt="DateInvite Interactive Proposal Card Preview"
@@ -173,13 +174,32 @@ export function ProjectShowcaseSpread({
                     height={540}
                     className="w-full h-auto object-cover"
                   />
+
+                  {/* Playful Floating Cursor Chip on Hover */}
+                  <div className="absolute bottom-4 left-4 z-20 px-3 py-1.5 rounded-full bg-slate-950/85 backdrop-blur-md border border-white/20 text-white font-mono text-[10px] flex items-center gap-2 shadow-xl opacity-90 transition-all duration-300 group-hover:scale-105 group-hover:border-veytrix-cyan/60">
+                    <span className="w-2 h-2 rounded-full bg-veytrix-cyan animate-pulse" />
+                    <span>DODGE PHYSICS SANDBOX ACTIVE</span>
+                  </div>
+                </div>
+
+                {/* Secondary Mobile Device Layer (Offset bottom right) */}
+                <div className="absolute right-2 sm:right-6 bottom-2 w-28 sm:w-36 aspect-[9/19.5] rounded-2xl bg-slate-950 p-1.5 shadow-2xl border-2 border-slate-700 -rotate-3 opacity-90 transition-all duration-500 group-hover:rotate-0 group-hover:-translate-y-2 group-hover:scale-105 hidden sm:block z-25">
+                  <div className="relative w-full h-full rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+                    <Image
+                      src="/projects/dateinvite/mobile_card.png"
+                      alt="DateInvite Mobile Interactive Card"
+                      fill
+                      sizes="144px"
+                      className="object-cover object-top"
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Bottom Telemetry Strip */}
               <div className="px-5 py-3 bg-canvas-subtle/80 border-t border-border-hairline flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-content-tertiary">
                 <span className="text-veytrix-blue font-medium">TWO-SIDED RECIPROCAL ARCHITECTURE</span>
-                <span>DODGE PHYSICS SANDBOX</span>
+                <span>FRAMER MOTION SPRING PHYSICS</span>
               </div>
             </div>
           )}
@@ -215,18 +235,22 @@ export function ProjectShowcaseSpread({
               : description}
           </p>
 
-          {/* Aahar Connected Product Line Strip (Owner -> Employee -> Discovery) */}
-          {isAahar && (
-            <div className="mt-5 w-full p-3 rounded-xl bg-slate-50 border border-slate-200/90">
-              <div className="flex items-center justify-between font-mono text-[11px]">
-                <span className="font-bold text-slate-800">OWNER</span>
-                <span className="h-px flex-1 mx-3 bg-emerald-400/60 transition-all duration-300 group-hover/card:bg-emerald-500" />
-                <span className="font-bold text-slate-800">EMPLOYEE</span>
-                <span className="h-px flex-1 mx-3 bg-emerald-400/60 transition-all duration-300 group-hover/card:bg-emerald-500" />
-                <span className="font-bold text-[#0D5C35]">DISCOVERY</span>
-              </div>
+          {/* Connected Product Line Strip */}
+          <div className="mt-5 w-full p-3 rounded-xl bg-slate-50 border border-slate-200/90">
+            <div className="flex items-center justify-between font-mono text-[11px]">
+              <span className="font-bold text-slate-800">
+                {isAahar ? 'OWNER' : 'ZERO-AUTH'}
+              </span>
+              <span className="h-px flex-1 mx-3 bg-veytrix-cyan/60 transition-all duration-300 group-hover/card:bg-veytrix-blue" />
+              <span className="font-bold text-slate-800">
+                {isAahar ? 'EMPLOYEE' : 'PROPOSAL SANDBOX'}
+              </span>
+              <span className="h-px flex-1 mx-3 bg-veytrix-cyan/60 transition-all duration-300 group-hover/card:bg-veytrix-blue" />
+              <span className="font-bold text-veytrix-blue">
+                {isAahar ? 'DISCOVERY' : 'RLS PRIVACY'}
+              </span>
             </div>
-          )}
+          </div>
 
           {/* Tech Badges */}
           <div className="mt-6 flex flex-wrap gap-2">

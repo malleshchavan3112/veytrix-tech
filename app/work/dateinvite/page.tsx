@@ -6,6 +6,8 @@ import { ArrowLeft, ArrowRight, ShieldCheck, Sparkles, Lock, Check, ExternalLink
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import { MonospaceBadge } from '@/components/ui/monospace-badge';
+import { DateInviteInteractiveSandbox } from '@/components/organisms/dateinvite-interactive-sandbox';
+import { ScrollReveal } from '@/components/motion/scroll-reveal';
 import { CASE_STUDIES } from '@/content/case-studies';
 import { SITE_CONFIG } from '@/lib/constants/site';
 
@@ -275,6 +277,11 @@ export default function DateInviteCaseStudyPage() {
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
+          </div>
+
+          {/* Interactive Live Sandbox (Try the real dodge physics here!) */}
+          <div className="max-w-4xl mx-auto mb-16">
+            <DateInviteInteractiveSandbox />
           </div>
 
           {/* Dual Supporting Previews: Share Modal + Mobile View */}

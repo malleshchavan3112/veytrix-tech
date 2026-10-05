@@ -25,6 +25,7 @@ import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import { AaharProductStoryboard } from '@/components/organisms/aahar-product-storyboard';
 import { PlatformGovernanceDemo } from '@/components/organisms/platform-governance-demo';
+import { ScrollReveal } from '@/components/motion/scroll-reveal';
 import { CASE_STUDIES } from '@/content/case-studies';
 import { SITE_CONFIG } from '@/lib/constants/site';
 
@@ -256,20 +257,22 @@ export default function AaharNearbyCaseStudyPage() {
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[#168A4A]/5 rounded-full blur-3xl pointer-events-none -z-0" />
 
         <Container size="ultra" className="relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-            <span className="font-mono text-xs uppercase tracking-wider text-[#0D5C35] bg-[#E8F5EE] px-2.5 py-1 rounded border border-emerald-200">
-              PRODUCT STORY // AAHAR NEARBY
-            </span>
-            <h2 className="mt-4 font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-content-primary">
-              From Menu Update to Lunch Discovery
-            </h2>
-            <p className="mt-2 font-display text-lg sm:text-xl text-[#0D5C35] font-semibold">
-              One product. Connected across every role.
-            </p>
-            <p className="mt-2 text-sm sm:text-base text-content-secondary leading-relaxed">
-              One connected product experience across mess owners, employees, and platform operations.
-            </p>
-          </div>
+          <ScrollReveal>
+            <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+              <span className="font-mono text-xs uppercase tracking-wider text-[#0D5C35] bg-[#E8F5EE] px-2.5 py-1 rounded border border-emerald-200">
+                PRODUCT STORY // AAHAR NEARBY
+              </span>
+              <h2 className="mt-4 font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-content-primary">
+                From Menu Update to Lunch Discovery
+              </h2>
+              <p className="mt-2 font-display text-lg sm:text-xl text-[#0D5C35] font-semibold">
+                One product. Connected across every role.
+              </p>
+              <p className="mt-2 text-sm sm:text-base text-content-secondary leading-relaxed">
+                One connected product experience across mess owners, employees, and platform operations.
+              </p>
+            </div>
+          </ScrollReveal>
 
           {/* Interactive Product Storyboard Component */}
           <AaharProductStoryboard />
@@ -284,17 +287,19 @@ export default function AaharNearbyCaseStudyPage() {
         className="w-full py-16 sm:py-24 border-b border-border-hairline bg-[#F7F8F6]"
       >
         <Container size="ultra">
-          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-            <span className="font-mono text-xs uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
-              PLATFORM GOVERNANCE
-            </span>
-            <h2 className="mt-4 font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-content-primary">
-              Platform Governance
-            </h2>
-            <p className="mt-3 text-base sm:text-lg text-content-secondary leading-relaxed">
-              How verified partners enter the discovery ecosystem.
-            </p>
-          </div>
+          <ScrollReveal>
+            <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+              <span className="font-mono text-xs uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
+                PLATFORM GOVERNANCE
+              </span>
+              <h2 className="mt-4 font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-content-primary">
+                Platform Governance
+              </h2>
+              <p className="mt-3 text-base sm:text-lg text-content-secondary leading-relaxed">
+                How verified partners enter the discovery ecosystem.
+              </p>
+            </div>
+          </ScrollReveal>
 
           {/* Platform Governance 3-Step Demo */}
           <PlatformGovernanceDemo />

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils/cn';
+import { usePointerParallax } from '@/lib/hooks/use-pointer-parallax';
 
 export interface StudioTriadArtifactProps {
   className?: string;
@@ -11,7 +12,12 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
   const [activeNode, setActiveNode] = useState<'design' | 'tech' | 'product' | 'nexus' | null>(null);
   const [displayedNode, setDisplayedNode] = useState<'design' | 'tech' | 'product' | 'nexus' | null>(null);
   const [isTextFading, setIsTextFading] = useState(false);
-  const [scrollParallax, setScrollParallax] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState({ scale: 1, opacity: 1, translateY: 0 });
+
+  const { containerRef, offset } = usePointerParallax<HTMLDivElement>({
+    maxDisplacement: 8,
+    damping: 0.08,
+  });
 
   // Smooth status text cross-fade transition (~300ms total, fixed container geometry)
   useEffect(() => {
@@ -25,7 +31,7 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
     }
   }, [activeNode, displayedNode]);
 
-  // Subtle scroll-linked parallax response (max 4-6px, strictly clamped)
+  // Subtle scroll transformation (Nexus slowly scales, fades, and moves up as user leaves Hero)
   useEffect(() => {
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (motionQuery.matches) return;
@@ -35,9 +41,10 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const currentY = window.scrollY;
-          // Clamped strictly to a maximum of 6px
-          const offset = Math.min(6, Math.max(0, currentY * 0.015));
-          setScrollParallax(offset);
+          const scale = Math.max(0.96, 1 - currentY * 0.00008);
+          const opacity = Math.max(0.82, 1 - currentY * 0.00035);
+          const translateY = -Math.min(16, currentY * 0.035);
+          setScrollProgress({ scale, opacity, translateY });
           ticking = false;
         });
         ticking = true;
@@ -75,8 +82,13 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
 
   return (
     <div
+      ref={containerRef}
+      style={{
+        transform: `translate3d(${offset.x}px, ${scrollProgress.translateY + offset.y}px, 0) scale(${scrollProgress.scale})`,
+        opacity: scrollProgress.opacity,
+      }}
       className={cn(
-        'relative w-full max-w-[580px] rounded-xl border border-border-hairline bg-canvas-elevated/90 p-4 sm:p-6 md:p-8 backdrop-blur-md select-none shadow-card-hover transition-all duration-300 hover:border-border-default group nexus-enter-container',
+        'relative w-full max-w-[580px] rounded-xl border border-border-hairline bg-canvas-elevated/90 p-4 sm:p-6 md:p-8 backdrop-blur-md select-none shadow-card-hover transition-all duration-200 hover:border-border-default group nexus-enter-container',
         className
       )}
     >
@@ -103,11 +115,8 @@ export function StudioTriadArtifact({ className }: StudioTriadArtifactProps) {
         </div>
       </div>
 
-      {/* SVG Geometric Triad Nexus Schematic with subtle scroll parallax */}
-      <div
-        className="relative py-4 sm:py-6 md:py-8 flex items-center justify-center transition-transform duration-100 ease-out"
-        style={{ transform: scrollParallax ? `translateY(${scrollParallax}px)` : undefined }}
-      >
+      {/* SVG Geometric Triad Nexus Schematic */}
+      <div className="relative py-4 sm:py-6 md:py-8 flex items-center justify-center">
         <svg
           viewBox="0 0 420 360"
           fill="none"

@@ -10,6 +10,7 @@ import { ApproachLifecycleRail } from '@/components/organisms/approach-lifecycle
 import { TechTerminalBlock } from '@/components/organisms/tech-terminal-block';
 import { VerificationGrid } from '@/components/organisms/verification-grid';
 import { SingleInquiryForm } from '@/components/forms/single-inquiry-form';
+import { ScrollReveal } from '@/components/motion/scroll-reveal';
 import { SERVICES } from '@/content/services';
 import { CASE_STUDIES } from '@/content/case-studies';
 import { SITE_CONFIG } from '@/lib/constants/site';
@@ -71,13 +72,23 @@ export default function HomePage() {
                 </span>
               </div>
 
-              {/* Primary Display Headline */}
-              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-content-primary leading-[1.08] max-w-2xl">
-                Design <span className="text-content-muted font-normal">+</span> Technology <span className="text-content-muted font-normal">+</span> <span className="text-gradient-veytrix">Product Thinking</span>
+              {/* Primary Display Headline with Editorial Word Reveal */}
+              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-content-primary leading-[1.12] max-w-2xl">
+                <span className="word-mask">
+                  <span className="word-reveal-1">Design</span>
+                </span>{' '}
+                <span className="text-content-muted font-normal inline-block opacity-0 animate-[editorialWordReveal_800ms_cubic-bezier(0.16,1,0.3,1)_180ms_forwards]">+</span>{' '}
+                <span className="word-mask">
+                  <span className="word-reveal-2">Technology</span>
+                </span>{' '}
+                <span className="text-content-muted font-normal inline-block opacity-0 animate-[editorialWordReveal_800ms_cubic-bezier(0.16,1,0.3,1)_300ms_forwards]">+</span>{' '}
+                <span className="word-mask">
+                  <span className="word-reveal-3 text-gradient-veytrix">Product Thinking</span>
+                </span>
               </h1>
 
               {/* Supporting Editorial Statement */}
-              <p className="mt-6 text-lg sm:text-xl text-content-secondary leading-relaxed max-w-xl">
+              <p className="mt-6 text-lg sm:text-xl text-content-secondary leading-relaxed max-w-xl opacity-0 animate-[editorialWordReveal_800ms_cubic-bezier(0.16,1,0.3,1)_420ms_forwards]">
                 A modern digital product and technology studio bridging high-craft design, resilient engineering, and product thinking.
               </p>
 
@@ -125,45 +136,51 @@ export default function HomePage() {
       <section
         id="work"
         aria-label="Selected Flagship Case Studies"
-        className="w-full py-20 sm:py-28 border-b border-border-hairline bg-canvas-base"
+        className="w-full py-20 sm:py-28 border-b border-border-hairline bg-white relative"
       >
         <Container size="ultra">
-          <SectionHeader
-            eyebrow="01 // SELECTED WORK"
-            title="Proof-Forward Flagship Case Studies"
-            subtitle="Real, production-grade applications engineered with verifiable performance, robust type safety, and disciplined architecture."
-          />
+          <ScrollReveal stagger={0}>
+            <SectionHeader
+              eyebrow="01 // SELECTED WORK"
+              title="Proof-Forward Flagship Case Studies"
+              subtitle="Real, production-grade applications engineered with verifiable performance, robust type safety, and disciplined architecture."
+            />
+          </ScrollReveal>
 
           <div className="flex flex-col">
             {/* Case Study 01: Aahar Nearby */}
-            <ProjectShowcaseSpread
-              number="01"
-              title={aahar.title}
-              tagline={aahar.tagline}
-              category={aahar.category}
-              description={aahar.editorialSummary}
-              slug={aahar.slug}
-              tags={['Flutter 3.x', 'Clean Architecture', 'Firestore Real-Time', 'OneSignal Push']}
-              benchmarkMetric="990+"
-              benchmarkLabel="Automated Tests Passed across Flutter Unit & Widget Suites"
-              deviceType="mobile"
-            />
+            <ScrollReveal stagger={1}>
+              <ProjectShowcaseSpread
+                number="01"
+                title={aahar.title}
+                tagline={aahar.tagline}
+                category={aahar.category}
+                description={aahar.editorialSummary}
+                slug={aahar.slug}
+                tags={['Flutter 3.x', 'Clean Architecture', 'Firestore Real-Time', 'OneSignal Push']}
+                benchmarkMetric="990+"
+                benchmarkLabel="Automated Tests Passed across Flutter Unit & Widget Suites"
+                deviceType="mobile"
+              />
+            </ScrollReveal>
 
             {/* Case Study 02: DateInvite */}
-            <ProjectShowcaseSpread
-              number="02"
-              title={dateinvite.title}
-              tagline={dateinvite.tagline}
-              category={dateinvite.category}
-              description={dateinvite.editorialSummary}
-              slug={dateinvite.slug}
-              tags={['Next.js App Router', 'TypeScript 5', 'Supabase RLS', 'Framer Motion']}
-              benchmarkMetric="Zero"
-              benchmarkLabel="Cross-User PII Exposure Verified via Automated RLS Audit"
-              deviceType="browser"
-              liveUrl="https://www.dateinvite.me/"
-              reverse
-            />
+            <ScrollReveal stagger={2}>
+              <ProjectShowcaseSpread
+                number="02"
+                title={dateinvite.title}
+                tagline={dateinvite.tagline}
+                category={dateinvite.category}
+                description={dateinvite.editorialSummary}
+                slug={dateinvite.slug}
+                tags={['Next.js App Router', 'TypeScript 5', 'Supabase RLS', 'Framer Motion']}
+                benchmarkMetric="Zero"
+                benchmarkLabel="Cross-User PII Exposure Verified via Automated RLS Audit"
+                deviceType="browser"
+                liveUrl="https://www.dateinvite.me/"
+                reverse
+              />
+            </ScrollReveal>
           </div>
         </Container>
       </section>
@@ -174,18 +191,23 @@ export default function HomePage() {
       <section
         id="services"
         aria-label="Studio Capabilities and Services Matrix"
-        className="w-full py-20 sm:py-28 border-b border-border-hairline"
+        className="w-full py-20 sm:py-28 border-b border-border-hairline bg-canvas-subtle/35"
       >
         <Container size="ultra">
-          <SectionHeader
-            eyebrow="02 // CAPABILITIES"
-            title="End-to-End Digital Product Capabilities"
-            subtitle="From foundational discovery and tokenized design systems to resilient distributed backends and native mobile applications."
-          />
+          <ScrollReveal stagger={0}>
+            <SectionHeader
+              eyebrow="02 // CAPABILITIES"
+              title="End-to-End Digital Product Capabilities"
+              subtitle="From foundational discovery and tokenized design systems to resilient distributed backends and native mobile applications."
+            />
+          </ScrollReveal>
 
-          <div className="flex flex-col divide-y divide-border-hairline">
-            {SERVICES.map((service) => (
-              <ServiceMatrixRow key={service.id} service={service} />
+          {/* Interactive Services Matrix Focus Group */}
+          <div className="services-matrix flex flex-col divide-y divide-border-hairline">
+            {SERVICES.map((service, idx) => (
+              <ScrollReveal key={service.id} stagger={(idx % 4) as any}>
+                <ServiceMatrixRow service={service} />
+              </ScrollReveal>
             ))}
           </div>
         </Container>
@@ -197,16 +219,20 @@ export default function HomePage() {
       <section
         id="approach"
         aria-label="Disciplined Engineering Methodology"
-        className="w-full py-20 sm:py-28 border-b border-border-hairline"
+        className="w-full py-20 sm:py-28 border-b border-border-hairline bg-canvas-base"
       >
         <Container size="ultra">
-          <SectionHeader
-            eyebrow="03 // METHODOLOGY"
-            title="Disciplined 4-Stage Lifecycle"
-            subtitle="How we reduce ambiguity, apply design rigor, and build for production resilience."
-          />
+          <ScrollReveal stagger={0}>
+            <SectionHeader
+              eyebrow="03 // METHODOLOGY"
+              title="Disciplined 4-Stage Lifecycle"
+              subtitle="How we reduce ambiguity, apply design rigor, and build for production resilience."
+            />
+          </ScrollReveal>
 
-          <ApproachLifecycleRail />
+          <ScrollReveal stagger={1}>
+            <ApproachLifecycleRail />
+          </ScrollReveal>
         </Container>
       </section>
 
@@ -216,14 +242,20 @@ export default function HomePage() {
       <section
         id="standards"
         aria-label="Engineering Standards and Repository Benchmarks"
-        className="w-full py-20 sm:py-28 border-b border-border-hairline"
+        className="w-full py-20 sm:py-28 border-b border-border-hairline bg-[#0B1015] text-white relative overflow-hidden"
       >
-        <Container size="ultra">
-          <SectionHeader
-            eyebrow="04 // REPOSITORY VALIDATION & ENGINEERING BENCHMARKS"
-            title="Architectural Invariants & Verifiable Telemetry"
-            subtitle="Zero fabricated client logos, zero vanity metrics. Our credibility is rooted in type-safe contracts, audited database isolation, and automated test suites."
-          />
+        {/* Ambient cyan glow behind technical block */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-veytrix-cyan/5 rounded-full blur-3xl pointer-events-none" />
+
+        <Container size="ultra" className="relative z-10">
+          <ScrollReveal stagger={0}>
+            <SectionHeader
+              eyebrow="04 // REPOSITORY VALIDATION & ENGINEERING BENCHMARKS"
+              title="Architectural Invariants & Verifiable Telemetry"
+              subtitle="Zero fabricated client logos, zero vanity metrics. Our credibility is rooted in type-safe contracts, audited database isolation, and automated test suites."
+              dark
+            />
+          </ScrollReveal>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
             {/* Terminal Contract Container (12 cols) */}
@@ -233,7 +265,9 @@ export default function HomePage() {
           </div>
 
           {/* 6 Verified Repository Benchmarks Grid */}
-          <VerificationGrid />
+          <ScrollReveal stagger={2}>
+            <VerificationGrid dark />
+          </ScrollReveal>
         </Container>
       </section>
 
@@ -243,17 +277,21 @@ export default function HomePage() {
       <section
         id="contact"
         aria-label="Architecture Consultation and Project Intake"
-        className="w-full py-20 sm:py-28"
+        className="w-full py-20 sm:py-28 bg-canvas-base"
       >
         <Container size="std">
-          <SectionHeader
-            eyebrow="05 // INITIATE A PROJECT"
-            title="Let's Build Something Exceptional"
-            subtitle="Direct communication with founding engineers. Non-disclosure protected by default."
-            align="center"
-          />
+          <ScrollReveal stagger={0}>
+            <SectionHeader
+              eyebrow="05 // INITIATE A PROJECT"
+              title="Let's Build Something Exceptional"
+              subtitle="Direct communication with founding engineers. Non-disclosure protected by default."
+              align="center"
+            />
+          </ScrollReveal>
 
-          <SingleInquiryForm />
+          <ScrollReveal stagger={1}>
+            <SingleInquiryForm />
+          </ScrollReveal>
         </Container>
       </section>
     </div>

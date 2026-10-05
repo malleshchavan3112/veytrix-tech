@@ -379,6 +379,77 @@ svg [role="button"]:focus-visible {
   will-change: opacity;
 }
 
+/* ========================================================================= */
+/* CINEMATIC MOTION SYSTEM & EDITORIAL WORD REVEALS                           */
+/* ========================================================================= */
+
+@keyframes editorialWordReveal {
+  0% {
+    transform: translateY(115%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+@keyframes terminalScanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(1000%);
+  }
+}
+
+.word-mask {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.word-reveal-1 {
+  display: inline-block;
+  animation: editorialWordReveal 800ms cubic-bezier(0.16, 1, 0.3, 1) 120ms forwards;
+  opacity: 0;
+}
+
+.word-reveal-2 {
+  display: inline-block;
+  animation: editorialWordReveal 800ms cubic-bezier(0.16, 1, 0.3, 1) 240ms forwards;
+  opacity: 0;
+}
+
+.word-reveal-3 {
+  display: inline-block;
+  animation: editorialWordReveal 800ms cubic-bezier(0.16, 1, 0.3, 1) 360ms forwards;
+  opacity: 0;
+}
+
+/* Services Matrix Focus Mode: Active row highlights, others soften */
+.services-matrix:hover .service-matrix-row:not(:hover) {
+  opacity: 0.50;
+  transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.service-matrix-row {
+  transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms ease-out, transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Button CTA micro-tactile interaction */
+.btn-cinematic {
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1), box-shadow 250ms ease-out, background-color 200ms ease-out;
+}
+
+.btn-cinematic:hover {
+  transform: translateY(-1.5px);
+}
+
+.btn-cinematic:active {
+  transform: scale(0.98);
+}
+
 /* Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -405,10 +476,18 @@ svg [role="button"]:focus-visible {
   .animate-node-pulse-3,
   .animate-signal-flow,
   .animate-dot-breathe,
-  .animate-badge-breathe {
+  .animate-badge-breathe,
+  .word-reveal-1,
+  .word-reveal-2,
+  .word-reveal-3 {
     animation: none !important;
     transform: none !important;
     opacity: 1 !important;
     stroke-dashoffset: 0 !important;
   }
+
+  .services-matrix:hover .service-matrix-row:not(:hover) {
+    opacity: 1 !important;
+  }
 }
+
