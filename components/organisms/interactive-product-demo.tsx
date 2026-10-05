@@ -1,40 +1,25 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import {
-  MapPin,
-  Heart,
-  Store,
-  ShieldCheck,
-  Clock,
-  Sparkles,
   Check,
   Navigation,
   ArrowLeft,
   ArrowRight,
-  Search,
-  CheckCircle2,
-  AlertTriangle,
-  Plus,
   RotateCcw,
   Play,
   Pause,
   ChevronRight,
   ChevronLeft,
-  User,
-  Utensils,
-  Leaf,
+  Sparkles,
+  ShieldCheck,
+  Clock,
   Compass,
-  FileText,
-  Building2,
-  Share2,
-  PhoneCall,
-  ExternalLink,
 } from 'lucide-react';
 
 // =============================================================================
-// SCREEN MAP: AUTHENTIC AAHAR FLUTTER SCREENS (NO MANUAL UI REDRAWING)
+// AUTHENTIC AAHAR FLUTTER SCREENS (SOURCE OF TRUTH FROM E:\aahar_nearby)
 // =============================================================================
 
 export const AAHAR_JOURNEY_SCREENS = {
@@ -47,10 +32,10 @@ export const AAHAR_JOURNEY_SCREENS = {
   todayMenu: '/projects/aahar-nearby/menu_details.png',
   adminQueue: '/projects/aahar-nearby/screen_admin_verification_queue.png',
   adminLogin: '/projects/aahar-nearby/screen_admin_portal.png',
-};
+} as const;
 
 // =============================================================================
-// 8-STEP PRODUCT WALKTHROUGH SPECIFICATION
+// STEP CONFIGURATION (8 AUTHENTIC PRODUCT STEPS)
 // =============================================================================
 
 export interface WalkthroughStep {
@@ -59,244 +44,377 @@ export interface WalkthroughStep {
   roleTag: string;
   stepNumber: string;
   navTitle: string;
-  navSubtitle: string;
   title: string;
-  headline: string;
-  annotation: string;
+  subtitle: string;
+  description: string;
+  actionCallout: string;
   screenKey: keyof typeof AAHAR_JOURNEY_SCREENS;
   imageAlt: string;
+  transitionType: 'push' | 'modal' | 'fade';
+  touchTarget?: {
+    top: string;
+    left: string;
+    label?: string;
+  };
 }
 
 export const WALKTHROUGH_STEPS: WalkthroughStep[] = [
   {
     id: 0,
     role: 'MESS OWNER',
-    roleTag: '01 // OWNER',
+    roleTag: '01 / MESS OWNER',
     stepNumber: '01',
-    navTitle: '01 Owner',
-    navSubtitle: 'Open Aahar',
+    navTitle: 'Open Aahar',
     title: 'Owner Opens Aahar',
-    headline: 'Morning kitchen operations & catalog prep',
-    annotation:
-      'The mess owner opens Aahar at 10:30 AM to inspect active kitchen operations and prepare the daily rotational lunch menu before peak office order hours.',
+    subtitle: 'Morning kitchen operations',
+    description: 'The owner opens Aahar and prepares today’s lunch menu.',
+    actionCallout: '+ ADD TODAY’S SPECIAL',
     screenKey: 'ownerDashboard',
     imageAlt: 'Aahar Nearby authentic Owner Dashboard Flutter screen',
+    transitionType: 'fade',
+    touchTarget: { top: '50.5%', left: '28%', label: 'Add Item' },
   },
   {
     id: 1,
     role: 'MESS OWNER',
-    roleTag: '02 // MENU',
+    roleTag: '02 / MESS OWNER',
     stepNumber: '02',
-    navTitle: '02 Menu',
-    navSubtitle: 'Add Special',
+    navTitle: 'Add Special',
     title: "Add Today's Special",
-    headline: 'Raw handwritten menu entry with Gemini AI parsing',
-    annotation:
-      'The owner enters today’s rotational thali: "Special Paneer Thali 120". Aahar’s Gemini AI parses dish names and prices directly without tedious manual forms.',
+    subtitle: 'Raw menu parsing with Gemini AI',
+    description: 'The owner inputs today’s special. Aahar auto-detects dish names and pricing.',
+    actionCallout: 'FORMAT MENU WITH GEMINI AI',
     screenKey: 'addMenu',
     imageAlt: 'Aahar Nearby authentic Add Menu Flutter screen',
+    transitionType: 'modal',
+    touchTarget: { top: '65.5%', left: '50%', label: 'Format with AI' },
   },
   {
     id: 2,
     role: 'MESS OWNER',
-    roleTag: '03 // PUBLISH',
+    roleTag: '03 / MESS OWNER',
     stepNumber: '03',
-    navTitle: '03 Publish',
-    navSubtitle: 'Goes Live',
+    navTitle: 'Goes Live',
     title: 'Menu Goes Live',
-    headline: 'Instant geofenced propagation into active catalog',
-    annotation:
-      'One tap commits the structured lunch menu. The item is published to the Cyber Park hub, ready for nearby office workers within 500 meters.',
+    subtitle: 'Instant geofenced propagation',
+    description: 'One tap commits the structured lunch menu. The item is published to the local hub.',
+    actionCallout: 'PROCEED TO DINER DISCOVERY',
     screenKey: 'ownerPublished',
     imageAlt: 'Aahar Nearby authentic Published Menu Flutter screen',
+    transitionType: 'push',
+    touchTarget: { top: '94%', left: '50%', label: 'Proceed to Diner' },
   },
   {
     id: 3,
     role: 'EMPLOYEE / DINER',
-    roleTag: '04 // EMPLOYEE',
+    roleTag: '04 / EMPLOYEE',
     stepNumber: '04',
-    navTitle: '04 Employee',
-    navSubtitle: 'Open Aahar',
+    navTitle: 'Open Aahar',
     title: 'Employee Opens Aahar',
-    headline: 'Deterministic 350m lunch discovery stream',
-    annotation:
-      'At 1:00 PM, an office worker at DLF Cyber Park opens Aahar. The spatial engine locks to their immediate 350m geofence, surfacing currently open kitchens.',
+    subtitle: 'Nearby lunch discovery',
+    description: 'An office worker at DLF Cyber Park opens Aahar to find today’s open kitchens.',
+    actionCallout: 'SEARCH DISHES & MESSES',
     screenKey: 'employeeHome',
     imageAlt: 'Aahar Nearby authentic Employee Discovery Feed Flutter screen',
+    transitionType: 'push',
+    touchTarget: { top: '10.5%', left: '42%', label: 'Search' },
   },
   {
     id: 4,
     role: 'EMPLOYEE / DINER',
-    roleTag: '05 // DISCOVER',
+    roleTag: '05 / DISCOVERY',
     stepNumber: '05',
-    navTitle: '05 Discover',
-    navSubtitle: 'Search Lunch',
+    navTitle: 'Search',
     title: 'Search for Lunch',
-    headline: "Filtering for today's paneer special",
-    annotation:
-      'Entering "Paneer" queries the local catalog in real time, elevating Annapurna Mess because its newly published menu contains fresh paneer.',
+    subtitle: 'Querying "Paneer"',
+    description: 'Entering "Paneer" instantly queries the local catalog, elevating Annapurna Mess.',
+    actionCallout: 'OPEN OUTLET PROFILE',
     screenKey: 'employeeSearch',
     imageAlt: 'Aahar Nearby authentic Search Results Flutter screen',
+    transitionType: 'push',
+    touchTarget: { top: '60%', left: '50%', label: 'Select Mess' },
   },
   {
     id: 5,
     role: 'EMPLOYEE / DINER',
-    roleTag: '06 // OUTLET',
+    roleTag: '06 / OUTLET',
     stepNumber: '06',
-    navTitle: '06 Outlet',
-    navSubtitle: 'View Mess',
+    navTitle: 'View Mess',
     title: 'Discover the Outlet',
-    headline: 'Inspecting kitchen profile & hygiene verification',
-    annotation:
-      'The employee opens Annapurna Mess. They verify it is open, certified as a Verified Hotel with FSSAI compliance, and located only 250m away.',
+    subtitle: 'Inspecting kitchen profile & hygiene',
+    description: 'The employee verifies the outlet is open, FSSAI certified, and 250m away.',
+    actionCallout: 'INSPECT TODAY’S MENU',
     screenKey: 'outletDetail',
     imageAlt: 'Aahar Nearby authentic Hotel Profile Details Flutter screen',
+    transitionType: 'push',
+    touchTarget: { top: '60%', left: '50%', label: 'View Menu' },
   },
   {
     id: 6,
     role: 'EMPLOYEE / DINER',
-    roleTag: '07 // MENU SYNC',
+    roleTag: '07 / MENU SYNC',
     stepNumber: '07',
-    navTitle: '07 Menu',
-    navSubtitle: 'See Special',
-    title: 'See the Updated Menu',
-    headline: 'The ecosystem loop completes: Owner update is live',
-    annotation:
-      'The exact Special Paneer Thali entered by the owner in Step 02 appears front and center for ₹120. Real-time menu intelligence without stale catalog data.',
+    navTitle: 'See Special',
+    title: "The Owner's Update is Live",
+    subtitle: 'The ecosystem loop completes in real time',
+    description: 'The exact Special Paneer Thali entered by the owner is now visible for ₹120.',
+    actionCallout: 'GET WALKING DIRECTIONS',
     screenKey: 'todayMenu',
     imageAlt: "Aahar Nearby authentic Today's Menu Flutter screen",
+    transitionType: 'push',
+    touchTarget: { top: '43%', left: '71%', label: 'Directions' },
   },
   {
     id: 7,
     role: 'EMPLOYEE / DINER',
-    roleTag: '08 // DIRECTIONS',
+    roleTag: '08 / DIRECTIONS',
     stepNumber: '08',
-    navTitle: '08 Directions',
-    navSubtitle: 'Walk to Lunch',
-    title: 'Plan the Lunch',
-    headline: 'Turn-by-turn walking route through Cyber Park',
-    annotation:
-      'With their meal confirmed, the employee follows the 4-minute walking route to pick up their thali neatly within their 45-minute lunch break.',
+    navTitle: 'Walk to Lunch',
+    title: 'Walk to Lunch',
+    subtitle: 'Turn-by-turn walking route',
+    description: 'The employee follows the 4-minute walking route to pick up their thali.',
+    actionCallout: '280 M · 4 MIN WALK',
     screenKey: 'todayMenu',
     imageAlt: 'Aahar Nearby authentic Walking Directions route view',
+    transitionType: 'fade',
   },
 ];
 
 // =============================================================================
-// SUB-COMPONENT: REALISTIC TOUCH RIPPLE ANIMATION
+// SUB-COMPONENT: REALISTIC DISCRETE TOUCH INDICATOR
 // =============================================================================
 
-function TouchRipple({ className = '' }: { className?: string }) {
+function DiscreteTouchRipple({
+  top,
+  left,
+  isActive,
+}: {
+  top: string;
+  left: string;
+  isActive: boolean;
+}) {
+  if (!isActive) return null;
+
   return (
     <div
-      className={`pointer-events-none absolute z-30 flex items-center justify-center ${className}`}
+      className="pointer-events-none absolute z-30 flex items-center justify-center -translate-x-1/2 -translate-y-1/2"
+      style={{ top, left }}
       aria-hidden="true"
     >
-      {/* Outer Expanding Pulse */}
-      <span className="absolute w-12 h-12 rounded-full border-2 border-[#168A4A] bg-[#168A4A]/20 animate-ping opacity-75" />
-      {/* Center Target Core */}
-      <span className="relative w-6 h-6 rounded-full bg-[#168A4A] shadow-md border-2 border-white ring-2 ring-[#168A4A]/40" />
+      {/* Expanding Soft Radial Ring */}
+      <span className="absolute w-12 h-12 rounded-full border-2 border-[#168A4A] bg-[#168A4A]/25 animate-[ping_0.6s_cubic-bezier(0,0,0.2,1)_forwards]" />
+      {/* Crisp 10px Center Target */}
+      <span className="relative w-3.5 h-3.5 rounded-full bg-[#168A4A] shadow-lg border-2 border-white ring-2 ring-[#168A4A]/40" />
     </div>
   );
 }
 
 // =============================================================================
-// MAIN COMPONENT: GUIDED PRODUCT WALKTHROUGH
+// MAIN COMPONENT: CINEMATIC AUTO-PLAY PRODUCT JOURNEY
 // =============================================================================
 
 export function GuidedProductJourney() {
   const [currentStep, setCurrentStep] = useState<number>(0);
+  const [prevStep, setPrevStep] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [touchActive, setTouchActive] = useState<boolean>(false);
+  const [showSyncBridge, setShowSyncBridge] = useState<boolean>(false);
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
-  const autoplayTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const hasPlayedRef = useRef<boolean>(false);
+  const stepTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const touchTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const step = WALKTHROUGH_STEPS[currentStep];
 
-  // Autoplay Loop (3.2 seconds per step - comfortable viewing pace)
+  // Manual or Auto Step Advance
+  const goToStep = useCallback(
+    (target: number, isAuto = false) => {
+      if (target === currentStep) return;
+      if (!isAuto) {
+        setIsPlaying(false);
+      }
+
+      setPrevStep(currentStep);
+      setIsTransitioning(true);
+      setTouchActive(false);
+
+      // Handle Bridge moment between Owner and Employee (Step 2 -> 3)
+      if (currentStep === 2 && target === 3) {
+        setShowSyncBridge(true);
+        setTimeout(() => {
+          setShowSyncBridge(false);
+          setCurrentStep(target);
+          setIsTransitioning(false);
+        }, 1200);
+        return;
+      }
+
+      // Normal screen transition
+      setCurrentStep(target);
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 550);
+    },
+    [currentStep]
+  );
+
+  // Trigger discrete touch animation after screen settles
   useEffect(() => {
-    if (isPlaying) {
-      autoplayTimerRef.current = setTimeout(() => {
-        handleStepChange((currentStep + 1) % WALKTHROUGH_STEPS.length);
-      }, 3400);
+    if (step.touchTarget) {
+      touchTimerRef.current = setTimeout(() => {
+        setTouchActive(true);
+        const hideTimer = setTimeout(() => {
+          setTouchActive(false);
+        }, 600);
+        return () => clearTimeout(hideTimer);
+      }, 900);
     }
     return () => {
-      if (autoplayTimerRef.current) clearTimeout(autoplayTimerRef.current);
+      if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
     };
-  }, [isPlaying, currentStep]);
+  }, [currentStep, step.touchTarget]);
 
-  const handleStepChange = (target: number) => {
-    if (target < 0) target = 0;
-    if (target >= WALKTHROUGH_STEPS.length) target = WALKTHROUGH_STEPS.length - 1;
+  // Autoplay progression loop (3.6s per step, 28-32s total, stops at Step 8)
+  useEffect(() => {
+    if (!isPlaying) {
+      if (stepTimerRef.current) clearTimeout(stepTimerRef.current);
+      return;
+    }
 
-    setIsTransitioning(true);
-    setCurrentStep(target);
-    const timer = setTimeout(() => {
-      setIsTransitioning(false);
-    }, 450);
-    return () => clearTimeout(timer);
-  };
+    const duration = currentStep === 7 ? 4500 : 3600;
+
+    stepTimerRef.current = setTimeout(() => {
+      if (currentStep < WALKTHROUGH_STEPS.length - 1) {
+        goToStep(currentStep + 1, true);
+      } else {
+        // Complete the journey and stop. No infinite looping!
+        setIsPlaying(false);
+        setIsCompleted(true);
+      }
+    }, duration);
+
+    return () => {
+      if (stepTimerRef.current) clearTimeout(stepTimerRef.current);
+    };
+  }, [isPlaying, currentStep, goToStep]);
+
+  // IntersectionObserver: Automatically start flow when 35% visible
+  useEffect(() => {
+    // Respect prefers-reduced-motion
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return;
+    }
+
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (
+          entry.isIntersecting &&
+          entry.intersectionRatio >= 0.35 &&
+          !hasPlayedRef.current
+        ) {
+          hasPlayedRef.current = true;
+          // Clean entrance sequence: small breath then start journey
+          setTimeout(() => {
+            setIsPlaying(true);
+          }, 900);
+        }
+      },
+      { threshold: [0.35] }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const handleNext = () => {
     setIsPlaying(false);
-    handleStepChange(currentStep + 1);
+    if (currentStep < WALKTHROUGH_STEPS.length - 1) {
+      goToStep(currentStep + 1);
+    }
   };
 
   const handlePrev = () => {
     setIsPlaying(false);
-    handleStepChange(currentStep - 1);
+    if (currentStep > 0) {
+      goToStep(currentStep - 1);
+    }
   };
 
-  const handleReset = () => {
-    setIsPlaying(false);
-    handleStepChange(0);
+  const handleReplay = () => {
+    setIsCompleted(false);
+    setIsPlaying(true);
+    goToStep(0);
   };
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div
+      ref={sectionRef}
+      className="relative w-full py-6 flex flex-col items-center select-none"
+    >
       {/* --------------------------------------------------------------------- */}
-      {/* 1. CINEMATIC PRODUCT PIPELINE CONNECTOR (OWNER ────→ EMPLOYEE)       */}
+      {/* 1. CINEMATIC PRODUCT PIPELINE (OWNER ────────→ EMPLOYEE)              */}
       {/* --------------------------------------------------------------------- */}
-      <div className="w-full max-w-4xl mx-auto mb-10 sm:mb-12">
+      <div className="w-full max-w-5xl mx-auto mb-10 sm:mb-12 px-4">
+        {/* Role Bracket Bar */}
         <div className="flex items-center justify-between text-xs font-mono font-bold tracking-wider uppercase mb-3">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#0D5C35]" />
-            <span className="text-[#0D5C35]">MESS OWNER // MENU OPS</span>
+            <span className="text-[#0D5C35]">01-03 // MESS OWNER (MENU OPERATIONS)</span>
           </div>
-          <div className="hidden sm:flex items-center gap-2 text-content-tertiary">
-            <span className="text-[11px]">ONE MENU UPDATE · GEOFENCED BROADCAST</span>
+
+          <div className="hidden md:flex items-center gap-2 text-content-tertiary">
+            <span className="text-[11px] font-mono">
+              ONE MENU UPDATE · GEOFENCED BROADCAST
+            </span>
           </div>
+
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#168A4A]" />
-            <span className="text-[#168A4A]">EMPLOYEE // DINER DISCOVERY</span>
+            <span className="text-[#168A4A]">04-08 // EMPLOYEE (FOOD DISCOVERY)</span>
           </div>
         </div>
 
-        {/* Dynamic Sync Bridge Notification when Step 3/4 occurs */}
-        {currentStep === 3 && (
-          <div className="mb-4 py-2 px-4 rounded-xl bg-[#E8F5EE] border border-emerald-300 text-center animate-fade-in">
-            <span className="font-mono text-xs font-bold text-[#0D5C35] flex items-center justify-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#F47B20]" />
-              <span>OWNER MENU PUBLISHED ──→ SYNCING TO GEOFENCE ──→ EMPLOYEE DISCOVERY ACTIVE</span>
+        {/* Dynamic Bridge Pulse Notice when transitioning Step 03 -> 04 */}
+        <div
+          className={`overflow-hidden transition-all duration-500 ease-out ${
+            showSyncBridge || currentStep === 3
+              ? 'max-h-16 opacity-100 mb-4'
+              : 'max-h-0 opacity-0 mb-0'
+          }`}
+        >
+          <div className="py-2.5 px-4 rounded-xl bg-[#E8F5EE] border border-emerald-300 text-center shadow-xs flex items-center justify-center gap-3">
+            <Sparkles className="w-4 h-4 text-[#F47B20] animate-pulse shrink-0" />
+            <span className="font-mono text-xs font-bold text-[#0D5C35]">
+              OWNER: MENU PUBLISHED ──→ SYNCING TO GEOFENCE ──→ EMPLOYEE: DISCOVERY ACTIVE
             </span>
           </div>
-        )}
+        </div>
 
         {/* ------------------------------------------------------------------- */}
-        {/* 2. SLENDER INTERACTIVE TIMELINE WITH EXPANDING NODES                */}
+        {/* 2. MINIMAL CINEMATIC TIMELINE WITH SMOOTH PROGRESS LINE             */}
         {/* ------------------------------------------------------------------- */}
         <div className="relative w-full pt-4 pb-2">
-          {/* Base Track Line */}
+          {/* Base Neutral Track Line */}
           <div className="absolute top-7 left-3 right-3 h-[2px] bg-[#E0E7E2] -z-0" />
 
-          {/* Active Filled Progress Line */}
+          {/* Active Emerald Progress Fill */}
           <div
-            className="absolute top-7 left-3 h-[2px] bg-[#168A4A] transition-all duration-500 ease-out -z-0"
+            className="absolute top-7 left-3 h-[2px] bg-[#168A4A] transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] -z-0"
             style={{
               width: `calc(${(currentStep / (WALKTHROUGH_STEPS.length - 1)) * 100}% - 24px)`,
             }}
           />
 
-          {/* 8 Numbered Timeline Nodes */}
+          {/* 8 Minimal Timeline Nodes */}
           <div className="grid grid-cols-8 gap-1 relative z-10">
             {WALKTHROUGH_STEPS.map((s, idx) => {
               const isActive = idx === currentStep;
@@ -306,10 +424,7 @@ export function GuidedProductJourney() {
                 <button
                   key={s.id}
                   type="button"
-                  onClick={() => {
-                    setIsPlaying(false);
-                    handleStepChange(idx);
-                  }}
+                  onClick={() => goToStep(idx)}
                   className="flex flex-col items-center group cursor-pointer focus-visible:outline-none"
                   aria-label={`Jump to step ${s.stepNumber}: ${s.title}`}
                 >
@@ -330,7 +445,7 @@ export function GuidedProductJourney() {
                     )}
                   </div>
 
-                  {/* Node Text Label (Desktop) */}
+                  {/* Node Subtitle (Desktop) */}
                   <div className="hidden md:flex flex-col items-center mt-2 text-center">
                     <span
                       className={`text-[11px] font-mono leading-tight ${
@@ -341,7 +456,7 @@ export function GuidedProductJourney() {
                           : 'text-[#8C9890]'
                       }`}
                     >
-                      {s.navSubtitle}
+                      {s.navTitle}
                     </span>
                   </div>
                 </button>
@@ -365,10 +480,10 @@ export function GuidedProductJourney() {
       </div>
 
       {/* --------------------------------------------------------------------- */}
-      {/* 3. HERO STAGE: LARGE 450PX AUTHENTIC SMARTPHONE + EDITORIAL SIDE PANEL */}
+      {/* 3. FULL-WIDTH HERO PRODUCT STAGE (DOMINANT 480-520PX PHONE)          */}
       {/* --------------------------------------------------------------------- */}
-      <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
-        {/* Left Column: Editorial Annotation & Storytelling (5 Cols) */}
+      <div className="w-full max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        {/* Left Column: Compact Step Annotation (5 Cols) */}
         <div className="lg:col-span-5 flex flex-col items-start text-left order-2 lg:order-1">
           {/* Active Step Role Pill */}
           <div className="flex items-center gap-2 mb-3">
@@ -377,7 +492,7 @@ export function GuidedProductJourney() {
             </span>
             {step.id === 6 && (
               <span className="font-mono text-[10px] text-[#F47B20] bg-orange-50 border border-orange-200 px-2 py-0.5 rounded font-bold animate-pulse">
-                ★ LIVE SYNC CLIMAX
+                ★ PRODUCT CLIMAX
               </span>
             )}
           </div>
@@ -387,27 +502,38 @@ export function GuidedProductJourney() {
           </h3>
 
           <p className="mt-1 font-display text-sm font-semibold text-[#0D5C35]">
-            {step.headline}
+            {step.subtitle}
           </p>
 
-          <p className="mt-4 text-sm text-[#4E5C53] leading-relaxed">
-            {step.annotation}
+          <p className="mt-3 text-sm text-[#4E5C53] leading-relaxed max-w-md">
+            {step.description}
           </p>
 
-          {/* Interactive Screen Hint */}
-          <div className="mt-6 p-4 w-full rounded-2xl bg-[#F7F8F6] border border-[#E0E7E2] shadow-xs flex items-start gap-3">
-            <div className="w-8 h-8 rounded-xl bg-[#E8F5EE] border border-emerald-200 flex items-center justify-center text-[#168A4A] shrink-0 mt-0.5">
-              <Sparkles className="w-4 h-4 text-[#F47B20]" />
-            </div>
-            <div>
-              <span className="text-[11px] font-mono font-bold text-[#0D5C35] uppercase block mb-0.5">
-                AUTHENTIC AAHAR SCREEN
+          {/* Action Callout Pill */}
+          <div className="mt-5 py-2 px-3.5 rounded-xl bg-white border border-[#DDE4DF] shadow-xs inline-flex items-center gap-2 text-xs font-mono font-bold text-[#0D5C35]">
+            <span className="w-2 h-2 rounded-full bg-[#168A4A]" />
+            <span>{step.actionCallout}</span>
+          </div>
+
+          {/* Completed State Callout */}
+          {isCompleted && (
+            <div className="mt-6 p-4 w-full rounded-2xl bg-[#E8F5EE] border border-emerald-300 shadow-sm animate-fade-in">
+              <span className="font-mono text-xs font-bold text-[#0D5C35] block mb-1">
+                JOURNEY COMPLETE
               </span>
               <p className="text-xs text-[#18221D] leading-snug">
-                Rendered directly from the Flutter application capture. Tap the highlighted interaction target in the phone or use the controls below.
+                Owner → Menu → Employee → Lunch. Watch again or explore Platform Governance.
               </p>
+              <button
+                type="button"
+                onClick={handleReplay}
+                className="mt-3 px-4 py-2 rounded-xl bg-[#168A4A] text-white font-mono text-xs font-bold flex items-center gap-1.5 shadow-xs hover:bg-[#0D5C35] transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Replay Product Flow</span>
+              </button>
             </div>
-          </div>
+          )}
 
           {/* Controller Bar: Previous / Next / Autoplay / Replay */}
           <div className="mt-8 flex flex-wrap items-center gap-3 w-full">
@@ -439,7 +565,7 @@ export function GuidedProductJourney() {
               <ChevronRight className="w-4 h-4" />
             </button>
 
-            {/* Autoplay Toggle Button */}
+            {/* Subtle Autoplay Status Pill & Toggle */}
             <div className="ml-auto flex items-center gap-2">
               <button
                 type="button"
@@ -449,7 +575,7 @@ export function GuidedProductJourney() {
                     ? 'bg-amber-50 border-amber-300 text-amber-900 shadow-xs'
                     : 'bg-white border-[#CCD6D0] hover:bg-slate-50 text-[#18221D]'
                 }`}
-                title={isPlaying ? 'Pause product flow' : 'Play product flow'}
+                title={isPlaying ? 'Pause auto-play' : 'Play product flow'}
               >
                 {isPlaying ? (
                   <>
@@ -466,7 +592,7 @@ export function GuidedProductJourney() {
 
               <button
                 type="button"
-                onClick={handleReset}
+                onClick={handleReplay}
                 className="p-2.5 rounded-xl bg-white border border-[#CCD6D0] hover:bg-slate-50 text-[#6C7970] transition-colors"
                 title="Restart from step 01"
               >
@@ -476,15 +602,15 @@ export function GuidedProductJourney() {
           </div>
         </div>
 
-        {/* Right Column: THE HERO PHONE STAGE (420px - 480px Visual Width) */}
+        {/* Right Column: DOMINANT 480-520PX AUTHENTIC SMARTPHONE HERO (7 Cols) */}
         <div className="lg:col-span-7 flex flex-col items-center justify-center order-1 lg:order-2 relative py-4">
-          {/* Subtle Ambient Radial Lighting Behind Phone */}
-          <div className="absolute w-[440px] h-[720px] bg-[#168A4A]/10 rounded-full blur-3xl pointer-events-none -z-10" />
+          {/* Subtle Ambient Radial Glow Behind Phone */}
+          <div className="absolute w-[500px] h-[780px] bg-[#168A4A]/12 rounded-full blur-3xl pointer-events-none -z-10" />
 
           {/* Premium Device Shell (Fixed & Rock-Solid Physical Anchor) */}
-          <div className="relative w-full max-w-[420px] sm:max-w-[450px] md:max-w-[460px] h-[760px] sm:h-[800px] rounded-[50px] bg-[#101613] p-3.5 shadow-2xl border-[4px] border-[#222E28] ring-1 ring-white/10 flex flex-col justify-between overflow-hidden select-none">
-            {/* Gloss Edge Highlight */}
-            <div className="absolute inset-0 rounded-[46px] pointer-events-none border border-white/10" />
+          <div className="relative w-full max-w-[460px] sm:max-w-[480px] lg:max-w-[500px] xl:max-w-[510px] h-[780px] sm:h-[820px] lg:h-[850px] rounded-[52px] bg-[#101613] p-3.5 shadow-2xl border-[4px] border-[#222E28] ring-1 ring-white/10 flex flex-col justify-between overflow-hidden select-none">
+            {/* Outer Bezel Gloss Line */}
+            <div className="absolute inset-0 rounded-[48px] pointer-events-none border border-white/10" />
 
             {/* Dynamic Island Notch & Speaker Pill */}
             <div className="relative z-30 w-full flex items-center justify-between px-6 pt-1.5 pb-1">
@@ -503,14 +629,16 @@ export function GuidedProductJourney() {
               </div>
             </div>
 
-            {/* SCREEN VIEWPORT WITH SMOOTH SLIDE/FADE TRANSITIONS */}
-            <div className="relative z-20 w-full flex-1 rounded-[36px] overflow-hidden bg-[#F7F8F6] border border-[#E7EBE8] flex flex-col shadow-inner">
-              {/* Animated Screen Image Container */}
+            {/* SCREEN VIEWPORT WITH NATIVE DUAL-BUFFER PUSH TRANSITIONS */}
+            <div className="relative z-20 w-full flex-1 rounded-[38px] overflow-hidden bg-[#F7F8F6] border border-[#E7EBE8] flex flex-col shadow-inner">
+              {/* Native Push Transition Layer */}
               <div
-                className={`relative w-full h-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                className={`relative w-full h-full transition-transform duration-550 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                   isTransitioning
-                    ? 'opacity-85 scale-[0.98]'
-                    : 'opacity-100 scale-100'
+                    ? step.transitionType === 'modal'
+                      ? 'translate-y-2 opacity-90'
+                      : 'translate-x-3 opacity-90'
+                    : 'translate-x-0 translate-y-0 opacity-100'
                 }`}
               >
                 {/* Authentic Flutter Screen Asset */}
@@ -519,141 +647,94 @@ export function GuidedProductJourney() {
                   alt={step.imageAlt}
                   fill
                   className="object-cover object-top"
-                  sizes="(max-width: 768px) 420px, 460px"
+                  sizes="(max-width: 768px) 460px, 510px"
                   priority={currentStep < 2}
                 />
 
                 {/* ------------------------------------------------------------- */}
-                {/* STEP-SPECIFIC INTERACTIVE OVERLAYS & TOUCH TARGETS           */}
+                {/* AUTHENTIC TOUCH INDICATORS & STEP-SPECIFIC OVERLAYS          */}
                 {/* ------------------------------------------------------------- */}
 
-                {/* STEP 01: OWNER DASHBOARD - TAP "+ Add Item" */}
+                {/* Discrete Touch Ripple */}
+                {step.touchTarget && (
+                  <DiscreteTouchRipple
+                    top={step.touchTarget.top}
+                    left={step.touchTarget.left}
+                    isActive={touchActive}
+                  />
+                )}
+
+                {/* STEP 01: OWNER DASHBOARD - Tap + Add Item target */}
                 {currentStep === 0 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => handleStepChange(1)}
-                      className="absolute top-[48.5%] left-[8%] w-[42%] h-[5.5%] rounded-xl z-20 cursor-pointer bg-transparent hover:bg-[#168A4A]/10 transition-colors focus:outline-none"
-                      title="Tap + Add Item"
-                      aria-label="Tap Add Item"
-                    />
-                    <TouchRipple className="top-[50%] left-[28%]" />
-                    {/* Floating Callout */}
-                    <div className="absolute top-[55%] left-[10%] right-[10%] p-2 rounded-xl bg-slate-900/90 backdrop-blur-md text-white text-[11px] font-mono text-center shadow-lg border border-white/10 animate-fade-in pointer-events-none">
-                      Tap &quot;+ Add Item&quot; to input today&apos;s special
-                    </div>
-                  </>
+                  <button
+                    type="button"
+                    onClick={() => goToStep(1)}
+                    className="absolute top-[48.5%] left-[8%] w-[42%] h-[5.5%] rounded-xl z-20 cursor-pointer bg-transparent hover:bg-[#168A4A]/10 transition-colors focus:outline-none"
+                    title="Tap + Add Item"
+                    aria-label="Tap Add Item"
+                  />
                 )}
 
-                {/* STEP 02: ADD MENU - TYPING EFFECT & AI FORMATTING */}
+                {/* STEP 02: ADD MENU - Tap Format with AI target */}
                 {currentStep === 1 && (
-                  <>
-                    {/* Simulated Text Ingestion Box */}
-                    <div className="absolute top-[37.5%] left-[9%] right-[9%] h-[12%] p-2.5 bg-[#F9FBF9] rounded-xl border-2 border-[#168A4A] z-20 flex flex-col justify-start text-[11px] font-mono text-[#18221D] shadow-sm animate-fade-in">
-                      <span className="text-[#0D5C35] font-bold">
-                        Special Paneer Thali 120 roti dal rice salad
-                      </span>
-                      <span className="text-[10px] text-[#6C7970] mt-1">
-                        ✓ AI Auto-detected: Dish, Price &amp; Dietary
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleStepChange(2)}
-                      className="absolute top-[63.5%] left-[9%] w-[82%] h-[6%] rounded-xl z-20 cursor-pointer bg-transparent hover:bg-[#168A4A]/10 transition-colors focus:outline-none"
-                      title="Format Menu with Gemini AI"
-                      aria-label="Format Menu with Gemini AI"
-                    />
-                    <TouchRipple className="top-[65%] left-[50%]" />
-                  </>
+                  <button
+                    type="button"
+                    onClick={() => goToStep(2)}
+                    className="absolute top-[63.5%] left-[9%] w-[82%] h-[6%] rounded-xl z-20 cursor-pointer bg-transparent hover:bg-[#168A4A]/10 transition-colors focus:outline-none"
+                    title="Format Menu with Gemini AI"
+                    aria-label="Format Menu with Gemini AI"
+                  />
                 )}
 
-                {/* STEP 03: PUBLISH - MENU LIVE CONFIRMATION */}
+                {/* STEP 03: PUBLISH - Tap Proceed to Diner target */}
                 {currentStep === 2 && (
-                  <>
-                    {/* Top Success Banner */}
-                    <div className="absolute top-2 left-3 right-3 p-3 rounded-2xl bg-[#E8F5EE] border-2 border-[#168A4A] shadow-lg z-20 flex items-center gap-2.5 animate-slide-down">
-                      <div className="w-7 h-7 rounded-full bg-[#168A4A] flex items-center justify-center text-white shrink-0">
-                        <Check className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <span className="font-mono text-[10px] font-bold text-[#0D5C35] uppercase block">
-                          MENU LIVE IN CYBER PARK HUB
-                        </span>
-                        <span className="text-[11px] text-[#0D5C35]">
-                          Special Paneer Thali ₹120 ready for discovery
-                        </span>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleStepChange(3)}
-                      className="absolute bottom-[3%] left-[5%] w-[90%] h-[6.5%] rounded-2xl z-20 cursor-pointer bg-transparent hover:bg-[#168A4A]/10 transition-colors focus:outline-none"
-                      title="Proceed to Final Diner Preview"
-                      aria-label="Proceed to Diner View"
-                    />
-                    <TouchRipple className="bottom-[5.5%] left-[50%]" />
-                  </>
+                  <button
+                    type="button"
+                    onClick={() => goToStep(3)}
+                    className="absolute bottom-[3%] left-[5%] w-[90%] h-[6.5%] rounded-2xl z-20 cursor-pointer bg-transparent hover:bg-[#168A4A]/10 transition-colors focus:outline-none"
+                    title="Proceed to Diner View"
+                    aria-label="Proceed to Diner View"
+                  />
                 )}
 
-                {/* STEP 04: EMPLOYEE HOME - SPOTLIGHT ON SEARCH */}
+                {/* STEP 04: EMPLOYEE HOME - Tap Search target */}
                 {currentStep === 3 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => handleStepChange(4)}
-                      className="absolute top-[7.5%] left-[5%] w-[90%] h-[5.5%] rounded-xl z-20 cursor-pointer bg-transparent hover:border-2 hover:border-[#168A4A] transition-all focus:outline-none"
-                      title="Tap to search"
-                      aria-label="Tap search bar"
-                    />
-                    <TouchRipple className="top-[10%] left-[30%]" />
-                    <div className="absolute top-[14%] left-[10%] right-[10%] p-2 rounded-xl bg-slate-900/90 backdrop-blur-md text-white text-[11px] font-mono text-center shadow-lg border border-white/10 animate-fade-in pointer-events-none">
-                      Tap search to query today&apos;s paneer special
-                    </div>
-                  </>
+                  <button
+                    type="button"
+                    onClick={() => goToStep(4)}
+                    className="absolute top-[7.5%] left-[5%] w-[90%] h-[5.5%] rounded-xl z-20 cursor-pointer bg-transparent hover:border-2 hover:border-[#168A4A] transition-all focus:outline-none"
+                    title="Tap to search"
+                    aria-label="Tap search bar"
+                  />
                 )}
 
-                {/* STEP 05: SEARCH FOR LUNCH - FILTERED RESULTS */}
+                {/* STEP 05: SEARCH RESULTS - Tap Annapurna Card target */}
                 {currentStep === 4 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => handleStepChange(5)}
-                      className="absolute top-[54%] left-[5%] w-[90%] h-[15%] rounded-2xl z-20 cursor-pointer bg-transparent hover:bg-[#168A4A]/10 transition-colors focus:outline-none"
-                      title="Open Annapurna Mess"
-                      aria-label="Open Annapurna Mess"
-                    />
-                    <TouchRipple className="top-[60%] left-[50%]" />
-                    <div className="absolute top-[71%] left-[8%] right-[8%] p-2 rounded-xl bg-[#E8F5EE] border border-emerald-300 text-[#0D5C35] text-[11px] font-mono text-center shadow-md animate-fade-in pointer-events-none">
-                      ★ Special Paneer Thali ₹120 elevated from kitchen update
-                    </div>
-                  </>
+                  <button
+                    type="button"
+                    onClick={() => goToStep(5)}
+                    className="absolute top-[54%] left-[5%] w-[90%] h-[15%] rounded-2xl z-20 cursor-pointer bg-transparent hover:bg-[#168A4A]/10 transition-colors focus:outline-none"
+                    title="Open Annapurna Mess"
+                    aria-label="Open Annapurna Mess"
+                  />
                 )}
 
-                {/* STEP 06: OUTLET DETAIL - VIEW VERIFIED PROFILE */}
+                {/* STEP 06: OUTLET DETAIL - Tap Menu Tab target */}
                 {currentStep === 5 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => handleStepChange(6)}
-                      className="absolute top-[55%] left-[5%] right-[5%] h-[12%] rounded-2xl z-20 cursor-pointer bg-transparent hover:bg-[#168A4A]/10 transition-colors focus:outline-none"
-                      title="Inspect Today's Menu"
-                      aria-label="Inspect Today's Menu"
-                    />
-                    <TouchRipple className="top-[60%] left-[50%]" />
-                    <div className="absolute top-[28%] left-[8%] right-[8%] p-2 rounded-xl bg-white/95 backdrop-blur-md border border-emerald-200 text-[#0D5C35] text-[11px] font-mono text-center shadow-md animate-fade-in pointer-events-none">
-                      ✓ FSSAI Verified Partner · 250m from desk
-                    </div>
-                  </>
+                  <button
+                    type="button"
+                    onClick={() => goToStep(6)}
+                    className="absolute top-[55%] left-[5%] right-[5%] h-[12%] rounded-2xl z-20 cursor-pointer bg-transparent hover:bg-[#168A4A]/10 transition-colors focus:outline-none"
+                    title="Inspect Today's Menu"
+                    aria-label="Inspect Today's Menu"
+                  />
                 )}
 
-                {/* STEP 07: MENU SYNC - THE CLIMAX MOMENT */}
+                {/* STEP 07: MENU SYNC - CLIMAX HIGHLIGHT OVER SPECIAL THALI */}
                 {currentStep === 6 && (
                   <>
-                    {/* Synchronized Special Highlight Overlay */}
-                    <div className="absolute top-[58.5%] left-[4%] right-[4%] p-2.5 rounded-2xl bg-[#E8F5EE] border-2 border-[#168A4A] shadow-xl z-20 animate-fade-in">
+                    {/* Subtle Emerald Highlight around the Chef's Special Thali */}
+                    <div className="absolute top-[58.5%] left-[4%] right-[4%] p-2.5 rounded-2xl bg-[#E8F5EE]/95 border-2 border-[#168A4A] shadow-xl z-20 animate-fade-in pointer-events-none">
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-mono text-[9px] font-bold text-[#0D5C35] bg-white px-2 py-0.5 rounded border border-emerald-300 inline-flex items-center gap-1">
                           <Sparkles className="w-3 h-3 text-[#F47B20]" />
@@ -664,22 +745,21 @@ export function GuidedProductJourney() {
                         </span>
                       </div>
                       <p className="text-[11px] font-bold text-[#18221D]">
-                        Special Paneer Thali · Fresh &amp; Ready
+                        Special Paneer Thali · Live in Cyber Park Hub
                       </p>
                     </div>
 
                     <button
                       type="button"
-                      onClick={() => handleStepChange(7)}
+                      onClick={() => goToStep(7)}
                       className="absolute top-[41%] left-[51%] w-[40%] h-[4.5%] rounded-full z-20 cursor-pointer bg-transparent hover:bg-[#168A4A]/10 transition-colors focus:outline-none"
                       title="Get Directions"
                       aria-label="Get Directions"
                     />
-                    <TouchRipple className="top-[43%] left-[71%]" />
                   </>
                 )}
 
-                {/* STEP 08: DIRECTIONS - PROGRESSIVE WALKING ROUTE OVERLAY */}
+                {/* STEP 08: DIRECTIONS - PROGRESSIVE WALKING ROUTE DRAWING */}
                 {currentStep === 7 && (
                   <div className="absolute inset-0 bg-white/95 backdrop-blur-md z-20 p-5 flex flex-col justify-between animate-fade-in">
                     <div>
@@ -687,7 +767,7 @@ export function GuidedProductJourney() {
                       <div className="flex items-center justify-between pb-3 border-b border-[#E7EBE8]">
                         <button
                           type="button"
-                          onClick={() => handleStepChange(6)}
+                          onClick={() => goToStep(6)}
                           className="p-1 -ml-1 text-[#18221D]"
                         >
                           <ArrowLeft className="w-4 h-4" />
@@ -774,11 +854,11 @@ export function GuidedProductJourney() {
                     {/* Replay Journey Action */}
                     <button
                       type="button"
-                      onClick={handleReset}
+                      onClick={handleReplay}
                       className="w-full py-3.5 rounded-2xl bg-[#168A4A] hover:bg-[#0D5C35] text-white font-display text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all"
                     >
                       <RotateCcw className="w-4 h-4" />
-                      <span>↺ Replay Product Walkthrough from Step 01</span>
+                      <span>↺ Replay Product Flow</span>
                     </button>
                   </div>
                 )}
@@ -792,7 +872,7 @@ export function GuidedProductJourney() {
           </div>
 
           {/* Elliptical Ground Shadow Beneath Phone */}
-          <div className="w-[360px] h-6 bg-radial from-[#168A4A]/25 via-black/15 to-transparent blur-md mt-2" />
+          <div className="w-[380px] h-6 bg-radial from-[#168A4A]/25 via-black/15 to-transparent blur-md mt-2" />
         </div>
       </div>
     </div>
@@ -860,7 +940,7 @@ export function PlatformGovernanceDemo() {
                 Approve Verified Partner Status
               </h5>
               <p className="text-[11px] text-[#6C7970] mt-1">
-                Admin approval flips the partner status to Approved, issuing a cryptographic verification token.
+                Admin approval flips the partner status to Approved, issuing a verification badge.
               </p>
             </div>
 

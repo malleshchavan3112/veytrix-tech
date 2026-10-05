@@ -252,22 +252,28 @@ export default function AaharNearbyCaseStudyPage() {
       {/* ========================================================================= */}
       <section
         id="product-journey"
-        className="w-full py-16 sm:py-24 border-b border-border-hairline bg-white"
+        className="w-full py-16 sm:py-24 border-b border-border-hairline bg-[#FBFBFD] relative overflow-hidden"
       >
-        <Container size="ultra">
+        {/* Subtle Ambient Radial Lighting */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[#168A4A]/5 rounded-full blur-3xl pointer-events-none -z-0" />
+
+        <Container size="ultra" className="relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
             <span className="font-mono text-xs uppercase tracking-wider text-[#0D5C35] bg-[#E8F5EE] px-2.5 py-1 rounded border border-emerald-200">
-              AAHAR NEARBY · PRODUCT FLOW
+              AAHAR NEARBY // PRODUCT FLOW
             </span>
             <h2 className="mt-4 font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-content-primary">
               From Menu Update to Lunch
             </h2>
-            <p className="mt-3 text-base sm:text-lg text-content-secondary leading-relaxed">
-              Follow one menu update as it travels from the mess owner&apos;s kitchen to an employee&apos;s lunch discovery.
+            <p className="mt-2 font-display text-lg sm:text-xl text-[#0D5C35] font-semibold">
+              One menu update. One connected product experience.
+            </p>
+            <p className="mt-2 text-sm sm:text-base text-content-secondary leading-relaxed">
+              Watch how a mess owner&apos;s menu update becomes a discoverable lunch option for a nearby employee.
             </p>
           </div>
 
-          {/* Guided Product Journey Component (8-Step Experience) */}
+          {/* Guided Product Journey Component (8-Step Cinematic Experience) */}
           <GuidedProductJourney />
         </Container>
       </section>
