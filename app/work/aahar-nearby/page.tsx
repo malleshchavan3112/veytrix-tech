@@ -23,7 +23,10 @@ import {
 } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
-import { InteractiveProductDemo } from '@/components/organisms/interactive-product-demo';
+import {
+  GuidedProductJourney,
+  PlatformGovernanceDemo,
+} from '@/components/organisms/interactive-product-demo';
 import { CASE_STUDIES } from '@/content/case-studies';
 import { SITE_CONFIG } from '@/lib/constants/site';
 
@@ -148,19 +151,19 @@ export default function AaharNearbyCaseStudyPage() {
                 <Button
                   variant="primary"
                   size="lg"
-                  href="#product-ecosystem"
+                  href="#product-journey"
                   className="bg-[#168A4A] hover:bg-[#0D5C35] text-white shadow-sm group min-h-[48px]"
                 >
-                  <span>Explore Product</span>
+                  <span>Explore Product Journey</span>
                   <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-0.5" />
                 </Button>
                 <Button
                   variant="secondary"
                   size="lg"
-                  href="#product-decisions"
+                  href="#platform-governance"
                   className="group min-h-[48px]"
                 >
-                  <span>View Case Study Story</span>
+                  <span>Platform Governance</span>
                   <ArrowDown className="w-4 h-4 ml-2 text-content-tertiary group-hover:translate-y-0.5 transition-transform" />
                 </Button>
               </div>
@@ -245,32 +248,57 @@ export default function AaharNearbyCaseStudyPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. PRODUCT ECOSYSTEM: THREE AUTHENTIC MOBILE EXPERIENCES                  */}
+      {/* 3. PRIMARY STORY: FROM MENU UPDATE TO LUNCH DISCOVERY                     */}
       {/* ========================================================================= */}
       <section
-        id="product-ecosystem"
+        id="product-journey"
         className="w-full py-16 sm:py-24 border-b border-border-hairline bg-white"
       >
         <Container size="ultra">
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
             <span className="font-mono text-xs uppercase tracking-wider text-[#0D5C35] bg-[#E8F5EE] px-2.5 py-1 rounded border border-emerald-200">
-              ONE PRODUCT. THREE EXPERIENCES.
+              AAHAR NEARBY · GUIDED PRODUCT JOURNEY
             </span>
             <h2 className="mt-4 font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-content-primary">
-              Three Authentic Mobile Experiences
+              From Menu Update to Lunch Discovery
             </h2>
             <p className="mt-3 text-base sm:text-lg text-content-secondary leading-relaxed">
-              Interact with the actual Aahar Nearby product interfaces across diners, kitchen operators, and platform governance. Changes made in the Owner or Admin consoles sync in real-time to the Employee discovery feed.
+              See how one menu update travels through the Aahar Nearby ecosystem. Follow the complete cycle from the mess owner adding today&apos;s special to an office worker discovering and walking to lunch.
             </p>
           </div>
 
-          {/* Authentic 3-Phone Component */}
-          <InteractiveProductDemo />
+          {/* Guided Product Journey Component (8-Step Experience) */}
+          <GuidedProductJourney />
         </Container>
       </section>
 
       {/* ========================================================================= */}
-      {/* 4. UX & PRODUCT DECISIONS SECTION                                         */}
+      {/* 4. PLATFORM GOVERNANCE SECTION (Admin Verification Flow)                  */}
+      {/* ========================================================================= */}
+      <section
+        id="platform-governance"
+        className="w-full py-16 sm:py-24 border-b border-border-hairline bg-[#F7F8F6]"
+      >
+        <Container size="ultra">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+            <span className="font-mono text-xs uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
+              GOVERNANCE ARCHITECTURE · MODERATION LAYER
+            </span>
+            <h2 className="mt-4 font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-content-primary">
+              Platform Governance
+            </h2>
+            <p className="mt-3 text-base sm:text-lg text-content-secondary leading-relaxed">
+              Behind every discovery experience is a verification and moderation layer. Inspect how platform administrators audit FSSAI licensing and sync verified partner credentials to consumer discovery feeds.
+            </p>
+          </div>
+
+          {/* Platform Governance 3-Step Demo */}
+          <PlatformGovernanceDemo />
+        </Container>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 5. UX & PRODUCT DECISIONS SECTION                                         */}
       {/* ========================================================================= */}
       <section
         id="product-decisions"
@@ -346,7 +374,7 @@ export default function AaharNearbyCaseStudyPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 5. SELECTIVE DARK TECHNICAL SECTION (Code & Architecture)                 */}
+      {/* 6. SELECTIVE DARK TECHNICAL SECTION (Code & Architecture)                 */}
       {/* ========================================================================= */}
       <section id="architecture" className="w-full py-20 sm:py-28 bg-dark-base border-b border-dark-border text-white">
         <Container size="std">
@@ -406,7 +434,7 @@ export default function AaharNearbyCaseStudyPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 6. VERIFIED BENCHMARKS                                                    */}
+      {/* 7. VERIFIED BENCHMARKS                                                    */}
       {/* ========================================================================= */}
       <section className="w-full py-20 sm:py-28 border-b border-border-hairline bg-white">
         <Container size="std">
@@ -453,7 +481,7 @@ export default function AaharNearbyCaseStudyPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 7. PROJECT PAGINATION & INTAKE CONVERSION                                */}
+      {/* 8. PROJECT PAGINATION & INTAKE CONVERSION                                */}
       {/* ========================================================================= */}
       <section className="w-full py-16 sm:py-24 bg-canvas-subtle/50">
         <Container size="std">

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   MapPin,
   Heart,
@@ -11,1004 +11,778 @@ import {
   Check,
   Navigation,
   ArrowLeft,
-  ChevronRight,
-  ChevronLeft,
+  ArrowRight,
   Search,
   CheckCircle2,
   AlertTriangle,
   Plus,
-  Trash2,
   RotateCcw,
-  SlidersHorizontal,
-  PhoneCall,
-  Share2,
-  FileCheck,
-  XCircle,
-  HelpCircle,
-  TrendingUp,
-  X,
-  Compass,
-  Bookmark,
+  Play,
+  Pause,
+  ChevronRight,
+  ChevronLeft,
   User,
-  Coffee,
   Utensils,
   Leaf,
-  Layers,
+  Compass,
   FileText,
-  History,
   CheckCheck,
+  Building2,
+  X,
+  Share2,
+  PhoneCall,
+  Flame,
 } from 'lucide-react';
 
 // =============================================================================
-// DATA CONTRACTS (Directly matching Flutter models in lib/core/models/)
+// DATA CONTRACTS & STATE DEFINITIONS
 // =============================================================================
 
-export interface MockMenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: 'Breakfast' | 'Lunch' | 'Snacks' | 'Dinner' | 'Daily Special';
-  isVeg: boolean;
-  isAvailable: boolean;
+export interface JourneyState {
+  menuPublished: boolean;
+  newDish: {
+    name: string;
+    price: number;
+    category: string;
+    dietary: string;
+    description: string;
+  };
+  outletOpen: boolean;
+  outletVerified: boolean;
+  searchQuery: string;
+  selectedCategory: string;
+  isFavorite: boolean;
 }
 
-export interface MockOutlet {
-  id: string;
-  name: string;
-  category: string;
-  address: string;
-  hub: string;
-  distanceMeters: number;
-  rating: number;
-  totalRatings: number;
-  isOpen: boolean; // Mutated by Owner in real-time
-  verificationStatus: 'approved' | 'pending' | 'flagged'; // Mutated by Admin in real-time
-  fssaiNumber: string;
-  phone: string;
-  isFavorite: boolean; // Mutated by Employee in real-time
-  menu: MockMenuItem[];
+const INITIAL_JOURNEY_STATE: JourneyState = {
+  menuPublished: false,
+  newDish: {
+    name: 'Special Paneer Thali',
+    price: 120,
+    category: 'Lunch',
+    dietary: 'Veg',
+    description: "Today's special lunch thali with fresh paneer, 3 rotis, dal tadka, jeera rice & gulab jamun.",
+  },
+  outletOpen: true,
+  outletVerified: true,
+  searchQuery: '',
+  selectedCategory: 'All',
+  isFavorite: false,
+};
+
+// =============================================================================
+// STEP SPECIFICATIONS (8 AUTHENTIC JOURNEY STEPS)
+// =============================================================================
+
+interface StepInfo {
+  id: number;
+  role: 'MESS OWNER' | 'EMPLOYEE / DINER';
+  roleColor: string;
+  stepNumber: string;
+  navLabel: string;
+  title: string;
+  subtitle: string;
+  narrative: string;
+  actionGuidance: string;
+  flowNode: string;
 }
 
-export interface MockReport {
-  id: string;
-  outletId: string;
-  outletName: string;
-  issue: string;
-  status: 'open' | 'resolved' | 'dismissed';
-  reportedAt: string;
-}
-
-// Initial Seed Data directly matching Aahar Nearby Flutter E2E Mock State
-const INITIAL_OUTLETS: MockOutlet[] = [
+const JOURNEY_STEPS: StepInfo[] = [
   {
-    id: 'htl_01',
-    name: 'Annapurna Pure Veg Mess',
-    category: 'North Indian Thali, Executive Meals',
-    address: 'Near DLF Cyber Park, Sector 24',
-    hub: 'Cyber Park Hub',
-    distanceMeters: 280,
-    rating: 4.8,
-    totalRatings: 142,
-    isOpen: true,
-    verificationStatus: 'approved',
-    fssaiNumber: '10023045678901',
-    phone: '+91 98765 43201',
-    isFavorite: false,
-    menu: [
-      {
-        id: 'm1',
-        name: 'Executive South Indian Thali',
-        description: '3 Rotis, Dal Tadka, Seasonal Sabzi, Sambar, Steamed Rice, Papad & Curd',
-        price: 80,
-        category: 'Lunch',
-        isVeg: true,
-        isAvailable: true,
-      },
-      {
-        id: 'm2',
-        name: 'Special Paneer Butter Masala Meal',
-        description: '2 Naan / 4 Rotis, Paneer Curry, Jeera Rice, Salad & Sweet',
-        price: 110,
-        category: 'Lunch',
-        isVeg: true,
-        isAvailable: true,
-      },
-      {
-        id: 'm3',
-        name: 'Curd Rice with Tadka & Lemon Pickle',
-        description: 'Fresh tempered curd rice with mustard seeds and curry leaves',
-        price: 50,
-        category: 'Lunch',
-        isVeg: true,
-        isAvailable: true,
-      },
-      {
-        id: 'm4',
-        name: 'Steamed Idli with Sambar & 2 Chutneys',
-        description: '3 pieces fluffy steamed idli served with piping hot vegetable sambar',
-        price: 40,
-        category: 'Breakfast',
-        isVeg: true,
-        isAvailable: true,
-      },
-    ],
+    id: 0,
+    role: 'MESS OWNER',
+    roleColor: '#0D5C35',
+    stepNumber: '01',
+    navLabel: '01 Owner',
+    title: 'Owner Opens Aahar',
+    subtitle: 'Morning kitchen operations & catalog prep',
+    narrative:
+      'The mess owner opens Aahar at 10:30 AM to inspect active kitchen operations and prepare the daily rotational lunch menu before peak office order hours.',
+    actionGuidance: 'Tap "+ Add Dish" on the phone to create today\'s lunch special.',
+    flowNode: 'OWNER',
   },
   {
-    id: 'htl_02',
-    name: 'Krishna South Indian Tiffin',
-    category: 'South Indian, Tiffin & Fast Meals',
-    address: '45, Market Street, Local Hub',
-    hub: 'Cyber Park Hub',
-    distanceMeters: 420,
-    rating: 4.6,
-    totalRatings: 98,
-    isOpen: true,
-    verificationStatus: 'pending', // Starts pending so Admin can verify live!
-    fssaiNumber: '10824003001844',
-    phone: '+91 98765 43210',
-    isFavorite: false,
-    menu: [
-      {
-        id: 'k1',
-        name: 'Ghee Roast Masala Dosa',
-        description: 'Crispy golden crepe with spiced potato filling & coconut chutney',
-        price: 70,
-        category: 'Breakfast',
-        isVeg: true,
-        isAvailable: true,
-      },
-      {
-        id: 'k2',
-        name: 'Mini Meals (Rice, Sambar, Rasam, Curd)',
-        description: 'Fast executive meal tray for corporate lunch breaks',
-        price: 65,
-        category: 'Lunch',
-        isVeg: true,
-        isAvailable: true,
-      },
-    ],
+    id: 1,
+    role: 'MESS OWNER',
+    roleColor: '#0D5C35',
+    stepNumber: '02',
+    navLabel: '02 Add Menu',
+    title: "Add Today's Special",
+    subtitle: 'Publishing rotational thali item',
+    narrative:
+      'The owner inputs the "Special Paneer Thali" at ₹120. Minimal mobile fields eliminate tedious e-commerce catalog forms during busy morning kitchen prep.',
+    actionGuidance: 'Click "Add to Live Menu" inside the phone to commit the dish.',
+    flowNode: 'MENU',
   },
   {
-    id: 'htl_03',
-    name: 'Balaji Executive Tiffin & Mess',
-    category: 'Homestyle Meals, Daily Roti',
-    address: 'Plot 42, Sector 33 Plaza',
-    hub: 'Cyber Park Hub',
-    distanceMeters: 650,
-    rating: 4.5,
-    totalRatings: 76,
-    isOpen: false,
-    verificationStatus: 'flagged',
-    fssaiNumber: '10821004000312',
-    phone: '+91 98765 43299',
-    isFavorite: false,
-    menu: [
-      {
-        id: 'b1',
-        name: 'Dal Khichdi with Roasted Papad',
-        description: 'Homestyle moong dal khichdi with ghee tempering',
-        price: 60,
-        category: 'Lunch',
-        isVeg: true,
-        isAvailable: true,
-      },
-      {
-        id: 'b2',
-        name: 'Aloo Paratha with Curd & Pickle (2 pcs)',
-        description: 'Tawa-toasted spiced potato parathas with fresh curd',
-        price: 55,
-        category: 'Breakfast',
-        isVeg: true,
-        isAvailable: true,
-      },
-    ],
-  },
-];
-
-const INITIAL_REPORTS: MockReport[] = [
-  {
-    id: 'rep_01',
-    outletId: 'htl_01',
-    outletName: 'Annapurna Pure Veg Mess',
-    issue: 'Price mismatch reported on Paneer Thali menu item',
-    status: 'open',
-    reportedAt: 'Today, 11:20 AM',
+    id: 2,
+    role: 'MESS OWNER',
+    roleColor: '#0D5C35',
+    stepNumber: '03',
+    navLabel: '03 Publish',
+    title: 'Publish Menu',
+    subtitle: 'Instant geofenced propagation',
+    narrative:
+      'The special is instantly committed to the live inventory. A geofenced broadcast prepares the item for hungry office workers within 500 meters.',
+    actionGuidance: 'Click "Switch to Diner Experience" to see how nearby employees discover it.',
+    flowNode: 'PUBLISHED',
   },
   {
-    id: 'rep_02',
-    outletId: 'htl_03',
-    outletName: 'Balaji Executive Tiffin',
-    issue: 'FSSAI hygiene audit certificate renewal due',
-    status: 'open',
-    reportedAt: 'Yesterday, 04:45 PM',
+    id: 3,
+    role: 'EMPLOYEE / DINER',
+    roleColor: '#168A4A',
+    stepNumber: '04',
+    navLabel: '04 Discover',
+    title: 'Employee Opens Aahar',
+    subtitle: 'Deterministic 350m lunch discovery',
+    narrative:
+      'At 1:00 PM, an office worker at DLF Cyber Park opens Aahar. The spatial engine locks to their immediate 350m geofence, surfacing currently open kitchens.',
+    actionGuidance: 'Tap the search bar or click "Search for Paneer" to filter today\'s meals.',
+    flowNode: 'EMPLOYEE',
+  },
+  {
+    id: 4,
+    role: 'EMPLOYEE / DINER',
+    roleColor: '#168A4A',
+    stepNumber: '05',
+    navLabel: '05 Search',
+    title: 'Search for Lunch',
+    subtitle: "Filtering for today's paneer special",
+    narrative:
+      'Entering "Paneer" instantly queries the local catalog, elevating Annapurna Mess because its newly published menu contains fresh paneer.',
+    actionGuidance: 'Tap "Annapurna Pure Veg Mess" to inspect today\'s full menu.',
+    flowNode: 'DISCOVERY',
+  },
+  {
+    id: 5,
+    role: 'EMPLOYEE / DINER',
+    roleColor: '#168A4A',
+    stepNumber: '06',
+    navLabel: '06 Outlet',
+    title: 'Discover the Outlet',
+    subtitle: 'Inspecting mess profile & hygiene verification',
+    narrative:
+      'The employee opens Annapurna Mess. They verify it is open, certified with FSSAI license #10023045678901, and located only 280m from their office desk.',
+    actionGuidance: 'Tap "Today\'s Menu" to view the live meal list.',
+    flowNode: 'OUTLET',
+  },
+  {
+    id: 6,
+    role: 'EMPLOYEE / DINER',
+    roleColor: '#168A4A',
+    stepNumber: '07',
+    navLabel: '07 Menu',
+    title: 'See the Updated Menu',
+    subtitle: 'The ecosystem loop completes in real time',
+    narrative:
+      'The exact Special Paneer Thali entered by the owner in Step 02 appears front and center for ₹120. Real-time menu intelligence without stale catalog data.',
+    actionGuidance: 'Tap "Get Walking Directions" to navigate to the mess for lunch.',
+    flowNode: 'MENU SYNC',
+  },
+  {
+    id: 7,
+    role: 'EMPLOYEE / DINER',
+    roleColor: '#168A4A',
+    stepNumber: '08',
+    navLabel: '08 Directions',
+    title: 'Plan the Lunch',
+    subtitle: 'Turn-by-turn walking route through Cyber Park',
+    narrative:
+      'With their meal confirmed, the employee follows the 4-minute walking route to pick up their thali neatly within their 45-minute lunch break.',
+    actionGuidance: 'Journey complete! Replay the flow or explore Platform Governance below.',
+    flowNode: 'DIRECTIONS',
   },
 ];
 
 // =============================================================================
-// MAIN COMPONENT: THREE AUTHENTIC AAHAR PHONES WITH SHARED STATE
+// SUB-COMPONENT: AUTHENTIC SMARTPHONE HARDWARE FRAME
 // =============================================================================
 
-export function InteractiveProductDemo() {
-  const [outlets, setOutlets] = useState<MockOutlet[]>(INITIAL_OUTLETS);
-  const [reports, setReports] = useState<MockReport[]>(INITIAL_REPORTS);
-  const [activeRole, setActiveRole] = useState<'employee' | 'owner' | 'admin'>('owner');
-  const [syncToast, setSyncToast] = useState<string | null>(null);
-
-  // Trigger brief sync toast indicator
-  const triggerSyncToast = (msg: string) => {
-    setSyncToast(msg);
-    setTimeout(() => setSyncToast(null), 3200);
-  };
-
-  // Reset entire demo to baseline
-  const handleResetDemo = () => {
-    setOutlets(INITIAL_OUTLETS);
-    setReports(INITIAL_REPORTS);
-    triggerSyncToast('Demo reset to initial baseline state');
-  };
-
-  // 1. Owner toggles kitchen open / closed
-  const handleToggleKitchenStatus = (outletId: string) => {
-    setOutlets((prev) =>
-      prev.map((o) => {
-        if (o.id === outletId) {
-          const next = !o.isOpen;
-          triggerSyncToast(
-            next
-              ? `${o.name} marked OPEN. Employee feed updated.`
-              : `${o.name} marked CLOSED. Diners see Closed badge.`
-          );
-          return { ...o, isOpen: next };
-        }
-        return o;
-      })
-    );
-  };
-
-  // 2. Owner toggles menu item in/out of stock
-  const handleToggleItemAvailability = (outletId: string, itemId: string) => {
-    setOutlets((prev) =>
-      prev.map((o) => {
-        if (o.id === outletId) {
-          const updatedMenu = o.menu.map((m) =>
-            m.id === itemId ? { ...m, isAvailable: !m.isAvailable } : m
-          );
-          const changed = updatedMenu.find((m) => m.id === itemId);
-          triggerSyncToast(
-            `"${changed?.name}" marked ${changed?.isAvailable ? 'IN STOCK' : 'SOLD OUT'}`
-          );
-          return { ...o, menu: updatedMenu };
-        }
-        return o;
-      })
-    );
-  };
-
-  // 3. Owner adds a new dish
-  const handleAddDish = (outletId: string, newDish: Omit<MockMenuItem, 'id'>) => {
-    const dishWithId: MockMenuItem = {
-      ...newDish,
-      id: `dish_${Date.now()}`,
-    };
-    setOutlets((prev) =>
-      prev.map((o) => {
-        if (o.id === outletId) {
-          triggerSyncToast(`Added "${dishWithId.name}" (₹${dishWithId.price}) to Today's Menu!`);
-          return { ...o, menu: [dishWithId, ...o.menu] };
-        }
-        return o;
-      })
-    );
-  };
-
-  // 4. Owner deletes a dish
-  const handleDeleteDish = (outletId: string, itemId: string) => {
-    setOutlets((prev) =>
-      prev.map((o) => {
-        if (o.id === outletId) {
-          const target = o.menu.find((m) => m.id === itemId);
-          triggerSyncToast(`Removed "${target?.name}" from menu`);
-          return { ...o, menu: o.menu.filter((m) => m.id !== itemId) };
-        }
-        return o;
-      })
-    );
-  };
-
-  // 5. Employee toggles favorite
-  const handleToggleFavorite = (outletId: string) => {
-    setOutlets((prev) =>
-      prev.map((o) => (o.id === outletId ? { ...o, isFavorite: !o.isFavorite } : o))
-    );
-  };
-
-  // 6. Admin verifies outlet
-  const handleSetVerification = (outletId: string, status: 'approved' | 'flagged') => {
-    setOutlets((prev) =>
-      prev.map((o) => {
-        if (o.id === outletId) {
-          triggerSyncToast(
-            status === 'approved'
-              ? `Approved "${o.name}". Verified Partner badge visible in Employee app!`
-              : `Flagged "${o.name}" for hygiene re-audit.`
-          );
-          return { ...o, verificationStatus: status };
-        }
-        return o;
-      })
-    );
-  };
-
-  // 7. Admin resolves report
-  const handleResolveReport = (reportId: string, nextStatus: 'resolved' | 'dismissed') => {
-    setReports((prev) =>
-      prev.map((r) => (r.id === reportId ? { ...r, status: nextStatus } : r))
-    );
-    triggerSyncToast(`Report marked ${nextStatus}`);
-  };
-
-  // Owner's outlet in the demo is htl_01 (Annapurna)
-  const ownerOutlet = outlets.find((o) => o.id === 'htl_01') || outlets[0];
-
-  return (
-    <div className="w-full flex flex-col items-center">
-      {/* ======================================================================= */}
-      {/* TOP LABEL & SYNC FEEDBACK BANNER (Minimalist, per Section 7)            */}
-      {/* ======================================================================= */}
-      <div className="w-full max-w-5xl mx-auto mb-6 flex flex-col items-center">
-        <div className="flex items-center justify-between w-full px-4 py-2 rounded-xl bg-canvas-subtle/80 border border-border-hairline mb-3">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#168A4A] animate-pulse" />
-            <span className="font-mono text-xs font-bold tracking-wider text-[#0D5C35] uppercase">
-              AAHAR NEARBY · PRODUCT ECOSYSTEM
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-[10px] text-content-tertiary hidden sm:inline">
-              REACTIVE FLUTTER RECREATION · ZERO BACKEND
-            </span>
-            <button
-              type="button"
-              onClick={handleResetDemo}
-              className="font-mono text-[10px] text-content-secondary hover:text-emerald-700 flex items-center gap-1 transition-colors px-2 py-0.5 rounded border border-border-hairline bg-white shadow-2xs"
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span>Reset State</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Live Ecosystem Cross-Role Notification Toast */}
-        {syncToast && (
-          <div className="w-full px-4 py-2 rounded-xl bg-[#168A4A] text-white font-mono text-xs flex items-center justify-between shadow-lg animate-fadeIn mb-2">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-emerald-200 flex-shrink-0" />
-              <span className="line-clamp-1">{syncToast}</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setSyncToast(null)}
-              className="text-emerald-200 hover:text-white ml-2"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* ======================================================================= */}
-      {/* THREE AUTHENTIC PHONES PRESENTATION (Desktop: 3 Phones Side-by-Side)   */}
-      {/* ======================================================================= */}
-      <div className="hidden md:grid md:grid-cols-3 gap-6 lg:gap-8 items-start justify-center w-full max-w-6xl mx-auto py-2">
-        {/* PHONE 01: EMPLOYEE */}
-        <div
-          onClick={() => setActiveRole('employee')}
-          className={`flex flex-col items-center cursor-pointer transition-all duration-300 ${
-            activeRole === 'employee'
-              ? 'scale-105 z-20 opacity-100'
-              : 'scale-[0.95] z-10 opacity-85 hover:opacity-100 hover:scale-[0.98]'
-          }`}
-        >
-          <div className="mb-3 text-center">
-            <span className="font-mono text-xs font-bold tracking-wider text-[#168A4A] uppercase block">
-              01 // EMPLOYEE
-            </span>
-            <span className="text-xs text-content-secondary font-medium">
-              Hyperlocal Discovery &amp; Today&apos;s Menu
-            </span>
-          </div>
-
-          <AaharPhoneFrame active={activeRole === 'employee'}>
-            <AaharEmployeeApp
-              outlets={outlets}
-              onToggleFavorite={handleToggleFavorite}
-            />
-          </AaharPhoneFrame>
-        </div>
-
-        {/* PHONE 02: OWNER (Center Phone by default) */}
-        <div
-          onClick={() => setActiveRole('owner')}
-          className={`flex flex-col items-center cursor-pointer transition-all duration-300 ${
-            activeRole === 'owner'
-              ? 'scale-105 z-20 opacity-100'
-              : 'scale-[0.95] z-10 opacity-85 hover:opacity-100 hover:scale-[0.98]'
-          }`}
-        >
-          <div className="mb-3 text-center">
-            <span className="font-mono text-xs font-bold tracking-wider text-[#168A4A] uppercase block">
-              02 // MESS OWNER
-            </span>
-            <span className="text-xs text-content-secondary font-medium">
-              Daily Menu &amp; Kitchen Operations
-            </span>
-          </div>
-
-          <AaharPhoneFrame active={activeRole === 'owner'}>
-            <AaharOwnerApp
-              outlet={ownerOutlet}
-              onToggleKitchen={() => handleToggleKitchenStatus(ownerOutlet.id)}
-              onToggleItem={(itemId) => handleToggleItemAvailability(ownerOutlet.id, itemId)}
-              onAddDish={(dish) => handleAddDish(ownerOutlet.id, dish)}
-              onDeleteDish={(itemId) => handleDeleteDish(ownerOutlet.id, itemId)}
-            />
-          </AaharPhoneFrame>
-        </div>
-
-        {/* PHONE 03: ADMIN */}
-        <div
-          onClick={() => setActiveRole('admin')}
-          className={`flex flex-col items-center cursor-pointer transition-all duration-300 ${
-            activeRole === 'admin'
-              ? 'scale-105 z-20 opacity-100'
-              : 'scale-[0.95] z-10 opacity-85 hover:opacity-100 hover:scale-[0.98]'
-          }`}
-        >
-          <div className="mb-3 text-center">
-            <span className="font-mono text-xs font-bold tracking-wider text-[#168A4A] uppercase block">
-              03 // PLATFORM ADMIN
-            </span>
-            <span className="text-xs text-content-secondary font-medium">
-              Governance &amp; FSSAI Verification
-            </span>
-          </div>
-
-          <AaharPhoneFrame active={activeRole === 'admin'}>
-            <AaharAdminApp
-              outlets={outlets}
-              reports={reports}
-              onVerifyOutlet={handleSetVerification}
-              onResolveReport={handleResolveReport}
-            />
-          </AaharPhoneFrame>
-        </div>
-      </div>
-
-      {/* ======================================================================= */}
-      {/* MOBILE VIEWPORT: SINGLE LARGE INTERACTIVE PHONE (Per Section 18)        */}
-      {/* ======================================================================= */}
-      <div className="md:hidden flex flex-col items-center w-full">
-        {/* Compact Mobile Segment Switcher */}
-        <div className="grid grid-cols-3 gap-1.5 w-full max-w-[325px] mb-3 p-1 rounded-xl bg-canvas-subtle border border-border-hairline text-center text-xs font-bold">
-          <button
-            type="button"
-            onClick={() => setActiveRole('employee')}
-            className={`py-1.5 rounded-lg transition-colors ${
-              activeRole === 'employee'
-                ? 'bg-[#168A4A] text-white shadow-2xs'
-                : 'text-content-secondary hover:text-content-primary'
-            }`}
-          >
-            Employee
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveRole('owner')}
-            className={`py-1.5 rounded-lg transition-colors ${
-              activeRole === 'owner'
-                ? 'bg-[#168A4A] text-white shadow-2xs'
-                : 'text-content-secondary hover:text-content-primary'
-            }`}
-          >
-            Owner
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveRole('admin')}
-            className={`py-1.5 rounded-lg transition-colors ${
-              activeRole === 'admin'
-                ? 'bg-[#168A4A] text-white shadow-2xs'
-                : 'text-content-secondary hover:text-content-primary'
-            }`}
-          >
-            Admin
-          </button>
-        </div>
-
-        {/* Single Focused Smartphone */}
-        <AaharPhoneFrame active={true}>
-          {activeRole === 'employee' && (
-            <AaharEmployeeApp
-              outlets={outlets}
-              onToggleFavorite={handleToggleFavorite}
-            />
-          )}
-          {activeRole === 'owner' && (
-            <AaharOwnerApp
-              outlet={ownerOutlet}
-              onToggleKitchen={() => handleToggleKitchenStatus(ownerOutlet.id)}
-              onToggleItem={(itemId) => handleToggleItemAvailability(ownerOutlet.id, itemId)}
-              onAddDish={(dish) => handleAddDish(ownerOutlet.id, dish)}
-              onDeleteDish={(itemId) => handleDeleteDish(ownerOutlet.id, itemId)}
-            />
-          )}
-          {activeRole === 'admin' && (
-            <AaharAdminApp
-              outlets={outlets}
-              reports={reports}
-              onVerifyOutlet={handleSetVerification}
-              onResolveReport={handleResolveReport}
-            />
-          )}
-        </AaharPhoneFrame>
-
-        {/* Subtitle label */}
-        <div className="mt-3 text-center">
-          <span className="font-mono text-[11px] font-bold text-[#168A4A] uppercase block">
-            {activeRole === 'employee' && '01 // EMPLOYEE · Hyperlocal Discovery'}
-            {activeRole === 'owner' && '02 // MESS OWNER · Operations & Menu Dispatch'}
-            {activeRole === 'admin' && '03 // PLATFORM ADMIN · Governance & Audit'}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// =============================================================================
-// SMARTPHONE SHELL: AUTHENTIC HARDWARE PROPORTIONS & STATUS BARS
-// =============================================================================
-
-function AaharPhoneFrame({
+function MobilePhoneFrame({
   children,
-  active,
+  role = 'EMPLOYEE',
 }: {
   children: React.ReactNode;
-  active: boolean;
+  role?: 'OWNER' | 'EMPLOYEE' | 'ADMIN';
 }) {
   return (
-    <div
-      className={`w-[305px] sm:w-[325px] h-[640px] rounded-[44px] bg-[#0c1015] p-3 shadow-2xl border-4 transition-all duration-300 relative flex flex-col select-none ${
-        active
-          ? 'border-[#168A4A] shadow-[#168A4A]/15 ring-4 ring-[#168A4A]/25'
-          : 'border-slate-800 shadow-xl'
-      }`}
-    >
-      {/* Top Dynamic Island / Camera & Speaker */}
-      <div className="w-24 h-4 bg-black rounded-full mx-auto mb-1 flex items-center justify-between px-2.5 flex-shrink-0 z-30">
-        <div className="w-2 h-2 rounded-full bg-slate-900" />
-        <div className="w-2.5 h-2.5 rounded-full bg-slate-900 border border-slate-800" />
-      </div>
+    <div className="relative mx-auto w-full max-w-[370px] sm:max-w-[380px] h-[680px] sm:h-[720px] rounded-[44px] bg-[#121815] p-3 shadow-2xl border-[3.5px] border-[#222E28] ring-1 ring-white/10 flex flex-col justify-between overflow-hidden select-none">
+      {/* Outer Phone Bezel Gloss */}
+      <div className="absolute inset-0 rounded-[40px] pointer-events-none border border-white/10" />
 
-      {/* Screen Viewport with Authentic Aahar Canvas Background */}
-      <div className="relative w-full flex-1 rounded-[32px] overflow-hidden bg-[#F7F8F6] flex flex-col border border-black shadow-inner">
-        {/* Mobile Status Bar */}
-        <div className="w-full h-5 px-5 pt-0.5 flex items-center justify-between text-[10px] font-mono text-[#17201B] bg-white flex-shrink-0 border-b border-[#E7EBE8]/60">
-          <span className="font-bold">12:30</span>
-          <div className="flex items-center gap-1.5">
-            <span className="text-[9px] font-sans font-semibold">5G</span>
-            <div className="w-4 h-2 rounded-2xs border border-[#17201B] p-0.5 flex items-center">
-              <div className="h-full w-full bg-[#168A4A] rounded-3xs" />
-            </div>
+      {/* Dynamic Island Notch & Speaker Pill */}
+      <div className="relative z-30 w-full flex items-center justify-between px-6 pt-1 pb-1">
+        <span className="text-[11px] font-mono font-semibold text-white/90">
+          12:45
+        </span>
+        <div className="w-24 h-4 bg-black rounded-full flex items-center justify-center gap-2 border border-white/10">
+          <div className="w-2 h-2 rounded-full bg-[#168A4A]/60" />
+          <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+        </div>
+        <div className="flex items-center gap-1.5 text-white/80">
+          <span className="text-[10px] font-mono font-bold">5G</span>
+          <div className="w-4 h-2 rounded-[2px] border border-white/60 p-[1px] flex items-center">
+            <div className="w-full h-full bg-[#168A4A] rounded-[1px]" />
           </div>
         </div>
+      </div>
 
-        {/* Scrollable Mobile Application Body */}
-        <div className="w-full flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col">
-          {children}
-        </div>
+      {/* Screen Viewport with Authentic Aahar Colors & Typography */}
+      <div className="relative z-20 w-full flex-1 rounded-[32px] overflow-hidden bg-[#F7F8F6] border border-[#E7EBE8] flex flex-col">
+        {children}
+      </div>
 
-        {/* Bottom Gesture Indicator Bar */}
-        <div className="w-full h-3.5 bg-white flex items-center justify-center flex-shrink-0 border-t border-[#E7EBE8]/40">
-          <div className="w-28 h-1 rounded-full bg-slate-300" />
-        </div>
+      {/* Native Bottom Home Gesture Bar */}
+      <div className="relative z-30 w-full py-1.5 flex items-center justify-center">
+        <div className="w-28 h-1 bg-white/40 rounded-full" />
       </div>
     </div>
   );
 }
 
 // =============================================================================
-// SCREEN 01: EMPLOYEE APP (Faithful recreation of Flutter E03 - E06)
+// MAIN COMPONENT: GUIDED PRODUCT JOURNEY
 // =============================================================================
 
-function AaharEmployeeApp({
-  outlets,
-  onToggleFavorite,
-}: {
-  outlets: MockOutlet[];
-  onToggleFavorite: (id: string) => void;
-}) {
-  const [selectedOutletId, setSelectedOutletId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [bottomNavIndex, setBottomNavIndex] = useState(0);
-  const [showDirections, setShowDirections] = useState(false);
+export function GuidedProductJourney() {
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [state, setState] = useState<JourneyState>(INITIAL_JOURNEY_STATE);
+  const autoplayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const selectedOutlet = outlets.find((o) => o.id === selectedOutletId);
+  const step = JOURNEY_STEPS[currentStep];
 
-  // Filtered outlets
-  const filteredOutlets = useMemo(() => {
-    return outlets.filter((o) => {
-      // Bottom nav 'Saved' tab
-      if (bottomNavIndex === 2 && !o.isFavorite) return false;
+  // Autoplay loop (1.8s per step)
+  useEffect(() => {
+    if (isPlaying) {
+      autoplayTimerRef.current = setTimeout(() => {
+        setCurrentStep((prev) => {
+          if (prev < JOURNEY_STEPS.length - 1) {
+            // Apply corresponding state transitions automatically
+            if (prev === 1) {
+              setState((s) => ({ ...s, menuPublished: true }));
+            }
+            if (prev === 3) {
+              setState((s) => ({ ...s, searchQuery: 'Paneer' }));
+            }
+            return prev + 1;
+          } else {
+            setIsPlaying(false);
+            return 0; // Loop or pause
+          }
+        });
+      }, 2200);
+    }
+    return () => {
+      if (autoplayTimerRef.current) clearTimeout(autoplayTimerRef.current);
+    };
+  }, [isPlaying, currentStep]);
 
-      // Category filter
-      if (selectedCategory !== 'All') {
-        if (selectedCategory === 'Pure Veg' && !o.category.toLowerCase().includes('pure veg')) return false;
-        if (selectedCategory === 'Mess' && !o.category.toLowerCase().includes('mess')) return false;
-        if (selectedCategory === 'Breakfast' && !o.menu.some((m) => m.category === 'Breakfast')) return false;
-        if (selectedCategory === 'Lunch' && !o.menu.some((m) => m.category === 'Lunch')) return false;
-      }
+  const goToStep = (target: number) => {
+    setIsPlaying(false);
+    if (target < 0) target = 0;
+    if (target >= JOURNEY_STEPS.length) target = JOURNEY_STEPS.length - 1;
 
-      // Search Query filter
-      if (searchQuery.trim().length > 0) {
-        const q = searchQuery.toLowerCase();
-        const matchesName = o.name.toLowerCase().includes(q);
-        const matchesMenu = o.menu.some((m) => m.name.toLowerCase().includes(q));
-        return matchesName || matchesMenu;
-      }
+    // Apply smart state forward/back
+    if (target >= 2) {
+      setState((s) => ({ ...s, menuPublished: true }));
+    } else {
+      setState((s) => ({ ...s, menuPublished: false }));
+    }
 
-      return true;
-    });
-  }, [outlets, searchQuery, selectedCategory, bottomNavIndex]);
+    if (target >= 4) {
+      setState((s) => ({ ...s, searchQuery: 'Paneer' }));
+    } else {
+      setState((s) => ({ ...s, searchQuery: '' }));
+    }
 
-  // DETAIL SCREEN (outlet_detail_screen.dart)
-  if (selectedOutlet) {
-    return (
-      <div className="flex-1 flex flex-col bg-[#F7F8F6] text-left">
-        {/* Top App Bar */}
-        <div className="px-3 py-2.5 bg-white border-b border-[#E7EBE8] flex items-center justify-between sticky top-0 z-20">
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedOutletId(null);
-              setShowDirections(false);
-            }}
-            className="flex items-center gap-1 text-xs font-bold text-[#17201B] hover:text-[#168A4A]"
-          >
-            <ArrowLeft className="w-4 h-4 text-[#168A4A]" />
-            <span>Back</span>
-          </button>
-          <span className="font-bold text-xs text-[#17201B] truncate max-w-[160px]" style={{ fontFamily: 'Outfit, sans-serif' }}>
-            {selectedOutlet.name}
-          </span>
-          <button
-            type="button"
-            onClick={() => onToggleFavorite(selectedOutlet.id)}
-            className="p-1 rounded-full hover:bg-slate-50"
-          >
-            <Heart
-              className={`w-4 h-4 ${
-                selectedOutlet.isFavorite ? 'fill-red-500 text-red-500' : 'text-[#66736B]'
-              }`}
-            />
-          </button>
+    setCurrentStep(target);
+  };
+
+  const handleNext = () => goToStep(currentStep + 1);
+  const handlePrev = () => goToStep(currentStep - 1);
+
+  const handlePublishFromStep1 = () => {
+    setState((s) => ({ ...s, menuPublished: true }));
+    goToStep(2);
+  };
+
+  const handleSearchSubmit = (q: string) => {
+    setState((s) => ({ ...s, searchQuery: q }));
+    goToStep(4);
+  };
+
+  const handleReset = () => {
+    setIsPlaying(false);
+    setState(INITIAL_JOURNEY_STATE);
+    setCurrentStep(0);
+  };
+
+  return (
+    <div className="w-full flex flex-col">
+      {/* --------------------------------------------------------------------- */}
+      {/* COMPACT ECOSYSTEM EXPLANATION                                         */}
+      {/* --------------------------------------------------------------------- */}
+      <div className="max-w-4xl mx-auto w-full mb-10 sm:mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-2 bg-[#F2F5F3] rounded-2xl border border-[#E0E7E2]">
+          <div className="p-3.5 rounded-xl bg-white border border-[#E7EBE8] shadow-xs flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-[#E8F5EE] border border-emerald-200 flex items-center justify-center text-[#168A4A]">
+              <Store className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-mono text-[10px] uppercase font-bold text-[#0D5C35] block">
+                ROLE 01
+              </span>
+              <span className="font-display text-xs font-bold text-[#18221D]">
+                MESS OWNER · Menu Operations
+              </span>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-white border border-[#E7EBE8] shadow-xs flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-[#E8F5EE] border border-emerald-200 flex items-center justify-center text-[#168A4A]">
+              <User className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-mono text-[10px] uppercase font-bold text-[#168A4A] block">
+                ROLE 02
+              </span>
+              <span className="font-display text-xs font-bold text-[#18221D]">
+                EMPLOYEE · Food Discovery
+              </span>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-white border border-[#E7EBE8] shadow-xs flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-mono text-[10px] uppercase font-bold text-blue-700 block">
+                ROLE 03
+              </span>
+              <span className="font-display text-xs font-bold text-[#18221D]">
+                ADMIN · Governance
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* --------------------------------------------------------------------- */}
+      {/* HORIZONTAL STEP NAVIGATION (DESKTOP) & PROGRESS PILL                   */}
+      {/* --------------------------------------------------------------------- */}
+      <div className="max-w-5xl mx-auto w-full mb-8">
+        {/* Step Tabs Row */}
+        <div className="hidden lg:grid grid-cols-8 gap-1.5 p-1.5 bg-[#F2F5F3] rounded-xl border border-[#E0E7E2]">
+          {JOURNEY_STEPS.map((s, idx) => {
+            const isActive = idx === currentStep;
+            const isCompleted = idx < currentStep;
+            return (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => goToStep(idx)}
+                className={`py-2 px-1 text-center rounded-lg transition-all text-xs font-mono font-medium flex flex-col items-center gap-0.5 ${
+                  isActive
+                    ? 'bg-[#168A4A] text-white shadow-sm font-semibold'
+                    : isCompleted
+                    ? 'bg-white text-[#0D5C35] hover:bg-[#E8F5EE]'
+                    : 'text-[#6C7970] hover:bg-white/80'
+                }`}
+              >
+                <span>{s.navLabel}</span>
+                {isCompleted && (
+                  <Check className="w-2.5 h-2.5 text-[#168A4A]" />
+                )}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Outlet Header Card */}
-        <div className="p-3.5 bg-white border-b border-[#E7EBE8]">
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <h3 className="font-bold text-sm text-[#17201B] leading-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              {selectedOutlet.name}
-            </h3>
-            {selectedOutlet.verificationStatus === 'approved' && (
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#168A4A] flex-shrink-0" />
+        {/* Mobile Step Badge */}
+        <div className="lg:hidden flex items-center justify-between px-3 py-2 bg-[#F2F5F3] rounded-xl border border-[#E0E7E2]">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs font-bold text-[#0D5C35] bg-white px-2 py-0.5 rounded border border-[#E7EBE8]">
+              STEP {step.stepNumber} / 08
+            </span>
+            <span className="text-xs font-semibold text-[#18221D]">
+              {step.title}
+            </span>
+          </div>
+          <span className="text-[11px] font-mono text-[#6C7970]">
+            {step.role}
+          </span>
+        </div>
+      </div>
+
+      {/* --------------------------------------------------------------------- */}
+      {/* 2-COLUMN MAIN EXPERIENCE STAGE                                        */}
+      {/* --------------------------------------------------------------------- */}
+      <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        {/* Left Column: Visual Storytelling & Flow Connector (5 Cols) */}
+        <div className="lg:col-span-5 flex flex-col items-start text-left order-2 lg:order-1">
+          {/* Active Role & Step Header */}
+          <div className="flex items-center gap-2 mb-3">
+            <span
+              className="font-mono text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded border inline-block"
+              style={{
+                color: step.roleColor,
+                backgroundColor: step.role === 'MESS OWNER' ? '#E8F5EE' : '#F0F9F4',
+                borderColor: '#C6E5D3',
+              }}
+            >
+              {step.stepNumber} // {step.role}
+            </span>
+            {step.id === 6 && (
+              <span className="font-mono text-[10px] text-[#F47B20] bg-orange-50 border border-orange-200 px-2 py-0.5 rounded font-bold animate-pulse">
+                ★ KEY SYNC MOMENT
+              </span>
             )}
           </div>
-          <p className="text-[11px] text-[#66736B] leading-tight mb-2.5">
-            {selectedOutlet.address}
+
+          <h3 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#18221D] leading-tight">
+            {step.title}
+          </h3>
+
+          <p className="mt-1 font-display text-sm font-semibold text-[#0D5C35]">
+            {step.subtitle}
           </p>
 
-          <div className="flex items-center justify-between text-[11px]">
-            <span
-              className={`font-bold px-2 py-0.5 rounded-full text-[10px] ${
-                selectedOutlet.isOpen
-                  ? 'bg-[#F0FDF4] text-[#1F9D55]'
-                  : 'bg-red-50 text-red-600'
-              }`}
-            >
-              {selectedOutlet.isOpen ? '● Open Now' : '● Closed'}
-            </span>
-            <span className="text-[#66736B] font-semibold">★ {selectedOutlet.rating} ({selectedOutlet.totalRatings})</span>
-            <span className="font-mono text-[#168A4A] font-bold text-[10px]">{selectedOutlet.distanceMeters}m walk</span>
-          </div>
+          <p className="mt-4 text-sm text-[#4E5C53] leading-relaxed">
+            {step.narrative}
+          </p>
 
-          {/* Action Row */}
-          <div className="mt-3 pt-3 border-t border-[#E7EBE8] flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setShowDirections(!showDirections)}
-              className="flex-1 py-1.5 bg-[#168A4A] hover:bg-[#0D5C35] text-white text-[11px] font-bold rounded-lg flex items-center justify-center gap-1 transition-colors"
-            >
-              <Navigation className="w-3 h-3" />
-              <span>{showDirections ? 'Hide Directions' : 'Walking Route'}</span>
-            </button>
-            <a
-              href={`tel:${selectedOutlet.phone}`}
-              onClick={(e) => e.preventDefault()}
-              className="p-1.5 border border-[#E7EBE8] rounded-lg text-[#168A4A] hover:bg-slate-50 flex items-center justify-center"
-            >
-              <PhoneCall className="w-3.5 h-3.5" />
-            </a>
-          </div>
-
-          {/* Turn-by-Turn Route Box */}
-          {showDirections && (
-            <div className="mt-2.5 p-2.5 rounded-xl bg-[#E8F5EE] border border-emerald-200 text-[10px] text-[#0D5C35] animate-fadeIn">
-              <span className="font-bold block mb-1">WALKING DIRECTIONS (4 MIN):</span>
-              <p className="leading-relaxed">Exit Cyber Park via East Pedestrian Gate → 180m on Sector 33 Main Avenue → Turn right at Landmark ATM. Destination is on your left.</p>
+          {/* Interactive Guidance Box */}
+          <div className="mt-5 p-3.5 w-full rounded-xl bg-white border border-[#DDE4DF] shadow-xs flex items-start gap-3">
+            <div className="w-7 h-7 rounded-lg bg-[#E8F5EE] border border-emerald-200 flex items-center justify-center text-[#168A4A] shrink-0 mt-0.5">
+              <Sparkles className="w-3.5 h-3.5" />
             </div>
-          )}
-        </div>
-
-        {/* Menu Items List */}
-        <div className="p-3 flex-1">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-[#17201B]" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              Today&apos;s Live Menu
-            </span>
-            <span className="text-[10px] font-mono text-[#168A4A] bg-[#E8F5EE] px-1.5 py-0.5 rounded font-bold">
-              {selectedOutlet.menu.length} DISHES
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            {selectedOutlet.menu.map((dish) => (
-              <div
-                key={dish.id}
-                className="p-2.5 bg-white rounded-xl border border-[#E7EBE8] flex items-start justify-between gap-2 shadow-2xs"
-              >
-                <div className="flex items-start gap-2 flex-1">
-                  {/* Veg Indicator Box */}
-                  <span className="w-3.5 h-3.5 rounded-xs border border-[#168A4A] flex items-center justify-center p-0.5 mt-0.5 flex-shrink-0">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#168A4A]" />
-                  </span>
-                  <div>
-                    <span className="font-bold text-xs text-[#17201B] block leading-tight">
-                      {dish.name}
-                    </span>
-                    <span className="text-[10px] text-[#66736B] line-clamp-2 mt-0.5">
-                      {dish.description}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-end flex-shrink-0">
-                  <span className="font-mono text-xs font-bold text-[#168A4A]">
-                    ₹{dish.price}
-                  </span>
-                  <span
-                    className={`text-[9px] font-bold mt-1 px-1.5 py-0.5 rounded ${
-                      dish.isAvailable
-                        ? 'bg-[#E8F5EE] text-[#168A4A]'
-                        : 'bg-red-50 text-red-600'
-                    }`}
-                  >
-                    {dish.isAvailable ? 'IN STOCK' : 'SOLD OUT'}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // DISCOVERY HOME FEED (employee_home_screen.dart)
-  return (
-    <div className="flex-1 flex flex-col bg-[#F7F8F6] text-left">
-      {/* 1. Location Header (location_header.dart) */}
-      <div className="px-3.5 py-2.5 bg-white border-b border-[#E7EBE8] flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-[#E8F5EE] flex items-center justify-center flex-shrink-0">
-            <MapPin className="w-3.5 h-3.5 text-[#168A4A]" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1">
-              <span className="font-bold text-xs text-[#17201B] leading-none" style={{ fontFamily: 'Public Sans, sans-serif' }}>
-                Cyber Park, Sector 33
+            <div className="flex-1">
+              <span className="text-[11px] font-mono font-bold text-[#0D5C35] uppercase block mb-0.5">
+                TRY THE ACTION
               </span>
-              <span className="text-[10px] text-[#66736B]">▼</span>
+              <p className="text-xs text-[#18221D] leading-snug">
+                {step.actionGuidance}
+              </p>
             </div>
-            <span className="font-mono text-[9px] text-[#66736B] block mt-0.5">
-              350m radius · GPS Active
+          </div>
+
+          {/* Step Flow Visual Track */}
+          <div className="mt-6 pt-5 border-t border-[#E7EBE8] w-full">
+            <span className="font-mono text-[10px] uppercase text-[#6C7970] block mb-2 font-bold">
+              ECOSYSTEM PIPELINE STATUS
             </span>
-          </div>
-        </div>
-        <div className="w-7 h-7 rounded-full bg-[#EFF2EF] flex items-center justify-center relative">
-          <Clock className="w-3.5 h-3.5 text-[#17201B]" />
-          <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#F47B20] ring-1 ring-white" />
-        </div>
-      </div>
-
-      {/* 2. Search Field (TextField in Flutter) */}
-      <div className="px-3 py-2 bg-white border-b border-[#E7EBE8]">
-        <div className="h-8 rounded-full bg-white border border-[#E7EBE8] px-3 flex items-center gap-2 shadow-2xs">
-          <Search className="w-3.5 h-3.5 text-[#168A4A] flex-shrink-0" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search food, mess, hotel or outlet"
-            className="w-full text-xs text-[#17201B] placeholder-[#66736B] bg-transparent outline-none font-medium"
-          />
-          {searchQuery && (
-            <button type="button" onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-slate-600 text-xs">
-              ×
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* 3. Category Filter Chips (FilterChipsCarousel) */}
-      <div className="px-3 py-2 bg-white border-b border-[#E7EBE8] flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-        {['All', 'Lunch', 'Breakfast', 'Pure Veg', 'Mess'].map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            onClick={() => setSelectedCategory(cat)}
-            className={`h-7 px-3 rounded-full text-[11px] font-semibold flex items-center gap-1 whitespace-nowrap transition-all ${
-              selectedCategory === cat
-                ? 'bg-[#168A4A] text-white shadow-xs'
-                : 'bg-white border border-[#E7EBE8] text-[#66736B] hover:bg-slate-50'
-            }`}
-          >
-            {cat === 'Pure Veg' && <Leaf className="w-3 h-3 text-[#1F9D55]" />}
-            <span>{cat}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* 4. Section Title & Count */}
-      <div className="px-3.5 pt-2.5 pb-1 flex items-center justify-between">
-        <span className="font-extrabold text-[11px] text-[#17201B] tracking-wider uppercase" style={{ fontFamily: 'Outfit, sans-serif' }}>
-          {bottomNavIndex === 2 ? `SAVED OUTLETS (${filteredOutlets.length})` : `NEARBY FOOD (${filteredOutlets.length})`}
-        </span>
-        <span className="text-[10px] text-[#66736B]">
-          {filteredOutlets.length} outlet{filteredOutlets.length === 1 ? '' : 's'}
-        </span>
-      </div>
-
-      {/* 5. Outlets Feed (HotelCard in Flutter) */}
-      <div className="p-3 space-y-2.5 flex-1">
-        {filteredOutlets.length === 0 ? (
-          <div className="p-8 text-center text-xs text-[#66736B]">
-            No outlets found matching &quot;{searchQuery || selectedCategory}&quot;
-          </div>
-        ) : (
-          filteredOutlets.map((outlet) => {
-            const topDish = outlet.menu[0];
-            return (
-              <div
-                key={outlet.id}
-                onClick={() => setSelectedOutletId(outlet.id)}
-                className="bg-white rounded-2xl border border-[#E7EBE8] shadow-2xs cursor-pointer hover:border-[#168A4A]/60 transition-all overflow-hidden"
-              >
-                {/* Card Top Section */}
-                <div className="p-3">
-                  <div className="flex items-start justify-between gap-1.5">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-1">
-                        <span className="font-bold text-[13px] text-[#17201B] leading-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                          {outlet.name}
-                        </span>
-                        {outlet.verificationStatus === 'approved' && (
-                          <CheckCircle2 className="w-3 h-3 text-[#168A4A] flex-shrink-0" />
-                        )}
-                      </div>
-                      <span className="text-[10.5px] text-[#66736B] block leading-tight mt-0.5">
-                        {outlet.category}
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleFavorite(outlet.id);
-                      }}
-                      className="p-1 rounded-full hover:bg-slate-50"
-                    >
-                      <Heart
-                        className={`w-3.5 h-3.5 ${
-                          outlet.isFavorite ? 'fill-red-500 text-red-500' : 'text-slate-300'
-                        }`}
-                      />
-                    </button>
-                  </div>
-
-                  {/* Distance & Status Row */}
-                  <div className="mt-2 flex items-center justify-between text-[10px]">
+            <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-mono">
+              {[
+                'OWNER',
+                'MENU',
+                'PUBLISHED',
+                'EMPLOYEE',
+                'DISCOVERY',
+                'OUTLET',
+                'MENU SYNC',
+                'DIRECTIONS',
+              ].map((node, i) => {
+                const isCurrent = i === currentStep;
+                const isPast = i < currentStep;
+                return (
+                  <React.Fragment key={node}>
                     <span
-                      className={`font-bold px-1.5 py-0.5 rounded text-[9px] ${
-                        outlet.isOpen
-                          ? 'bg-[#F0FDF4] text-[#1F9D55]'
-                          : 'bg-red-50 text-red-600'
+                      className={`px-1.5 py-0.5 rounded transition-colors ${
+                        isCurrent
+                          ? 'bg-[#168A4A] text-white font-bold'
+                          : isPast
+                          ? 'bg-[#E8F5EE] text-[#0D5C35]'
+                          : 'bg-[#F2F5F3] text-[#8C9890]'
                       }`}
                     >
-                      {outlet.isOpen ? '● Open Now' : '● Closed'}
+                      {node}
                     </span>
-                    <span className="text-[#66736B] font-semibold">★ {outlet.rating}</span>
-                    <span className="font-mono text-[#168A4A] font-bold text-[10px]">{outlet.distanceMeters}m</span>
-                  </div>
+                    {i < 7 && <span className="text-[#C2CBC5]">→</span>}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          </div>
 
-                  {/* Today's Special Banner Row */}
-                  {topDish && (
-                    <div className="mt-2 pt-2 border-t border-[#E7EBE8]/60 flex items-center justify-between text-[10.5px]">
-                      <div className="flex items-center gap-1.5 truncate flex-1">
-                        <span className="w-3 h-3 rounded-2xs border border-[#168A4A] flex items-center justify-center p-0.5 flex-shrink-0">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#168A4A]" />
-                        </span>
-                        <span className="font-medium text-[#17201B] truncate">
-                          {topDish.name}
-                        </span>
-                      </div>
-                      <span className="font-mono font-bold text-[#168A4A] flex-shrink-0 ml-1">
-                        ₹{topDish.price}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })
-        )}
+          {/* Primary Controls Row: Autoplay & Manual Navigation */}
+          <div className="mt-8 flex flex-wrap items-center gap-3 w-full">
+            <button
+              type="button"
+              onClick={handlePrev}
+              disabled={currentStep === 0}
+              className={`px-4 py-2.5 rounded-xl border text-xs font-mono font-semibold flex items-center gap-1.5 transition-all ${
+                currentStep === 0
+                  ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200'
+                  : 'bg-white hover:bg-slate-50 text-[#18221D] border-[#CCD6D0]'
+              }`}
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span>Previous</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={currentStep === JOURNEY_STEPS.length - 1}
+              className={`px-5 py-2.5 rounded-xl text-xs font-mono font-semibold flex items-center gap-1.5 shadow-sm transition-all ${
+                currentStep === JOURNEY_STEPS.length - 1
+                  ? 'opacity-40 cursor-not-allowed bg-slate-200 text-slate-500'
+                  : 'bg-[#168A4A] hover:bg-[#0D5C35] text-white'
+              }`}
+            >
+              <span>Next Step</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            {/* Autoplay / Replay Controller */}
+            <div className="ml-auto flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsPlaying(!isPlaying)}
+                className="px-3 py-2 rounded-xl bg-white border border-[#CCD6D0] hover:bg-slate-50 text-xs font-mono font-semibold text-[#18221D] flex items-center gap-1.5 transition-colors"
+                title={isPlaying ? 'Pause product flow' : 'Play product flow'}
+              >
+                {isPlaying ? (
+                  <>
+                    <Pause className="w-3.5 h-3.5 text-[#F47B20]" />
+                    <span>Pause</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-3.5 h-3.5 text-[#168A4A] fill-[#168A4A]" />
+                    <span>Play Flow</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleReset}
+                className="p-2 rounded-xl bg-white border border-[#CCD6D0] hover:bg-slate-50 text-[#6C7970] transition-colors"
+                title="Reset journey"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: ONE LARGE AUTHENTIC AAHAR MOBILE PHONE (7 Cols) */}
+        <div className="lg:col-span-7 flex justify-center order-1 lg:order-2">
+          <MobilePhoneFrame
+            role={step.role === 'MESS OWNER' ? 'OWNER' : 'EMPLOYEE'}
+          >
+            {/* Step-specific Mobile App View */}
+            {currentStep === 0 && (
+              <PhoneOwnerDashboardView
+                state={state}
+                onAddDishClick={() => goToStep(1)}
+              />
+            )}
+
+            {currentStep === 1 && (
+              <PhoneAddMenuItemFormView
+                state={state}
+                onSubmit={handlePublishFromStep1}
+                onBack={() => goToStep(0)}
+              />
+            )}
+
+            {currentStep === 2 && (
+              <PhoneOwnerPublishedView
+                state={state}
+                onSwitchToDiner={() => goToStep(3)}
+              />
+            )}
+
+            {currentStep === 3 && (
+              <PhoneEmployeeHomeView
+                state={state}
+                onSearchFocus={() => goToStep(4)}
+                onOutletClick={() => goToStep(5)}
+              />
+            )}
+
+            {currentStep === 4 && (
+              <PhoneEmployeeSearchView
+                state={state}
+                onClearSearch={() => goToStep(3)}
+                onOutletClick={() => goToStep(5)}
+              />
+            )}
+
+            {currentStep === 5 && (
+              <PhoneOutletDetailView
+                state={state}
+                activeTab="about"
+                onTabSelect={(t) => {
+                  if (t === 'menu') goToStep(6);
+                  if (t === 'directions') goToStep(7);
+                }}
+                onBack={() => goToStep(4)}
+              />
+            )}
+
+            {currentStep === 6 && (
+              <PhoneOutletDetailView
+                state={state}
+                activeTab="menu"
+                onTabSelect={(t) => {
+                  if (t === 'directions') goToStep(7);
+                }}
+                onBack={() => goToStep(5)}
+                onGoToDirections={() => goToStep(7)}
+              />
+            )}
+
+            {currentStep === 7 && (
+              <PhoneOutletDetailView
+                state={state}
+                activeTab="directions"
+                onTabSelect={(t) => {
+                  if (t === 'menu') goToStep(6);
+                }}
+                onBack={() => goToStep(6)}
+                onReplay={handleReset}
+              />
+            )}
+          </MobilePhoneFrame>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// SCREEN 01: OWNER DASHBOARD (Step 01 - Authentic Flutter UI)
+// =============================================================================
+
+function PhoneOwnerDashboardView({
+  state,
+  onAddDishClick,
+}: {
+  state: JourneyState;
+  onAddDishClick: () => void;
+}) {
+  return (
+    <div className="flex-1 flex flex-col h-full overflow-y-auto">
+      {/* Aahar Partner Header */}
+      <div className="px-4 py-3 bg-white border-b border-[#E7EBE8] flex items-center justify-between">
+        <div>
+          <span className="font-mono text-[9px] uppercase tracking-wider text-[#6C7970] block">
+            PARTNER DASHBOARD
+          </span>
+          <h4 className="font-display text-sm font-bold text-[#18221D]">
+            Annapurna Pure Veg Mess
+          </h4>
+        </div>
+        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#E8F5EE] border border-emerald-200 text-[#0D5C35] text-[10px] font-mono font-semibold">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#168A4A] animate-pulse" />
+          <span>OPEN</span>
+        </div>
       </div>
 
-      {/* 6. Authentic Bottom Navigation Bar (app_bottom_nav_bar.dart) */}
-      <div className="h-12 bg-white border-t border-[#E7EBE8] flex items-center justify-around flex-shrink-0 px-2">
+      <div className="p-4 flex-1 flex flex-col gap-4">
+        {/* Morning Operational Prompt */}
+        <div className="p-3.5 rounded-xl bg-white border border-[#DDE4DF] shadow-xs">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-mono text-[10px] uppercase font-bold text-[#0D5C35]">
+              MORNING FOOD PREP
+            </span>
+            <span className="text-[10px] font-mono text-[#6C7970]">
+              Hub: Cyber Park
+            </span>
+          </div>
+          <p className="text-xs text-[#4E5C53] leading-relaxed">
+            Update today&apos;s special thali items before the 11:30 AM lunch discovery rush.
+          </p>
+        </div>
+
+        {/* Quick Actions Row */}
+        <div>
+          <span className="font-mono text-[10px] uppercase tracking-wider text-[#6C7970] block mb-2 font-bold">
+            QUICK ACTIONS
+          </span>
+          <div className="grid grid-cols-2 gap-2.5">
+            <button
+              type="button"
+              onClick={onAddDishClick}
+              className="p-3 rounded-xl bg-[#168A4A] hover:bg-[#0D5C35] text-white font-mono text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition-all ring-2 ring-[#168A4A]/20"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ Add Dish</span>
+            </button>
+
+            <button
+              type="button"
+              className="p-3 rounded-xl bg-white border border-[#CCD6D0] hover:bg-[#F2F5F3] text-[#18221D] font-mono text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#F47B20]" />
+              <span>Scan Board</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Active Menu Inventory Preview */}
+        <div className="flex-1 flex flex-col">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#6C7970] font-bold">
+              TODAY&apos;S LIVE MENU (2 ACTIVE)
+            </span>
+            <span className="text-[10px] font-mono text-[#168A4A]">FSSAI #10023045678901</span>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="p-3 rounded-xl bg-white border border-[#E7EBE8] flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-[2px] border border-emerald-600 p-[1px] flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                  </div>
+                  <span className="font-display text-xs font-bold text-[#18221D]">
+                    Executive Dal Khichdi
+                  </span>
+                </div>
+                <span className="text-[11px] font-mono text-[#6C7970] mt-0.5 block">
+                  ₹90 · Regular Daily
+                </span>
+              </div>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#E8F5EE] text-[#0D5C35] font-semibold">
+                In Stock
+              </span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white border border-[#E7EBE8] flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-[2px] border border-emerald-600 p-[1px] flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                  </div>
+                  <span className="font-display text-xs font-bold text-[#18221D]">
+                    Deluxe Veg Thali
+                  </span>
+                </div>
+                <span className="text-[11px] font-mono text-[#6C7970] mt-0.5 block">
+                  ₹140 · Regular Daily
+                </span>
+              </div>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#E8F5EE] text-[#0D5C35] font-semibold">
+                In Stock
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Highlighted Step Action Trigger */}
         <button
           type="button"
-          onClick={() => setBottomNavIndex(0)}
-          className={`flex flex-col items-center justify-center ${
-            bottomNavIndex === 0 ? 'text-[#168A4A]' : 'text-[#66736B]'
-          }`}
+          onClick={onAddDishClick}
+          className="mt-auto w-full py-3 rounded-xl bg-[#0D5C35] hover:bg-[#073D22] text-white font-display text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all"
         >
-          <Compass className="w-4 h-4" />
-          <span className="text-[9px] font-bold mt-0.5">Explore</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setBottomNavIndex(1)}
-          className={`flex flex-col items-center justify-center ${
-            bottomNavIndex === 1 ? 'text-[#168A4A]' : 'text-[#66736B]'
-          }`}
-        >
-          <Search className="w-4 h-4" />
-          <span className="text-[9px] font-medium mt-0.5">Search</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setBottomNavIndex(2)}
-          className={`flex flex-col items-center justify-center ${
-            bottomNavIndex === 2 ? 'text-[#168A4A]' : 'text-[#66736B]'
-          }`}
-        >
-          <Bookmark className="w-4 h-4" />
-          <span className="text-[9px] font-bold mt-0.5">Saved</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setBottomNavIndex(3)}
-          className={`flex flex-col items-center justify-center relative ${
-            bottomNavIndex === 3 ? 'text-[#168A4A]' : 'text-[#66736B]'
-          }`}
-        >
-          <User className="w-4 h-4" />
-          <span className="absolute top-0 right-1 w-1.5 h-1.5 rounded-full bg-[#F47B20]" />
-          <span className="text-[9px] font-medium mt-0.5">Profile</span>
+          <span>Tap to Add Special Paneer Thali</span>
+          <ChevronRight className="w-4 h-4" />
         </button>
       </div>
     </div>
@@ -1016,562 +790,1013 @@ function AaharEmployeeApp({
 }
 
 // =============================================================================
-// SCREEN 02: OWNER APP (Faithful recreation of Flutter H04 - H06)
+// SCREEN 02: ADD MENU ITEM FORM (Step 02 - Authentic Flutter Form)
 // =============================================================================
 
-function AaharOwnerApp({
-  outlet,
-  onToggleKitchen,
-  onToggleItem,
-  onAddDish,
-  onDeleteDish,
+function PhoneAddMenuItemFormView({
+  state,
+  onSubmit,
+  onBack,
 }: {
-  outlet: MockOutlet;
-  onToggleKitchen: () => void;
-  onToggleItem: (itemId: string) => void;
-  onAddDish: (dish: Omit<MockMenuItem, 'id'>) => void;
-  onDeleteDish: (itemId: string) => void;
+  state: JourneyState;
+  onSubmit: () => void;
+  onBack: () => void;
 }) {
-  const [activeScreen, setActiveScreen] = useState<'dashboard' | 'add-dish' | 'ai-scanner'>('dashboard');
+  return (
+    <div className="flex-1 flex flex-col h-full bg-white overflow-y-auto">
+      {/* Mobile Form App Bar */}
+      <div className="px-4 py-3 border-b border-[#E7EBE8] flex items-center justify-between bg-white sticky top-0 z-10">
+        <button
+          type="button"
+          onClick={onBack}
+          className="p-1 -ml-1 text-[#18221D] hover:bg-[#F2F5F3] rounded-lg"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
+        <h4 className="font-display text-xs font-bold text-[#18221D]">
+          Add Menu Item
+        </h4>
+        <span className="w-4" />
+      </div>
 
-  // Add Item form state
-  const [dishName, setDishName] = useState('');
-  const [dishPrice, setDishPrice] = useState('85');
-  const [dishCategory, setDishCategory] = useState<'Lunch' | 'Breakfast' | 'Snacks'>('Lunch');
-  const [dishDesc, setDishDesc] = useState('');
-
-  // AI Scanner simulator state
-  const [isScanning, setIsScanning] = useState(false);
-
-  // Submit dish form
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!dishName.trim()) return;
-    onAddDish({
-      name: dishName.trim(),
-      description: dishDesc.trim() || 'Freshly prepared daily lunch special',
-      price: parseInt(dishPrice, 10) || 70,
-      category: dishCategory,
-      isVeg: true,
-      isAvailable: true,
-    });
-    setDishName('');
-    setDishDesc('');
-    setActiveScreen('dashboard');
-  };
-
-  // Simulate AI chalkboard scanner
-  const handleTriggerAiScan = () => {
-    setIsScanning(true);
-    setTimeout(() => {
-      setIsScanning(false);
-      onAddDish({
-        name: 'Special Ghee Roast Dosa & Chutney',
-        description: 'Crispy fermented crepe with pure ghee & spiced potato subzi',
-        price: 75,
-        category: 'Daily Special',
-        isVeg: true,
-        isAvailable: true,
-      });
-      setActiveScreen('dashboard');
-    }, 1200);
-  };
-
-  // SCREEN: ADD MENU ITEM (add_menu_item_screen.dart)
-  if (activeScreen === 'add-dish') {
-    return (
-      <div className="flex-1 flex flex-col bg-[#F7F8F6] text-left">
-        <div className="px-3 py-2.5 bg-white border-b border-[#E7EBE8] flex items-center justify-between sticky top-0 z-20">
-          <button
-            type="button"
-            onClick={() => setActiveScreen('dashboard')}
-            className="flex items-center gap-1 text-xs font-bold text-[#17201B]"
-          >
-            <ArrowLeft className="w-4 h-4 text-[#168A4A]" />
-            <span>Cancel</span>
-          </button>
-          <span className="font-bold text-xs text-[#17201B]" style={{ fontFamily: 'Outfit, sans-serif' }}>
-            Add Today&apos;s Dish
-          </span>
-          <div className="w-8" />
+      <div className="p-4 flex-1 flex flex-col gap-3.5">
+        {/* Dish Title Field */}
+        <div>
+          <label className="font-mono text-[10px] uppercase text-[#6C7970] block mb-1 font-bold">
+            DISH NAME
+          </label>
+          <div className="p-2.5 rounded-xl border-2 border-[#168A4A] bg-[#F9FBF9] text-xs font-bold text-[#18221D] flex items-center justify-between">
+            <span>Special Paneer Thali</span>
+            <Sparkles className="w-3.5 h-3.5 text-[#F47B20]" />
+          </div>
         </div>
 
-        <form onSubmit={handleFormSubmit} className="p-3 space-y-3 flex-1 flex flex-col justify-between">
-          <div className="space-y-2.5">
-            <div>
-              <label className="text-[10px] font-bold text-[#66736B] block mb-1">DISH NAME</label>
-              <input
-                type="text"
-                required
-                value={dishName}
-                onChange={(e) => setDishName(e.target.value)}
-                placeholder="e.g. Special Chapati Meals"
-                className="w-full px-2.5 py-1.5 rounded-xl bg-white border border-[#E7EBE8] text-xs text-[#17201B] outline-none focus:border-[#168A4A]"
-              />
+        {/* Price & Category Fields */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="font-mono text-[10px] uppercase text-[#6C7970] block mb-1 font-bold">
+              PRICE (₹)
+            </label>
+            <div className="p-2.5 rounded-xl border border-[#CCD6D0] bg-white text-xs font-mono font-bold text-[#18221D]">
+              ₹ 120
+            </div>
+          </div>
+
+          <div>
+            <label className="font-mono text-[10px] uppercase text-[#6C7970] block mb-1 font-bold">
+              CATEGORY
+            </label>
+            <div className="p-2.5 rounded-xl border border-[#CCD6D0] bg-white text-xs font-semibold text-[#18221D]">
+              Lunch Special
+            </div>
+          </div>
+        </div>
+
+        {/* Dietary Tag Selector */}
+        <div>
+          <label className="font-mono text-[10px] uppercase text-[#6C7970] block mb-1 font-bold">
+            DIETARY SPECIFICATION
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="p-2 rounded-xl bg-[#E8F5EE] border-2 border-[#168A4A] flex items-center gap-2 text-xs font-bold text-[#0D5C35]">
+              <div className="w-3 h-3 rounded-[2px] border border-emerald-600 p-[1px] flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+              </div>
+              <span>100% Pure Veg</span>
+            </div>
+            <div className="p-2 rounded-xl bg-[#F7F8F6] border border-[#CCD6D0] opacity-50 flex items-center gap-2 text-xs text-[#6C7970]">
+              <div className="w-3 h-3 rounded-[2px] border border-red-600 p-[1px] flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-red-600" />
+              </div>
+              <span>Non-Veg</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Description Field */}
+        <div>
+          <label className="font-mono text-[10px] uppercase text-[#6C7970] block mb-1 font-bold">
+            TODAY&apos;S DESCRIPTION
+          </label>
+          <div className="p-2.5 rounded-xl border border-[#CCD6D0] bg-[#F7F8F6] text-[11px] text-[#4E5C53] leading-relaxed">
+            Fresh paneer butter masala, 3 butter tawa rotis, dal tadka, jeera rice &amp; gulab jamun.
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <div className="mt-auto pt-3">
+          <button
+            type="button"
+            onClick={onSubmit}
+            className="w-full py-3 rounded-xl bg-[#168A4A] hover:bg-[#0D5C35] text-white font-display text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all ring-2 ring-[#168A4A]/20"
+          >
+            <span>Add to Live Menu →</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// SCREEN 03: OWNER PUBLISHED MENU (Step 03 - Live Inventory Confirmation)
+// =============================================================================
+
+function PhoneOwnerPublishedView({
+  state,
+  onSwitchToDiner,
+}: {
+  state: JourneyState;
+  onSwitchToDiner: () => void;
+}) {
+  return (
+    <div className="flex-1 flex flex-col h-full bg-[#F7F8F6] overflow-y-auto">
+      {/* Header */}
+      <div className="px-4 py-3 bg-white border-b border-[#E7EBE8] flex items-center justify-between">
+        <div>
+          <span className="font-mono text-[9px] uppercase tracking-wider text-[#6C7970] block">
+            PARTNER DASHBOARD
+          </span>
+          <h4 className="font-display text-sm font-bold text-[#18221D]">
+            Annapurna Pure Veg Mess
+          </h4>
+        </div>
+        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#E8F5EE] border border-emerald-200 text-[#0D5C35] text-[10px] font-mono font-semibold">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#168A4A]" />
+          <span>OPEN</span>
+        </div>
+      </div>
+
+      <div className="p-4 flex-1 flex flex-col gap-4">
+        {/* Aahar-style Success Banner */}
+        <div className="p-3.5 rounded-xl bg-[#E8F5EE] border border-emerald-300 shadow-xs flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-[#168A4A] flex items-center justify-center text-white shrink-0">
+            <Check className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="font-mono text-[10px] font-bold text-[#0D5C35] uppercase block">
+              MENU PUBLISHED SUCCESSFULLY
+            </span>
+            <p className="text-xs text-[#0D5C35] leading-snug">
+              Special Paneer Thali is live in Cyber Park Hub catalog.
+            </p>
+          </div>
+        </div>
+
+        {/* Updated Today's Live Menu */}
+        <div>
+          <span className="font-mono text-[10px] uppercase tracking-wider text-[#6C7970] block mb-2 font-bold">
+            TODAY&apos;S LIVE MENU (3 ITEMS)
+          </span>
+
+          <div className="flex flex-col gap-2">
+            {/* Newly Added Special Item */}
+            <div className="p-3 rounded-xl bg-white border-2 border-[#168A4A] shadow-xs flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-[2px] border border-emerald-600 p-[1px] flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                  </div>
+                  <span className="font-display text-xs font-bold text-[#18221D]">
+                    Special Paneer Thali
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded text-[9px] font-mono bg-orange-100 text-[#F47B20] font-bold">
+                    NEW
+                  </span>
+                </div>
+                <span className="text-[11px] font-mono font-bold text-[#168A4A] mt-0.5 block">
+                  ₹120 · Lunch Special
+                </span>
+              </div>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#E8F5EE] text-[#0D5C35] font-bold">
+                In Stock
+              </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="p-3 rounded-xl bg-white border border-[#E7EBE8] flex items-center justify-between opacity-80">
               <div>
-                <label className="text-[10px] font-bold text-[#66736B] block mb-1">PRICE (₹)</label>
-                <input
-                  type="number"
-                  required
-                  value={dishPrice}
-                  onChange={(e) => setDishPrice(e.target.value)}
-                  className="w-full px-2.5 py-1.5 rounded-xl bg-white border border-[#E7EBE8] text-xs font-mono font-bold text-[#168A4A] outline-none"
-                />
+                <span className="font-display text-xs font-semibold text-[#18221D]">
+                  Executive Dal Khichdi
+                </span>
+                <span className="text-[10px] font-mono text-[#6C7970] block">
+                  ₹90
+                </span>
               </div>
-
-              <div>
-                <label className="text-[10px] font-bold text-[#66736B] block mb-1">MEAL SLOT</label>
-                <select
-                  value={dishCategory}
-                  onChange={(e) => setDishCategory(e.target.value as any)}
-                  className="w-full px-2 py-1.5 rounded-xl bg-white border border-[#E7EBE8] text-xs text-[#17201B] outline-none"
-                >
-                  <option value="Lunch">Lunch</option>
-                  <option value="Breakfast">Breakfast</option>
-                  <option value="Snacks">Snacks</option>
-                </select>
-              </div>
+              <span className="text-[10px] font-mono text-[#6C7970]">Active</span>
             </div>
 
+            <div className="p-3 rounded-xl bg-white border border-[#E7EBE8] flex items-center justify-between opacity-80">
+              <div>
+                <span className="font-display text-xs font-semibold text-[#18221D]">
+                  Deluxe Veg Thali
+                </span>
+                <span className="text-[10px] font-mono text-[#6C7970] block">
+                  ₹140
+                </span>
+              </div>
+              <span className="text-[10px] font-mono text-[#6C7970]">Active</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Transition to Diner Experience Trigger */}
+        <div className="mt-auto">
+          <button
+            type="button"
+            onClick={onSwitchToDiner}
+            className="w-full py-3 rounded-xl bg-[#0D5C35] hover:bg-[#073D22] text-white font-display text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all"
+          >
+            <span>Proceed to Diner Experience →</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// SCREEN 04: EMPLOYEE HOME FEED (Step 04 - Authentic Discovery Feed)
+// =============================================================================
+
+function PhoneEmployeeHomeView({
+  state,
+  onSearchFocus,
+  onOutletClick,
+}: {
+  state: JourneyState;
+  onSearchFocus: () => void;
+  onOutletClick: () => void;
+}) {
+  return (
+    <div className="flex-1 flex flex-col h-full bg-[#F7F8F6] overflow-y-auto">
+      {/* Authentic Aahar Location Header */}
+      <div className="px-4 pt-3 pb-2 bg-white border-b border-[#E7EBE8]">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-full bg-[#E8F5EE] border border-emerald-200 flex items-center justify-center text-[#168A4A]">
+              <MapPin className="w-3.5 h-3.5" />
+            </div>
             <div>
-              <label className="text-[10px] font-bold text-[#66736B] block mb-1">DESCRIPTION</label>
-              <textarea
-                value={dishDesc}
-                onChange={(e) => setDishDesc(e.target.value)}
-                placeholder="Dishes included, roti count..."
-                rows={3}
-                className="w-full px-2.5 py-1.5 rounded-xl bg-white border border-[#E7EBE8] text-xs text-[#17201B] outline-none focus:border-[#168A4A]"
-              />
+              <div className="flex items-center gap-1.5">
+                <span className="font-display text-xs font-bold text-[#18221D]">
+                  Cyber Park, Sector 33
+                </span>
+              </div>
+              <span className="font-mono text-[9px] text-[#0D5C35] font-semibold block">
+                350m radius · Office Hub
+              </span>
+            </div>
+          </div>
+          <div className="w-7 h-7 rounded-full bg-[#F2F5F3] flex items-center justify-center text-[#6C7970]">
+            <Heart className="w-3.5 h-3.5" />
+          </div>
+        </div>
+
+        {/* Search Bar (Clickable trigger for Step 05) */}
+        <div
+          onClick={onSearchFocus}
+          className="mt-3 p-2.5 rounded-xl border border-[#CCD6D0] bg-[#F7F8F6] flex items-center justify-between cursor-pointer hover:border-[#168A4A] transition-colors"
+        >
+          <div className="flex items-center gap-2 text-xs text-[#6C7970]">
+            <Search className="w-3.5 h-3.5 text-[#168A4A]" />
+            <span>Search thali, paneer, mess...</span>
+          </div>
+          <span className="text-[10px] font-mono text-[#168A4A] font-semibold bg-[#E8F5EE] px-1.5 py-0.5 rounded">
+            TAP
+          </span>
+        </div>
+
+        {/* Category Pills Carousel */}
+        <div className="flex items-center gap-1.5 mt-2.5 overflow-x-auto pb-1 no-scrollbar">
+          {['All', 'Pure Veg', 'Thali', 'North Indian', 'South Indian'].map(
+            (cat, i) => (
+              <span
+                key={cat}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-medium whitespace-nowrap ${
+                  i === 0
+                    ? 'bg-[#168A4A] text-white font-bold'
+                    : 'bg-[#F2F5F3] text-[#4E5C53]'
+                }`}
+              >
+                {cat}
+              </span>
+            )
+          )}
+        </div>
+      </div>
+
+      {/* Discovery Feed Outlets */}
+      <div className="p-3.5 flex-1 flex flex-col gap-3">
+        <span className="font-mono text-[10px] uppercase tracking-wider text-[#6C7970] font-bold">
+          NEARBY OPEN OUTLETS (350M)
+        </span>
+
+        {/* Annapurna Mess Outlet Card */}
+        <div
+          onClick={onOutletClick}
+          className="p-3.5 rounded-2xl bg-white border-2 border-[#168A4A] shadow-xs cursor-pointer hover:shadow-md transition-all group"
+        >
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="flex items-center gap-1.5">
+                <h5 className="font-display text-sm font-bold text-[#18221D] group-hover:text-[#168A4A] transition-colors">
+                  Annapurna Pure Veg Mess
+                </h5>
+                <ShieldCheck className="w-3.5 h-3.5 text-[#168A4A]" />
+              </div>
+              <span className="text-[10px] text-[#6C7970] block mt-0.5">
+                North Indian Thali &amp; Executive Meals
+              </span>
+            </div>
+            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-[#E8F5EE] text-[#0D5C35]">
+              OPEN NOW
+            </span>
+          </div>
+
+          <div className="mt-2.5 flex items-center gap-3 text-[11px] font-mono text-[#4E5C53]">
+            <span className="font-bold text-[#18221D] flex items-center gap-1">
+              <span className="text-amber-500">★</span> 4.8
+            </span>
+            <span>·</span>
+            <span>280m · 4 min walk</span>
+            <span>·</span>
+            <span className="text-[#0D5C35] font-semibold">Veg Only</span>
+          </div>
+
+          <div className="mt-2.5 pt-2 border-t border-[#F2F5F3] flex items-center justify-between text-xs">
+            <span className="text-[#0D5C35] font-mono text-[11px] font-semibold">
+              Today: Specials Updated
+            </span>
+            <span className="text-[#168A4A] font-mono text-[11px] font-bold flex items-center gap-0.5">
+              <span>View Menu</span>
+              <ChevronRight className="w-3 h-3" />
+            </span>
+          </div>
+        </div>
+
+        {/* Secondary Outlet Preview */}
+        <div className="p-3.5 rounded-2xl bg-white border border-[#E7EBE8] opacity-75">
+          <div className="flex items-start justify-between">
+            <div>
+              <h5 className="font-display text-xs font-bold text-[#18221D]">
+                Sri Sai Tiffin Center
+              </h5>
+              <span className="text-[10px] text-[#6C7970] block mt-0.5">
+                South Indian Meals &amp; Quick Combos
+              </span>
+            </div>
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-[#E8F5EE] text-[#0D5C35]">
+              OPEN
+            </span>
+          </div>
+          <div className="mt-2 flex items-center gap-2 text-[10px] font-mono text-[#6C7970]">
+            <span>★ 4.6</span>
+            <span>·</span>
+            <span>340m · 5 min walk</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Authentic Aahar Bottom Navigation Bar */}
+      <div className="px-4 py-2 bg-white border-t border-[#E7EBE8] grid grid-cols-4 gap-1 text-center">
+        <div className="flex flex-col items-center gap-0.5 text-[#168A4A]">
+          <Compass className="w-4 h-4" />
+          <span className="text-[9px] font-mono font-bold">Discover</span>
+        </div>
+        <div className="flex flex-col items-center gap-0.5 text-[#6C7970]">
+          <Heart className="w-4 h-4" />
+          <span className="text-[9px] font-mono">Favorites</span>
+        </div>
+        <div className="flex flex-col items-center gap-0.5 text-[#6C7970]">
+          <Utensils className="w-4 h-4" />
+          <span className="text-[9px] font-mono">Orders</span>
+        </div>
+        <div className="flex flex-col items-center gap-0.5 text-[#6C7970]">
+          <User className="w-4 h-4" />
+          <span className="text-[9px] font-mono">Profile</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// SCREEN 05: SEARCH FOR LUNCH (Step 05 - Query "Paneer")
+// =============================================================================
+
+function PhoneEmployeeSearchView({
+  state,
+  onClearSearch,
+  onOutletClick,
+}: {
+  state: JourneyState;
+  onClearSearch: () => void;
+  onOutletClick: () => void;
+}) {
+  return (
+    <div className="flex-1 flex flex-col h-full bg-[#F7F8F6] overflow-y-auto">
+      {/* Search Header with "Paneer" query filled */}
+      <div className="px-4 py-3 bg-white border-b border-[#E7EBE8]">
+        <div className="p-2.5 rounded-xl border-2 border-[#168A4A] bg-white flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#18221D]">
+            <Search className="w-4 h-4 text-[#168A4A]" />
+            <span>Paneer</span>
+          </div>
+          <button
+            type="button"
+            onClick={onClearSearch}
+            className="p-1 text-[#6C7970] hover:text-[#18221D]"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between mt-2.5">
+          <span className="font-mono text-[10px] text-[#0D5C35] font-semibold">
+            1 Outlet with matching daily special
+          </span>
+          <span className="font-mono text-[10px] text-[#6C7970]">Within 350m</span>
+        </div>
+      </div>
+
+      <div className="p-3.5 flex-1 flex flex-col gap-3">
+        {/* Filtered Result Elevating the Updated Outlet */}
+        <div
+          onClick={onOutletClick}
+          className="p-3.5 rounded-2xl bg-white border-2 border-[#168A4A] shadow-md cursor-pointer hover:shadow-lg transition-all group"
+        >
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="flex items-center gap-1.5">
+                <h5 className="font-display text-sm font-bold text-[#18221D] group-hover:text-[#168A4A]">
+                  Annapurna Pure Veg Mess
+                </h5>
+                <ShieldCheck className="w-3.5 h-3.5 text-[#168A4A]" />
+              </div>
+              <span className="text-[10px] text-[#6C7970] block mt-0.5">
+                280m · 4 min walk · Cyber Park Hub
+              </span>
+            </div>
+            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-[#E8F5EE] text-[#0D5C35]">
+              OPEN
+            </span>
+          </div>
+
+          {/* Highlighted Match Badge */}
+          <div className="mt-3 p-2.5 rounded-xl bg-[#F0F9F4] border border-[#C6E5D3] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 text-[#F47B20]" />
+              <span className="font-display text-xs font-bold text-[#0D5C35]">
+                Special Paneer Thali
+              </span>
+            </div>
+            <span className="font-mono text-xs font-bold text-[#18221D]">
+              ₹120
+            </span>
+          </div>
+
+          <div className="mt-2.5 flex items-center justify-between text-[11px] font-mono text-[#6C7970]">
+            <span>Added 5 mins ago by kitchen</span>
+            <span className="text-[#168A4A] font-bold flex items-center gap-0.5">
+              <span>Open Outlet</span>
+              <ChevronRight className="w-3 h-3" />
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// SCREEN 06, 07, 08: OUTLET DETAIL SCREEN (Steps 06, 07, 08)
+// =============================================================================
+
+function PhoneOutletDetailView({
+  state,
+  activeTab = 'about',
+  onTabSelect,
+  onBack,
+  onGoToDirections,
+  onReplay,
+}: {
+  state: JourneyState;
+  activeTab: 'about' | 'menu' | 'directions';
+  onTabSelect: (tab: 'about' | 'menu' | 'directions') => void;
+  onBack: () => void;
+  onGoToDirections?: () => void;
+  onReplay?: () => void;
+}) {
+  return (
+    <div className="flex-1 flex flex-col h-full bg-[#F7F8F6] overflow-y-auto">
+      {/* App Bar */}
+      <div className="px-4 py-3 bg-white border-b border-[#E7EBE8] flex items-center justify-between sticky top-0 z-10">
+        <button
+          type="button"
+          onClick={onBack}
+          className="p-1 -ml-1 text-[#18221D] hover:bg-[#F2F5F3] rounded-lg"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
+        <h4 className="font-display text-xs font-bold text-[#18221D] truncate max-w-[200px]">
+          Annapurna Pure Veg Mess
+        </h4>
+        <div className="flex items-center gap-1.5 text-[#6C7970]">
+          <Share2 className="w-3.5 h-3.5" />
+        </div>
+      </div>
+
+      {/* Outlet Hero Banner */}
+      <div className="p-4 bg-white border-b border-[#E7EBE8]">
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-display text-base font-bold text-[#18221D]">
+                Annapurna Pure Veg Mess
+              </h3>
+            </div>
+            <p className="text-xs text-[#6C7970] mt-0.5">
+              Near DLF Cyber Park Gate 3, Sector 24
+            </p>
+          </div>
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#E8F5EE] text-[#0D5C35]">
+            OPEN NOW
+          </span>
+        </div>
+
+        {/* FSSAI Verified Badge & Metrics */}
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] font-mono">
+          <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#E8F5EE] text-[#0D5C35] font-semibold border border-emerald-200">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>FSSAI Verified Partner</span>
+          </span>
+          <span className="px-2 py-0.5 rounded bg-slate-100 text-[#4E5C53]">
+            280m · 4 min walk
+          </span>
+          <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 font-semibold border border-amber-200">
+            ★ 4.8 (142)
+          </span>
+        </div>
+
+        {/* Tabs Bar: Menu, Directions, About */}
+        <div className="mt-4 grid grid-cols-3 gap-1 p-1 bg-[#F2F5F3] rounded-xl border border-[#E7EBE8]">
+          <button
+            type="button"
+            onClick={() => onTabSelect('menu')}
+            className={`py-1.5 rounded-lg text-xs font-mono font-semibold transition-all ${
+              activeTab === 'menu'
+                ? 'bg-[#168A4A] text-white shadow-xs'
+                : 'text-[#4E5C53] hover:bg-white'
+            }`}
+          >
+            Today&apos;s Menu
+          </button>
+          <button
+            type="button"
+            onClick={() => onTabSelect('directions')}
+            className={`py-1.5 rounded-lg text-xs font-mono font-semibold transition-all ${
+              activeTab === 'directions'
+                ? 'bg-[#168A4A] text-white shadow-xs'
+                : 'text-[#4E5C53] hover:bg-white'
+            }`}
+          >
+            Directions
+          </button>
+          <button
+            type="button"
+            onClick={() => onTabSelect('about')}
+            className={`py-1.5 rounded-lg text-xs font-mono font-semibold transition-all ${
+              activeTab === 'about'
+                ? 'bg-[#168A4A] text-white shadow-xs'
+                : 'text-[#4E5C53] hover:bg-white'
+            }`}
+          >
+            Overview
+          </button>
+        </div>
+      </div>
+
+      {/* TAB CONTENT: ABOUT / OVERVIEW (Step 06) */}
+      {activeTab === 'about' && (
+        <div className="p-4 flex-1 flex flex-col gap-3">
+          <div className="p-3.5 rounded-xl bg-white border border-[#E7EBE8]">
+            <span className="font-mono text-[10px] uppercase font-bold text-[#0D5C35] block mb-1">
+              HYGIENE &amp; VERIFICATION
+            </span>
+            <div className="flex items-center justify-between text-xs text-[#18221D] font-mono">
+              <span>FSSAI License:</span>
+              <span className="font-bold">#10023045678901</span>
+            </div>
+            <div className="flex items-center justify-between text-xs text-[#18221D] font-mono mt-1">
+              <span>Inspection Rating:</span>
+              <span className="font-bold text-[#168A4A]">Grade A+ (Verified)</span>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-white border border-[#E7EBE8]">
+            <span className="font-mono text-[10px] uppercase font-bold text-[#6C7970] block mb-1">
+              OPERATING TIMINGS
+            </span>
+            <div className="flex items-center justify-between text-xs text-[#4E5C53]">
+              <span>Lunch Service:</span>
+              <span className="font-mono font-bold text-[#18221D]">
+                11:30 AM – 3:30 PM
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-xs text-[#4E5C53] mt-1">
+              <span>Dinner Service:</span>
+              <span className="font-mono font-bold text-[#18221D]">
+                7:30 PM – 10:30 PM
+              </span>
             </div>
           </div>
 
           <button
-            type="submit"
-            className="w-full py-2 bg-[#168A4A] hover:bg-[#0D5C35] text-white text-xs font-bold rounded-xl transition-colors shadow-xs"
-          >
-            Publish to Today&apos;s Menu
-          </button>
-        </form>
-      </div>
-    );
-  }
-
-  // SCREEN: AI MENU ASSISTANT (ai_menu_assistant_screen.dart)
-  if (activeScreen === 'ai-scanner') {
-    return (
-      <div className="flex-1 flex flex-col bg-[#F7F8F6] text-left">
-        <div className="px-3 py-2.5 bg-white border-b border-[#E7EBE8] flex items-center justify-between sticky top-0 z-20">
-          <button
             type="button"
-            onClick={() => setActiveScreen('dashboard')}
-            className="flex items-center gap-1 text-xs font-bold text-[#17201B]"
+            onClick={() => onTabSelect('menu')}
+            className="mt-auto w-full py-3 rounded-xl bg-[#168A4A] hover:bg-[#0D5C35] text-white font-display text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all"
           >
-            <ArrowLeft className="w-4 h-4 text-[#168A4A]" />
-            <span>Cancel</span>
+            <span>Inspect Today&apos;s Menu →</span>
           </button>
-          <span className="font-bold text-xs text-[#17201B]" style={{ fontFamily: 'Outfit, sans-serif' }}>
-            AI Menu Assistant
-          </span>
-          <div className="w-8" />
         </div>
+      )}
 
-        <div className="p-3.5 flex-1 flex flex-col justify-between">
-          <div className="space-y-3">
-            <div className="p-3 bg-white rounded-xl border border-[#E7EBE8]">
-              <span className="text-[10px] font-mono font-bold text-[#F47B20] block mb-1">
-                CHALKBOARD OCR &amp; PARSER
+      {/* TAB CONTENT: TODAY'S MENU (Step 07 - THE KEY SYNC MOMENT) */}
+      {activeTab === 'menu' && (
+        <div className="p-3.5 flex-1 flex flex-col gap-3">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-[#6C7970] font-bold">
+            TODAY&apos;S SPECIALS (REAL-TIME SYNCED)
+          </span>
+
+          {/* THE HIGHLIGHTED SYNCED DISH */}
+          <div className="p-3.5 rounded-2xl bg-white border-2 border-[#168A4A] shadow-md ring-2 ring-[#168A4A]/20">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-mono text-[10px] font-bold text-[#168A4A] bg-[#E8F5EE] px-2 py-0.5 rounded border border-emerald-200 inline-flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-[#F47B20]" />
+                <span>JUST ADDED BY OWNER TODAY</span>
               </span>
-              <p className="text-xs text-[#17201B]">
-                Snap your chalkboard menu or paste raw kitchen notes; Gemini parses items &amp; prices.
+              <span className="font-mono text-sm font-bold text-[#168A4A]">
+                ₹120
+              </span>
+            </div>
+
+            <div className="flex items-start gap-2">
+              <div className="w-3 h-3 rounded-[2px] border border-emerald-600 p-[1px] flex items-center justify-center mt-1 shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+              </div>
+              <div>
+                <h5 className="font-display text-sm font-bold text-[#18221D]">
+                  Special Paneer Thali
+                </h5>
+                <p className="mt-1 text-xs text-[#4E5C53] leading-relaxed">
+                  Fresh paneer butter masala, 3 butter tawa rotis, dal tadka, jeera rice &amp; gulab jamun.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-3 pt-2.5 border-t border-[#F2F5F3] flex items-center justify-between">
+              <span className="text-[10px] font-mono text-[#0D5C35] font-semibold">
+                ✓ In Stock &amp; Ready
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-[#168A4A] text-white font-mono text-[11px] font-semibold">
+                Select Item
+              </span>
+            </div>
+          </div>
+
+          {/* Regular Menu Items */}
+          <span className="font-mono text-[10px] uppercase tracking-wider text-[#6C7970] font-bold mt-1">
+            STANDARD ROTATIONAL THALIS
+          </span>
+
+          <div className="p-3 rounded-xl bg-white border border-[#E7EBE8] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-[2px] border border-emerald-600 p-[1px] flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+              </div>
+              <div>
+                <span className="font-display text-xs font-semibold text-[#18221D] block">
+                  Executive Dal Khichdi
+                </span>
+                <span className="text-[10px] text-[#6C7970]">Light home-style lunch</span>
+              </div>
+            </div>
+            <span className="font-mono text-xs font-bold text-[#18221D]">₹90</span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-white border border-[#E7EBE8] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-[2px] border border-emerald-600 p-[1px] flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+              </div>
+              <div>
+                <span className="font-display text-xs font-semibold text-[#18221D] block">
+                  Deluxe Veg Thali
+                </span>
+                <span className="text-[10px] text-[#6C7970]">Complete lunch combo</span>
+              </div>
+            </div>
+            <span className="font-mono text-xs font-bold text-[#18221D]">₹140</span>
+          </div>
+
+          {/* Trigger to Walking Directions */}
+          <div className="mt-auto pt-2">
+            <button
+              type="button"
+              onClick={onGoToDirections}
+              className="w-full py-3 rounded-xl bg-[#0D5C35] hover:bg-[#073D22] text-white font-display text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all"
+            >
+              <Navigation className="w-3.5 h-3.5" />
+              <span>Get Walking Directions →</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* TAB CONTENT: DIRECTIONS (Step 08 - Final Action) */}
+      {activeTab === 'directions' && (
+        <div className="p-4 flex-1 flex flex-col gap-3">
+          {/* Walking Distance Header */}
+          <div className="p-3.5 rounded-xl bg-white border border-[#E7EBE8] shadow-xs flex items-center justify-between">
+            <div>
+              <span className="font-mono text-[10px] uppercase font-bold text-[#0D5C35]">
+                WALKING DISTANCE
+              </span>
+              <h4 className="font-display text-sm font-bold text-[#18221D]">
+                280 Meters · 4 Min Walk
+              </h4>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-[#E8F5EE] flex items-center justify-center text-[#168A4A]">
+              <Navigation className="w-4 h-4" />
+            </div>
+          </div>
+
+          {/* Turn-by-turn Walking Guide */}
+          <div className="p-3.5 rounded-xl bg-white border border-[#E7EBE8] flex-1">
+            <span className="font-mono text-[10px] uppercase font-bold text-[#6C7970] block mb-3">
+              WALKING ROUTE THROUGH CYBER PARK
+            </span>
+
+            <div className="space-y-3 text-xs text-[#18221D]">
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#E8F5EE] text-[#0D5C35] font-mono text-[10px] font-bold flex items-center justify-center shrink-0">
+                  1
+                </span>
+                <div>
+                  <span className="font-semibold block">Exit DLF Cyber Park Gate 3</span>
+                  <span className="text-[11px] text-[#6C7970]">Walk straight 80 meters</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#E8F5EE] text-[#0D5C35] font-mono text-[10px] font-bold flex items-center justify-center shrink-0">
+                  2
+                </span>
+                <div>
+                  <span className="font-semibold block">Cross pedestrian skywalk to Tower B</span>
+                  <span className="text-[11px] text-[#6C7970]">Shaded pedestrian walkway 120 meters</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#168A4A] text-white font-mono text-[10px] font-bold flex items-center justify-center shrink-0">
+                  3
+                </span>
+                <div>
+                  <span className="font-semibold block">Arrive at Annapurna Mess</span>
+                  <span className="text-[11px] text-[#0D5C35] font-semibold">
+                    Food Court Alley, 1st stall on the left
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* End of Journey CTA */}
+          <div className="mt-auto flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={onReplay}
+              className="w-full py-3 rounded-xl bg-[#168A4A] hover:bg-[#0D5C35] text-white font-display text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>↺ Replay Product Flow from Step 1</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =============================================================================
+// SECONDARY SECTION: PLATFORM GOVERNANCE (Admin Moderation Flow)
+// =============================================================================
+
+export function PlatformGovernanceDemo() {
+  const [adminStep, setAdminStep] = useState<number>(0);
+  const [isVerified, setIsVerified] = useState<boolean>(true);
+
+  const toggleVerification = () => {
+    setIsVerified(!isVerified);
+  };
+
+  return (
+    <div className="w-full max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        {/* Left: 3-Step Admin Narrative (6 cols) */}
+        <div className="lg:col-span-6 flex flex-col items-start text-left">
+          <span className="font-mono text-xs uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
+            PLATFORM GOVERNANCE // AUDIT WORKFLOW
+          </span>
+
+          <h3 className="mt-3 font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#18221D]">
+            FSSAI Document Verification
+          </h3>
+
+          <p className="mt-2 text-sm text-[#4E5C53] leading-relaxed">
+            Every dining experience is anchored by deterministic compliance audits. Platform admins inspect kitchen hygiene certificates and geofence bounds before issuing verified partner trust badges.
+          </p>
+
+          {/* 3 Step Flow Indicators */}
+          <div className="mt-6 space-y-3 w-full">
+            <div
+              onClick={() => setAdminStep(0)}
+              className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                adminStep === 0
+                  ? 'bg-white border-blue-600 shadow-xs'
+                  : 'bg-[#F2F5F3] border-transparent opacity-75'
+              }`}
+            >
+              <span className="font-mono text-[10px] font-bold text-blue-700 block">
+                01 // AUDIT SUBMISSION
+              </span>
+              <h5 className="font-display text-xs font-bold text-[#18221D] mt-0.5">
+                Review FSSAI License &amp; Geofence
+              </h5>
+              <p className="text-[11px] text-[#6C7970] mt-1">
+                Annapurna Mess submitted license #10023045678901 with a 350m spatial radius pin.
               </p>
             </div>
 
-            <div className="p-3 bg-slate-900 rounded-xl text-white font-mono text-[11px] space-y-1">
-              <span className="text-slate-400 block text-[9px]">MOCK CHALKBOARD INPUT:</span>
-              <p className="text-emerald-400">&gt; &quot;Special Ghee Roast Dosa 75 Rs with 2 Chutneys &amp; Sambar&quot;</p>
-            </div>
-
-            {isScanning && (
-              <div className="p-3 bg-[#E8F5EE] rounded-xl border border-emerald-200 text-center animate-pulse">
-                <span className="font-bold text-xs text-[#168A4A] block">
-                  Analyzing menu with Gemini AI...
-                </span>
-                <span className="text-[10px] text-[#0D5C35]">Structuring items and pricing</span>
-              </div>
-            )}
-          </div>
-
-          <button
-            type="button"
-            disabled={isScanning}
-            onClick={handleTriggerAiScan}
-            className="w-full py-2 bg-[#F47B20] hover:bg-[#d96714] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{isScanning ? 'Parsing Notes...' : 'Parse & Publish to Today\'s Menu'}</span>
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // SCREEN: OWNER DASHBOARD (owner_dashboard_screen.dart)
-  return (
-    <div className="flex-1 flex flex-col bg-[#F7F8F6] text-left">
-      {/* 1. Partner Header AppBar */}
-      <div className="px-3.5 py-2.5 bg-white border-b border-[#E7EBE8] flex items-center justify-between">
-        <div>
-          <span className="text-[10px] font-mono text-[#66736B] block leading-none">Good Afternoon</span>
-          <span className="text-xs font-bold text-[#17201B] truncate" style={{ fontFamily: 'Outfit, sans-serif' }}>
-            {outlet.name}
-          </span>
-        </div>
-        <div className="w-7 h-7 rounded-full bg-[#E8F5EE] text-[#168A4A] flex items-center justify-center font-bold text-xs">
-          AP
-        </div>
-      </div>
-
-      <div className="p-3 space-y-2.5 flex-1">
-        {/* Verification Status Pill */}
-        <div className="px-3 py-1.5 bg-[#E8F5EE] rounded-xl border border-emerald-200 flex items-center justify-between text-[10.5px]">
-          <span className="font-bold text-[#168A4A] flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" />
-            Verified Partner
-          </span>
-          <span className="font-mono text-[9.5px] text-[#0D5C35]">Cyber Park Hub</span>
-        </div>
-
-        {/* Kitchen Status Toggle Card */}
-        <div className="p-3 bg-white rounded-2xl border border-[#E7EBE8] shadow-2xs">
-          <div className="flex items-center justify-between mb-1.5">
-            <div>
-              <span className="text-[10px] font-bold text-[#66736B] block">KITCHEN SERVICE</span>
-              <span className="text-xs font-bold text-[#17201B]">
-                {outlet.isOpen ? 'Kitchen Open / Serving Diners' : 'Kitchen Closed / Off-peak'}
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={onToggleKitchen}
-              className={`px-3 py-1 rounded-lg text-[10.5px] font-bold transition-all flex items-center gap-1.5 ${
-                outlet.isOpen
-                  ? 'bg-[#168A4A] text-white shadow-2xs'
-                  : 'bg-red-600 text-white shadow-2xs'
+            <div
+              onClick={() => setAdminStep(1)}
+              className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                adminStep === 1
+                  ? 'bg-white border-blue-600 shadow-xs'
+                  : 'bg-[#F2F5F3] border-transparent opacity-75'
               }`}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              <span>{outlet.isOpen ? 'OPEN' : 'CLOSED'}</span>
+              <span className="font-mono text-[10px] font-bold text-blue-700 block">
+                02 // APPROVE &amp; VERIFY
+              </span>
+              <h5 className="font-display text-xs font-bold text-[#18221D] mt-0.5">
+                Approve Verified Partner Status
+              </h5>
+              <p className="text-[11px] text-[#6C7970] mt-1">
+                Clicking Approve instantly flips the cryptographic status from Pending to Verified.
+              </p>
+            </div>
+
+            <div
+              onClick={() => setAdminStep(2)}
+              className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                adminStep === 2
+                  ? 'bg-white border-blue-600 shadow-xs'
+                  : 'bg-[#F2F5F3] border-transparent opacity-75'
+              }`}
+            >
+              <span className="font-mono text-[10px] font-bold text-blue-700 block">
+                03 // EMPLOYEE CONFIRMATION
+              </span>
+              <h5 className="font-display text-xs font-bold text-[#18221D] mt-0.5">
+                Employee Sees Verified Partner Badge
+              </h5>
+              <p className="text-[11px] text-[#6C7970] mt-1">
+                Diners immediately see the emerald FSSAI Verified Partner shield on their discovery feed.
+              </p>
+            </div>
+          </div>
+
+          {/* Interactive Toggle for Verification */}
+          <div className="mt-6 p-3 rounded-xl bg-white border border-[#CCD6D0] w-full flex items-center justify-between">
+            <span className="text-xs font-mono font-semibold text-[#18221D]">
+              Interactive Status: {isVerified ? 'VERIFIED' : 'PENDING AUDIT'}
+            </span>
+            <button
+              type="button"
+              onClick={toggleVerification}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
+                isVerified
+                  ? 'bg-[#E8F5EE] text-[#0D5C35] border border-emerald-300'
+                  : 'bg-amber-100 text-amber-900 border border-amber-300'
+              }`}
+            >
+              {isVerified ? 'Revoke / Flag' : 'Approve Partner'}
             </button>
           </div>
-          <span className="text-[10px] text-[#66736B] block">
-            Syncs to diners in real-time across the platform.
-          </span>
         </div>
 
-        {/* Quick Action Buttons: Add Item & AI Assistant */}
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={() => setActiveScreen('add-dish')}
-            className="p-2 bg-[#168A4A] hover:bg-[#0D5C35] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1 transition-colors shadow-2xs"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>+ Add Dish</span>
-          </button>
+        {/* Right: Authentic Admin Mobile Viewport (6 cols) */}
+        <div className="lg:col-span-6 flex justify-center">
+          <div className="w-full max-w-[340px] sm:max-w-[360px] h-[600px] rounded-[38px] bg-[#121815] p-3 shadow-xl border-2 border-slate-700 flex flex-col justify-between overflow-hidden">
+            {/* Admin Header */}
+            <div className="px-3 pt-1 pb-1 flex items-center justify-between text-white/80 font-mono text-[10px]">
+              <span>12:45</span>
+              <span className="font-bold text-blue-400">ADMIN CONSOLE</span>
+              <span>5G</span>
+            </div>
 
-          <button
-            type="button"
-            onClick={() => setActiveScreen('ai-scanner')}
-            className="p-2 bg-white rounded-xl border border-[#E7EBE8] hover:border-[#F47B20] text-[#17201B] text-xs font-bold flex items-center justify-center gap-1 transition-colors shadow-2xs"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#F47B20]" />
-            <span>AI Menu Scan</span>
-          </button>
-        </div>
+            {/* Viewport Content */}
+            <div className="flex-1 rounded-[26px] bg-[#F7F8F6] border border-[#E7EBE8] overflow-y-auto p-3.5 flex flex-col gap-3">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E7EBE8]">
+                <span className="font-mono text-[10px] uppercase font-bold text-[#6C7970]">
+                  VERIFICATION QUEUE
+                </span>
+                <span className="px-2 py-0.5 rounded text-[9px] font-mono bg-blue-100 text-blue-800 font-bold">
+                  DLF Cyber Hub
+                </span>
+              </div>
 
-        {/* Today's Menu Inventory Control */}
-        <div className="p-3 bg-white rounded-2xl border border-[#E7EBE8]">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-[#17201B]" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              Today&apos;s Live Menu
-            </span>
-            <span className="text-[10px] font-mono text-[#168A4A] bg-[#E8F5EE] px-1.5 py-0.5 rounded font-bold">
-              {outlet.menu.length} ACTIVE
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            {outlet.menu.map((item) => (
-              <div
-                key={item.id}
-                className="p-2 rounded-xl bg-[#F7F8F6] border border-[#E7EBE8] flex items-center justify-between gap-1.5"
-              >
-                <div className="flex-1 truncate">
-                  <span className="font-bold text-xs text-[#17201B] block truncate leading-tight">
-                    {item.name}
-                  </span>
-                  <span className="font-mono text-[10px] text-[#168A4A] font-bold">
-                    ₹{item.price} · {item.category}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => onToggleItem(item.id)}
-                    className={`px-2 py-0.5 rounded text-[9.5px] font-bold transition-colors ${
-                      item.isAvailable
-                        ? 'bg-[#E8F5EE] text-[#168A4A] border border-emerald-300'
-                        : 'bg-red-50 text-red-600 border border-red-200'
+              {/* Outlet Verification Card */}
+              <div className="p-3 rounded-xl bg-white border border-[#DDE4DF] shadow-xs">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h5 className="font-display text-xs font-bold text-[#18221D]">
+                      Annapurna Pure Veg Mess
+                    </h5>
+                    <span className="text-[10px] text-[#6C7970] font-mono">
+                      FSSAI #10023045678901
+                    </span>
+                  </div>
+                  <span
+                    className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold ${
+                      isVerified
+                        ? 'bg-[#E8F5EE] text-[#0D5C35]'
+                        : 'bg-amber-100 text-amber-900'
                     }`}
                   >
-                    {item.isAvailable ? 'IN STOCK' : 'SOLD OUT'}
-                  </button>
+                    {isVerified ? 'VERIFIED' : 'PENDING'}
+                  </span>
+                </div>
 
+                <div className="mt-2 text-[10px] text-[#4E5C53] space-y-1 font-mono">
+                  <div>Audit Timestamp: 10:15 AM Today</div>
+                  <div>Geofence Match: 280m Cyber Park (Valid)</div>
+                  <div>Hygiene Inspection: Grade A+ (Passed)</div>
+                </div>
+
+                <div className="mt-3 pt-2 border-t border-[#F2F5F3] flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => onDeleteDish(item.id)}
-                    className="p-1 text-slate-400 hover:text-red-500 rounded"
+                    onClick={() => setIsVerified(true)}
+                    className="flex-1 py-1.5 rounded-lg bg-[#168A4A] text-white font-mono text-[10px] font-bold"
                   >
-                    <Trash2 className="w-3 h-3" />
+                    Approve
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsVerified(false)}
+                    className="py-1.5 px-3 rounded-lg bg-slate-100 text-[#6C7970] font-mono text-[10px]"
+                  >
+                    Flag
                   </button>
                 </div>
               </div>
-            ))}
+
+              {/* Live Status Preview Card */}
+              <div className="p-3 rounded-xl bg-white border border-[#DDE4DF]">
+                <span className="font-mono text-[10px] uppercase font-bold text-[#6C7970] block mb-1">
+                  EMPLOYEE FEED PREVIEW
+                </span>
+                <div className="p-2.5 rounded-lg bg-[#F7F8F6] border border-[#E7EBE8] flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#18221D]">
+                    Annapurna Mess
+                  </span>
+                  {isVerified ? (
+                    <span className="flex items-center gap-1 text-[10px] font-mono text-[#0D5C35] font-bold bg-[#E8F5EE] px-2 py-0.5 rounded">
+                      <ShieldCheck className="w-3 h-3" />
+                      <span>Verified Partner</span>
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-mono text-amber-700 bg-amber-50 px-2 py-0.5 rounded">
+                      Unverified
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Gesture Home Bar */}
+            <div className="py-1 flex justify-center">
+              <div className="w-20 h-1 bg-white/40 rounded-full" />
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Owner Bottom Nav Bar (app_bottom_nav_bar.dart) */}
-      <div className="h-12 bg-white border-t border-[#E7EBE8] flex items-center justify-around flex-shrink-0 px-2">
-        <button type="button" className="flex flex-col items-center justify-center text-[#168A4A]">
-          <Layers className="w-4 h-4" />
-          <span className="text-[9px] font-bold mt-0.5">Dashboard</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveScreen('add-dish')}
-          className="flex flex-col items-center justify-center text-[#66736B]"
-        >
-          <FileText className="w-4 h-4" />
-          <span className="text-[9px] font-medium mt-0.5">Add Menu</span>
-        </button>
-        <button type="button" className="flex flex-col items-center justify-center text-[#66736B]">
-          <History className="w-4 h-4" />
-          <span className="text-[9px] font-medium mt-0.5">History</span>
-        </button>
-        <button type="button" className="flex flex-col items-center justify-center text-[#66736B]">
-          <Store className="w-4 h-4" />
-          <span className="text-[9px] font-medium mt-0.5">My Mess</span>
-        </button>
       </div>
     </div>
   );
 }
 
-// =============================================================================
-// SCREEN 03: ADMIN APP (Faithful recreation of Flutter A02 - A03)
-// =============================================================================
-
-function AaharAdminApp({
-  outlets,
-  reports,
-  onVerifyOutlet,
-  onResolveReport,
-}: {
-  outlets: MockOutlet[];
-  reports: MockReport[];
-  onVerifyOutlet: (id: string, status: 'approved' | 'flagged') => void;
-  onResolveReport: (id: string, status: 'resolved' | 'dismissed') => void;
-}) {
-  const [adminTab, setAdminTab] = useState<'verification' | 'reports'>('verification');
-
-  const verifiedCount = outlets.filter((o) => o.verificationStatus === 'approved').length;
-
-  return (
-    <div className="flex-1 flex flex-col bg-[#F7F8F6] text-left">
-      {/* 1. Admin Top AppBar */}
-      <div className="px-3.5 py-2.5 bg-white border-b border-[#E7EBE8] flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <ShieldCheck className="w-4 h-4 text-[#168A4A]" />
-          <div>
-            <span className="text-[9.5px] font-mono text-[#66736B] block leading-none">SuperAdmin Portal</span>
-            <span className="text-xs font-bold text-[#17201B]" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              Control Center
-            </span>
-          </div>
-        </div>
-        <span className="text-[9px] font-mono bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded">
-          ZONE 01
-        </span>
-      </div>
-
-      {/* 2. Platform Health Bento Grid (admin_dashboard_screen.dart) */}
-      <div className="p-2.5 grid grid-cols-3 gap-1.5 bg-white border-b border-[#E7EBE8]">
-        <div className="p-1.5 rounded-lg bg-[#F7F8F6] border border-[#E7EBE8] text-center">
-          <span className="text-[8.5px] font-mono text-[#66736B] block">TOTAL</span>
-          <span className="font-mono text-xs font-bold text-[#17201B]">{outlets.length}</span>
-        </div>
-        <div className="p-1.5 rounded-lg bg-[#E8F5EE] border border-emerald-200 text-center">
-          <span className="text-[8.5px] font-mono text-[#168A4A] block">VERIFIED</span>
-          <span className="font-mono text-xs font-bold text-[#168A4A]">{verifiedCount}</span>
-        </div>
-        <div className="p-1.5 rounded-lg bg-amber-50 border border-amber-200 text-center">
-          <span className="text-[8.5px] font-mono text-amber-700 block">PENDING</span>
-          <span className="font-mono text-xs font-bold text-amber-700">
-            {outlets.length - verifiedCount}
-          </span>
-        </div>
-      </div>
-
-      {/* 3. Sub Tabs */}
-      <div className="flex border-b border-[#E7EBE8] bg-[#F7F8F6] text-xs font-bold text-[#66736B]">
-        <button
-          type="button"
-          onClick={() => setAdminTab('verification')}
-          className={`flex-1 py-1.5 text-center ${
-            adminTab === 'verification'
-              ? 'text-[#168A4A] border-b-2 border-[#168A4A] bg-white'
-              : 'hover:text-[#17201B]'
-          }`}
-        >
-          Verification ({outlets.length})
-        </button>
-        <button
-          type="button"
-          onClick={() => setAdminTab('reports')}
-          className={`flex-1 py-1.5 text-center ${
-            adminTab === 'reports'
-              ? 'text-[#168A4A] border-b-2 border-[#168A4A] bg-white'
-              : 'hover:text-[#17201B]'
-          }`}
-        >
-          Complaints ({reports.filter((r) => r.status === 'open').length})
-        </button>
-      </div>
-
-      {/* 4. Verification Queue / Complaints Stream */}
-      <div className="p-2.5 space-y-2 flex-1 overflow-y-auto">
-        {adminTab === 'verification' ? (
-          outlets.map((outlet) => (
-            <div
-              key={outlet.id}
-              className="p-2.5 bg-white rounded-xl border border-[#E7EBE8] shadow-2xs space-y-2"
-            >
-              <div className="flex items-start justify-between gap-1">
-                <div>
-                  <span className="font-bold text-xs text-[#17201B] block leading-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    {outlet.name}
-                  </span>
-                  <span className="text-[10px] text-[#66736B] block mt-0.5">
-                    FSSAI: <span className="font-mono">{outlet.fssaiNumber}</span>
-                  </span>
-                </div>
-                <span
-                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
-                    outlet.verificationStatus === 'approved'
-                      ? 'bg-[#E8F5EE] text-[#168A4A]'
-                      : outlet.verificationStatus === 'pending'
-                      ? 'bg-amber-50 text-amber-700'
-                      : 'bg-red-50 text-red-600'
-                  }`}
-                >
-                  {outlet.verificationStatus}
-                </span>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-1.5 pt-1 border-t border-[#E7EBE8]/60">
-                <button
-                  type="button"
-                  onClick={() => onVerifyOutlet(outlet.id, 'approved')}
-                  disabled={outlet.verificationStatus === 'approved'}
-                  className="flex-1 py-1 bg-[#168A4A] hover:bg-[#0D5C35] text-white text-[10px] font-bold rounded-lg transition-colors disabled:opacity-40"
-                >
-                  Approve &amp; Verify
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onVerifyOutlet(outlet.id, 'flagged')}
-                  disabled={outlet.verificationStatus === 'flagged'}
-                  className="px-2 py-1 border border-red-300 text-red-600 hover:bg-red-50 text-[10px] font-bold rounded-lg transition-colors disabled:opacity-40"
-                >
-                  Flag
-                </button>
-              </div>
-            </div>
-          ))
-        ) : (
-          reports.map((rep) => (
-            <div
-              key={rep.id}
-              className="p-2.5 bg-white rounded-xl border border-[#E7EBE8] shadow-2xs space-y-2"
-            >
-              <div className="flex items-start justify-between gap-1">
-                <div>
-                  <span className="font-bold text-xs text-[#17201B] block leading-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    {rep.outletName}
-                  </span>
-                  <span className="text-[10px] text-red-600 block mt-0.5 leading-tight">
-                    {rep.issue}
-                  </span>
-                </div>
-                <span
-                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
-                    rep.status === 'resolved'
-                      ? 'bg-[#E8F5EE] text-[#168A4A]'
-                      : 'bg-amber-50 text-amber-700'
-                  }`}
-                >
-                  {rep.status}
-                </span>
-              </div>
-
-              {rep.status === 'open' && (
-                <div className="flex items-center gap-1.5 pt-1 border-t border-[#E7EBE8]/60">
-                  <button
-                    type="button"
-                    onClick={() => onResolveReport(rep.id, 'resolved')}
-                    className="flex-1 py-1 bg-[#168A4A] text-white text-[10px] font-bold rounded-lg"
-                  >
-                    Resolve Issue
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onResolveReport(rep.id, 'dismissed')}
-                    className="px-2 py-1 border border-[#E7EBE8] text-[#66736B] text-[10px] font-bold rounded-lg"
-                  >
-                    Dismiss
-                  </button>
-                </div>
-              )}
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* Admin Bottom Nav Bar (app_bottom_nav_bar.dart) */}
-      <div className="h-12 bg-white border-t border-[#E7EBE8] flex items-center justify-around flex-shrink-0 px-2">
-        <button type="button" className="flex flex-col items-center justify-center text-[#168A4A]">
-          <Layers className="w-4 h-4" />
-          <span className="text-[9px] font-bold mt-0.5">Dashboard</span>
-        </button>
-        <button type="button" className="flex flex-col items-center justify-center text-[#66736B]">
-          <CheckCheck className="w-4 h-4" />
-          <span className="text-[9px] font-medium mt-0.5">Verify</span>
-        </button>
-        <button type="button" className="flex flex-col items-center justify-center text-[#66736B]">
-          <Utensils className="w-4 h-4" />
-          <span className="text-[9px] font-medium mt-0.5">Audits</span>
-        </button>
-        <button type="button" className="flex flex-col items-center justify-center text-[#66736B]">
-          <User className="w-4 h-4" />
-          <span className="text-[9px] font-medium mt-0.5">Profile</span>
-        </button>
-      </div>
-    </div>
-  );
-}
+// Backwards-compatible alias for existing imports
+export const InteractiveProductDemo = GuidedProductJourney;
