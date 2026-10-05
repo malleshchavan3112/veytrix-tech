@@ -1,5 +1,4 @@
-import React from 'react';
-import Link from 'next/link';
+import { Metadata } from 'next';
 import { ArrowDown, ArrowRight } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
@@ -13,6 +12,34 @@ import { VerificationGrid } from '@/components/organisms/verification-grid';
 import { SingleInquiryForm } from '@/components/forms/single-inquiry-form';
 import { SERVICES } from '@/content/services';
 import { CASE_STUDIES } from '@/content/case-studies';
+import { SITE_CONFIG } from '@/lib/constants/site';
+
+export const metadata: Metadata = {
+  title: {
+    absolute: 'Veytrix Tech — UI/UX Design, Web & Mobile App Development',
+  },
+  description:
+    'Veytrix Tech is a digital product and technology studio specializing in UI/UX design, modern web development, cross-platform mobile apps, and custom AI solutions.',
+  alternates: {
+    canonical: `${SITE_CONFIG.domain}/`,
+  },
+  openGraph: {
+    title: 'Veytrix Tech — UI/UX Design, Web & Mobile App Development',
+    description:
+      'Veytrix Tech is a digital product and technology studio specializing in UI/UX design, modern web development, cross-platform mobile apps, and custom AI solutions.',
+    url: `${SITE_CONFIG.domain}/`,
+    siteName: SITE_CONFIG.name,
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_CONFIG.domain}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: 'Veytrix Tech — UI/UX Design, Web & Mobile App Development',
+      },
+    ],
+  },
+};
 
 export default function HomePage() {
   const aahar = CASE_STUDIES['aahar-nearby'];

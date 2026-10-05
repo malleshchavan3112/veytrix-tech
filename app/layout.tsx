@@ -27,40 +27,66 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.domain),
   title: {
-    default: 'Veytrix Tech — Design + Technology + Product Thinking',
+    default: 'Veytrix Tech — UI/UX Design, Web & Mobile App Development',
     template: '%s | Veytrix Tech',
   },
-  description: SITE_CONFIG.description,
+  description:
+    'Veytrix Tech is a digital product and technology studio specializing in UI/UX design, modern web development, cross-platform mobile apps, and custom AI solutions.',
   applicationName: SITE_CONFIG.name,
   authors: [{ name: SITE_CONFIG.legalName, url: SITE_CONFIG.domain }],
   generator: 'Next.js',
   keywords: [
-    'Digital Product Studio',
-    'Full-Stack Web Development',
+    'UI/UX Design',
+    'Web Development',
     'Mobile App Development',
+    'AI Solutions',
+    'Digital Products',
+    'Veytrix Tech',
     'Flutter Studio',
     'Next.js Studio',
-    'UI/UX Design Systems',
-    'Custom Software Engineering',
+    'Design Systems',
   ],
   alternates: {
-    canonical: '/',
+    canonical: SITE_CONFIG.domain,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
   openGraph: {
-    title: 'Veytrix Tech — Design + Technology + Product Thinking',
-    description: SITE_CONFIG.description,
+    title: 'Veytrix Tech — UI/UX Design, Web & Mobile App Development',
+    description:
+      'Veytrix Tech is a digital product and technology studio specializing in UI/UX design, modern web development, cross-platform mobile apps, and custom AI solutions.',
     url: SITE_CONFIG.domain,
     siteName: SITE_CONFIG.name,
     locale: 'en_US',
     type: 'website',
+    images: [
+      {
+        url: `${SITE_CONFIG.domain}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: 'Veytrix Tech — UI/UX Design, Web & Mobile App Development',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Veytrix Tech — Design + Technology + Product Thinking',
-    description: SITE_CONFIG.description,
+    title: 'Veytrix Tech — UI/UX Design, Web & Mobile App Development',
+    description:
+      'Veytrix Tech is a digital product and technology studio specializing in UI/UX design, modern web development, cross-platform mobile apps, and custom AI solutions.',
+    images: [`${SITE_CONFIG.domain}/opengraph-image`],
   },
   icons: {
     icon: '/favicon.ico',
+    apple: '/brand/apple-touch-icon.png',
   },
 };
 
@@ -75,23 +101,34 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // JSON-LD structured data for ProfessionalService
+  // JSON-LD structured data for Organization and WebSite per Technical SEO standards
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'ProfessionalService',
-    name: SITE_CONFIG.name,
-    url: SITE_CONFIG.domain,
-    logo: `${SITE_CONFIG.domain}/branding/veytrix-logo.png`,
-    description: SITE_CONFIG.description,
-    knowsAbout: [
-      'Web Application Development',
-      'Mobile App Development',
-      'UI/UX Design',
-      'Custom Software Engineering',
-      'Artificial Intelligence Solutions',
-      'Design Systems',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': `${SITE_CONFIG.domain}/#organization`,
+        name: SITE_CONFIG.name,
+        legalName: SITE_CONFIG.legalName,
+        url: SITE_CONFIG.domain,
+        logo: `${SITE_CONFIG.domain}/brand/logo.png`,
+        description:
+          'A modern digital product and technology studio bridging high-craft design, resilient engineering, and product thinking.',
+        email: SITE_CONFIG.email,
+        sameAs: ['https://github.com/malleshchavan3112/veytrix-tech'],
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${SITE_CONFIG.domain}/#website`,
+        url: SITE_CONFIG.domain,
+        name: SITE_CONFIG.name,
+        description:
+          'Veytrix Tech is a digital product and technology studio specializing in UI/UX design, modern web development, cross-platform mobile apps, and custom AI solutions.',
+        publisher: {
+          '@id': `${SITE_CONFIG.domain}/#organization`,
+        },
+      },
     ],
-    priceRange: '$$$$',
   };
 
   return (

@@ -7,11 +7,36 @@ import { HairlineDivider } from '@/components/ui/hairline-divider';
 import { SITE_CONFIG } from '@/lib/constants/site';
 
 export const metadata: Metadata = {
-  title: 'Privacy Architecture & Data Protection',
+  title: {
+    absolute: 'Privacy Architecture & Data Protection | Veytrix Tech',
+  },
   description:
-    'Veytrix Tech Studio privacy policy and data architecture principles: Zero tracking, cryptographic link isolation, and client confidentiality.',
+    'Veytrix Tech Studio privacy policy and data architecture principles: Zero third-party tracking, cryptographic link isolation, and client confidentiality.',
   alternates: {
-    canonical: '/privacy',
+    canonical: `${SITE_CONFIG.domain}/privacy`,
+  },
+  openGraph: {
+    title: 'Privacy Architecture & Data Protection | Veytrix Tech',
+    description:
+      'Veytrix Tech Studio privacy policy and data architecture principles: Zero third-party tracking, cryptographic link isolation, and client confidentiality.',
+    url: `${SITE_CONFIG.domain}/privacy`,
+    siteName: SITE_CONFIG.name,
+    type: 'article',
+    images: [
+      {
+        url: `${SITE_CONFIG.domain}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: 'Privacy Architecture | Veytrix Tech',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Privacy Architecture & Data Protection | Veytrix Tech',
+    description:
+      'Veytrix Tech Studio privacy policy and data architecture principles: Zero third-party tracking, cryptographic link isolation, and client confidentiality.',
+    images: [`${SITE_CONFIG.domain}/opengraph-image`],
   },
 };
 

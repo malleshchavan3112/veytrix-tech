@@ -12,23 +12,62 @@ import { SITE_CONFIG } from '@/lib/constants/site';
 const dateinvite = CASE_STUDIES['dateinvite'];
 
 export const metadata: Metadata = {
-  title: 'DateInvite Case Study — Interactive Micro-Invitation Web Platform',
+  title: {
+    absolute: 'DateInvite Case Study — Digital Invitation Platform | Veytrix Tech',
+  },
   description:
-    'Deep engineering case study: Building a high-touch interactive web invitation platform with zero-auth link generation, Framer Motion spring physics, and Supabase Row-Level Security.',
+    'Engineering case study: Building DateInvite, an interactive web micro-invitation platform featuring zero-auth link creation, Framer Motion spring physics, and Supabase RLS privacy isolation.',
   alternates: {
-    canonical: '/work/dateinvite',
+    canonical: 'https://veytrix.tech/work/dateinvite',
   },
   openGraph: {
-    title: 'DateInvite Case Study | Veytrix Tech',
+    title: 'DateInvite Case Study — Digital Invitation Platform | Veytrix Tech',
     description:
-      'Transforming casual date proposals into high-touch reciprocal micro-apps with zero authentication friction and privacy-first link encryption.',
+      'Engineering case study: Building DateInvite, an interactive web micro-invitation platform featuring zero-auth link creation, Framer Motion spring physics, and Supabase RLS privacy isolation.',
     url: `${SITE_CONFIG.domain}/work/dateinvite`,
+    siteName: SITE_CONFIG.name,
+    type: 'article',
+    images: [
+      {
+        url: `${SITE_CONFIG.domain}/projects/dateinvite/interactive_card.png`,
+        width: 1200,
+        height: 630,
+        alt: 'DateInvite Interactive Web Platform Case Study',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'DateInvite Case Study — Digital Invitation Platform | Veytrix Tech',
+    description:
+      'Engineering case study: Building DateInvite, an interactive web micro-invitation platform featuring zero-auth link creation, Framer Motion spring physics, and Supabase RLS privacy isolation.',
+    images: [`${SITE_CONFIG.domain}/projects/dateinvite/interactive_card.png`],
   },
 };
 
 export default function DateInviteCaseStudyPage() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'DateInvite',
+    applicationCategory: 'Lifestyle, Web Application',
+    operatingSystem: 'Web Browser',
+    description:
+      'An interactive web invitation platform engineered with zero-auth link generation, Framer Motion spring physics, and Supabase Row-Level Security.',
+    creator: {
+      '@type': 'Organization',
+      name: SITE_CONFIG.name,
+      url: SITE_CONFIG.domain,
+    },
+    url: `${SITE_CONFIG.domain}/work/dateinvite`,
+  };
+
   return (
     <article className="w-full flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ========================================================================= */}
       {/* 1. STICKY SUB-BAR BREADCRUMB                                              */}
       {/* ========================================================================= */}

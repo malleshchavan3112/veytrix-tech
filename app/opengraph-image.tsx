@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'Veytrix Tech — Design + Technology + Product Thinking';
+export const alt = 'Veytrix Tech — UI/UX Design, Web & Mobile App Development';
 export const size = {
   width: 1200,
   height: 630,

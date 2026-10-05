@@ -2,34 +2,84 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Metadata } from 'next';
-import { ArrowLeft, ArrowRight, ShieldCheck, MapPin, Smartphone, Check, Sparkles, Layers } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowDown,
+  Sparkles,
+  ShieldCheck,
+  MapPin,
+  Smartphone,
+  Check,
+  Layers,
+  SlidersHorizontal,
+} from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
-import { MonospaceBadge } from '@/components/ui/monospace-badge';
-import { HairlineDivider } from '@/components/ui/hairline-divider';
+import { InteractiveProductDemo } from '@/components/organisms/interactive-product-demo';
 import { CASE_STUDIES } from '@/content/case-studies';
 import { SITE_CONFIG } from '@/lib/constants/site';
 
 const aahar = CASE_STUDIES['aahar-nearby'];
 
 export const metadata: Metadata = {
-  title: 'Aahar Nearby Case Study — Mobile Food Discovery Platform',
+  title: {
+    absolute: 'Aahar Nearby Case Study — Hyperlocal Food Discovery App | Veytrix Tech',
+  },
   description:
-    'Deep engineering case study: Building a hyperlocal food discovery and dynamic daily menu mobile platform using Flutter Clean Architecture and Firebase Firestore.',
+    'Deep engineering case study: Building Aahar Nearby, a real-time hyperlocal food discovery and dynamic daily menu mobile platform using Flutter Clean Architecture and Cloud Firestore.',
   alternates: {
-    canonical: '/work/aahar-nearby',
+    canonical: 'https://veytrix.tech/work/aahar-nearby',
   },
   openGraph: {
-    title: 'Aahar Nearby Case Study | Veytrix Tech',
+    title: 'Aahar Nearby Case Study — Hyperlocal Food Discovery App | Veytrix Tech',
     description:
-      'Solving the daily lunch dilemma for office workforces with dynamic menu publishing and real-time Haversine distance sync.',
-    url: `${SITE_CONFIG.domain}/work/aahar-nearby`,
+      'Deep engineering case study: Building Aahar Nearby, a real-time hyperlocal food discovery and dynamic daily menu mobile platform using Flutter Clean Architecture and Cloud Firestore.',
+    url: 'https://veytrix.tech/work/aahar-nearby',
+    siteName: SITE_CONFIG.name,
+    type: 'article',
+    images: [
+      {
+        url: 'https://veytrix.tech/projects/aahar-nearby/discovery_feed.png',
+        width: 1200,
+        height: 630,
+        alt: 'Aahar Nearby Mobile Platform Case Study',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Aahar Nearby Case Study — Hyperlocal Food Discovery App | Veytrix Tech',
+    description:
+      'Deep engineering case study: Building Aahar Nearby, a real-time hyperlocal food discovery and dynamic daily menu mobile platform using Flutter Clean Architecture and Cloud Firestore.',
+    images: ['https://veytrix.tech/projects/aahar-nearby/discovery_feed.png'],
   },
 };
 
 export default function AaharNearbyCaseStudyPage() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Aahar Nearby',
+    applicationCategory: 'Food & Drink, Mobile Application',
+    operatingSystem: 'iOS, Android',
+    description:
+      'A cross-platform mobile application engineered to solve daily lunch discovery for office workers with dynamic rotational menu publishing and Haversine distance sorting.',
+    creator: {
+      '@type': 'Organization',
+      name: SITE_CONFIG.name,
+      url: SITE_CONFIG.domain,
+    },
+    url: `${SITE_CONFIG.domain}/work/aahar-nearby`,
+  };
+
   return (
     <article className="w-full flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* ========================================================================= */}
       {/* 1. STICKY SUB-BAR BREADCRUMB                                              */}
       {/* ========================================================================= */}
@@ -53,7 +103,7 @@ export default function AaharNearbyCaseStudyPage() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. HERO SPREAD & METADATA MATRIX                                          */}
+      {/* 2. HERO SPREAD & PRODUCT PRESENTATION                                     */}
       {/* ========================================================================= */}
       <section className="relative w-full pt-16 sm:pt-24 pb-16 sm:pb-24 border-b border-border-hairline overflow-hidden">
         {/* Ambient atmospheric glow */}
@@ -80,6 +130,28 @@ export default function AaharNearbyCaseStudyPage() {
               <p className="mt-6 text-lg sm:text-xl text-content-secondary leading-relaxed">
                 {aahar.editorialSummary}
               </p>
+
+              {/* Action Trigger Cluster */}
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <Button
+                  variant="primary"
+                  size="default"
+                  href="#interactive-demo"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm group"
+                >
+                  <span>Explore Interactive Demo</span>
+                  <Sparkles className="w-4 h-4 ml-2 text-emerald-200" />
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="default"
+                  href="#case-study-story"
+                  className="group"
+                >
+                  <span>View Case Study</span>
+                  <ArrowDown className="w-4 h-4 ml-2 text-content-tertiary group-hover:translate-y-0.5 transition-transform" />
+                </Button>
+              </div>
             </div>
 
             {/* Official Logo Display */}
@@ -137,9 +209,35 @@ export default function AaharNearbyCaseStudyPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. EDITORIAL PROBLEM SPACE                                                */}
+      {/* 3. PROMINENT INTERACTIVE PRODUCT DEMO SECTION                             */}
       {/* ========================================================================= */}
-      <section className="w-full py-20 sm:py-28 border-b border-border-hairline bg-canvas-subtle/30">
+      <section
+        id="interactive-demo"
+        className="w-full py-16 sm:py-24 border-b border-border-hairline bg-canvas-subtle/40"
+      >
+        <Container size="ultra">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="font-mono text-xs uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+              SIMULATED PRODUCT ENVIRONMENT // 01 DINER · 02 OWNER · 03 ADMIN
+            </span>
+            <h2 className="mt-4 font-display text-3xl sm:text-4xl font-bold tracking-tight text-content-primary">
+              Experience the 3-Sided Ecosystem
+            </h2>
+            <p className="mt-3 text-base text-content-secondary">
+              Test real product workflows directly in this interactive preview: browse live daily menus as an office worker, publish daily specials in 15 seconds as a mess owner, or inspect compliance audits as an admin.
+            </p>
+          </div>
+
+          <div className="max-w-5xl mx-auto">
+            <InteractiveProductDemo />
+          </div>
+        </Container>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 4. EDITORIAL PROBLEM SPACE                                                */}
+      {/* ========================================================================= */}
+      <section id="case-study-story" className="w-full py-20 sm:py-28 border-b border-border-hairline bg-white">
         <Container size="std">
           <div className="border-l-2 border-content-primary pl-6 sm:pl-8 py-2">
             <blockquote className="font-display text-xl sm:text-2xl md:text-3xl font-medium text-content-primary leading-snug">
@@ -168,7 +266,7 @@ export default function AaharNearbyCaseStudyPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 4. HIGH-FIDELITY MOBILE PRODUCT VIEWPORT (Visual Showcase)                */}
+      {/* 5. REAL MOBILE PRODUCT VIEWPORT (Verified Flutter Build Showcase)         */}
       {/* ========================================================================= */}
       <section className="w-full py-20 sm:py-28 border-b border-border-hairline bg-canvas-subtle/20">
         <Container size="std">
@@ -177,10 +275,10 @@ export default function AaharNearbyCaseStudyPage() {
               PRODUCTION APPLICATION SCREENS // REAL FLUTTER BUILD
             </span>
             <h2 className="mt-4 font-display text-3xl sm:text-4xl font-bold tracking-tight text-content-primary">
-              Real Mobile Experience &amp; Dual-Sided Portals
+              Real Mobile Experience &amp; Multi-Role Portals
             </h2>
             <p className="mt-3 text-base text-content-secondary">
-              Actual screens from the active Flutter 3.x codebase: high-contrast diner discovery feed alongside the multi-role owner operations console.
+              Actual screens from the active Flutter 3.x codebase: high-contrast diner discovery stream, dynamic thali breakdowns, and back-of-house operational portals.
             </p>
           </div>
 
@@ -193,7 +291,7 @@ export default function AaharNearbyCaseStudyPage() {
                 <div className="w-24 h-4 bg-slate-900 mx-auto rounded-full mb-2 flex items-center justify-center">
                   <div className="w-2 h-2 rounded-full bg-slate-800" />
                 </div>
-                
+
                 {/* Real Screenshot Image */}
                 <div className="relative rounded-[26px] overflow-hidden aspect-[9/19.5] bg-slate-950 border border-slate-800/80">
                   <Image
@@ -226,7 +324,7 @@ export default function AaharNearbyCaseStudyPage() {
                 <div className="w-24 h-4 bg-slate-900 mx-auto rounded-full mb-2 flex items-center justify-center">
                   <div className="w-2 h-2 rounded-full bg-slate-800" />
                 </div>
-                
+
                 {/* Real Screenshot Image */}
                 <div className="relative rounded-[26px] overflow-hidden aspect-[9/19.5] bg-slate-950 border border-slate-800/80">
                   <Image
@@ -253,63 +351,87 @@ export default function AaharNearbyCaseStudyPage() {
             </div>
           </div>
 
-          {/* Supporting Management Screens Spread (Owner & Employee) */}
+          {/* Triad of Supporting Operations Screens: Owner, Employee, and Admin */}
           <div className="mt-16 pt-12 border-t border-border-hairline">
             <div className="text-center mb-10">
               <span className="font-mono text-xs uppercase tracking-wider text-content-tertiary">
                 BACK-OF-HOUSE OPERATIONS
               </span>
               <h3 className="font-display text-2xl font-bold text-content-primary mt-2">
-                Multi-Role Owner Dashboard &amp; Verification
+                Multi-Role Operations &amp; Verification Consoles
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {/* Owner Dashboard */}
-              <div className="p-5 rounded-2xl bg-white border border-border-hairline shadow-sm flex flex-col group">
+              <div className="p-4 rounded-2xl bg-white border border-border-hairline shadow-sm flex flex-col group">
                 <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-slate-900 border border-slate-200">
                   <Image
                     src="/projects/aahar-nearby/screen_owner_dashboard.png"
                     alt="Aahar Nearby Hotel Owner Console"
                     fill
                     className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, 450px"
+                    sizes="(max-width: 768px) 100vw, 320px"
                   />
                 </div>
                 <div className="mt-4 flex items-center justify-between">
                   <h4 className="font-display text-sm font-bold text-content-primary">
                     Hotel Owner Daily Publisher
                   </h4>
-                  <span className="font-mono text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  <span className="font-mono text-[9px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                     15-SEC DISPATCH
                   </span>
                 </div>
                 <p className="text-xs text-content-secondary mt-1">
-                  Rapid menu publishing console allowing restaurant operators to toggle daily specials and availability with single-tap persistence.
+                  Rapid menu publishing console allowing restaurant operators to toggle daily specials and availability.
                 </p>
               </div>
 
-              {/* Employee / Admin Verification */}
-              <div className="p-5 rounded-2xl bg-white border border-border-hairline shadow-sm flex flex-col group">
+              {/* Employee Kitchen Relay */}
+              <div className="p-4 rounded-2xl bg-white border border-border-hairline shadow-sm flex flex-col group">
                 <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-slate-900 border border-slate-200">
                   <Image
                     src="/projects/aahar-nearby/screen_employee_portal.png"
                     alt="Aahar Nearby Employee Portal"
                     fill
                     className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, 450px"
+                    sizes="(max-width: 768px) 100vw, 320px"
                   />
                 </div>
                 <div className="mt-4 flex items-center justify-between">
                   <h4 className="font-display text-sm font-bold text-content-primary">
-                    Employee Portal &amp; Kitchen Relay
+                    Kitchen Relay Portal
                   </h4>
-                  <span className="font-mono text-[10px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                  <span className="font-mono text-[9px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
                     LIVE STATUS SYNC
                   </span>
                 </div>
                 <p className="text-xs text-content-secondary mt-1">
-                  Staff role interface for real-time order acknowledgment, stock depletion tags, and lunch rush queue status updates.
+                  Kitchen staff interface for stock depletion toggling and lunch rush queue status updates.
+                </p>
+              </div>
+
+              {/* Platform Admin Console */}
+              <div className="p-4 rounded-2xl bg-white border border-border-hairline shadow-sm flex flex-col group">
+                <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-slate-900 border border-slate-200">
+                  <Image
+                    src="/projects/aahar-nearby/screen_admin_portal.png"
+                    alt="Aahar Nearby SuperAdmin Verification Portal"
+                    fill
+                    className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 320px"
+                  />
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <h4 className="font-display text-sm font-bold text-content-primary">
+                    Admin Verification Portal
+                  </h4>
+                  <span className="font-mono text-[9px] text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                    REGIONAL AUDIT
+                  </span>
+                </div>
+                <p className="text-xs text-content-secondary mt-1">
+                  Regional superadmin console for outlet verification, license approval, and content moderation.
                 </p>
               </div>
             </div>
@@ -318,7 +440,7 @@ export default function AaharNearbyCaseStudyPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 5. SELECTIVE DARK TECHNICAL SECTION (Code & Architecture)                 */}
+      {/* 6. SELECTIVE DARK TECHNICAL SECTION (Code & Architecture)                 */}
       {/* ========================================================================= */}
       <section className="w-full py-20 sm:py-28 bg-dark-base border-b border-dark-border text-white">
         <Container size="std">
@@ -350,7 +472,7 @@ export default function AaharNearbyCaseStudyPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 6. VERIFIED BENCHMARKS                                                    */}
+      {/* 7. VERIFIED BENCHMARKS                                                    */}
       {/* ========================================================================= */}
       <section className="w-full py-20 sm:py-28 border-b border-border-hairline">
         <Container size="std">
@@ -397,7 +519,7 @@ export default function AaharNearbyCaseStudyPage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 7. PROJECT PAGINATION & INTAKE CONVERSION                                 */}
+      {/* 8. PROJECT PAGINATION & INTAKE CONVERSION                                 */}
       {/* ========================================================================= */}
       <section className="w-full py-16 sm:py-24 bg-canvas-subtle/50">
         <Container size="std">

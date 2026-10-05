@@ -7,11 +7,36 @@ import { HairlineDivider } from '@/components/ui/hairline-divider';
 import { SITE_CONFIG } from '@/lib/constants/site';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service & Studio Engagement',
+  title: {
+    absolute: 'Terms of Service & Studio Engagement | Veytrix Tech',
+  },
   description:
-    'Veytrix Tech Studio terms of engagement, intellectual property allocation, and professional software engineering contracts.',
+    'Veytrix Tech Studio terms of engagement, intellectual property allocation, and software engineering engagement framework.',
   alternates: {
-    canonical: '/terms',
+    canonical: `${SITE_CONFIG.domain}/terms`,
+  },
+  openGraph: {
+    title: 'Terms of Service & Studio Engagement | Veytrix Tech',
+    description:
+      'Veytrix Tech Studio terms of engagement, intellectual property allocation, and software engineering engagement framework.',
+    url: `${SITE_CONFIG.domain}/terms`,
+    siteName: SITE_CONFIG.name,
+    type: 'article',
+    images: [
+      {
+        url: `${SITE_CONFIG.domain}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: 'Terms of Service | Veytrix Tech',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Terms of Service & Studio Engagement | Veytrix Tech',
+    description:
+      'Veytrix Tech Studio terms of engagement, intellectual property allocation, and software engineering engagement framework.',
+    images: [`${SITE_CONFIG.domain}/opengraph-image`],
   },
 };
 

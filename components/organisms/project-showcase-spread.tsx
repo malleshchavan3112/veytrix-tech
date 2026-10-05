@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, ExternalLink, ShieldCheck } from 'lucide-react';
+import { ArrowRight, ExternalLink, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MonospaceBadge } from '@/components/ui/monospace-badge';
 
@@ -218,6 +218,28 @@ export function ProjectShowcaseSpread({
                   <ExternalLink className="w-3.5 h-3.5 text-veytrix-blue transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </a>
               </>
+            ) : isAahar ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  variant="primary"
+                  size="default"
+                  href={`/work/${slug}`}
+                  className="shadow-btn-primary hover:shadow-btn-hover group"
+                >
+                  <span>View Case Study</span>
+                  <ArrowRight className="w-4 h-4 ml-1.5 transition-transform group-hover:translate-x-1" />
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  size="default"
+                  href={`/work/${slug}#interactive-demo`}
+                  className="border-emerald-600/40 text-emerald-800 hover:bg-emerald-50/80 group"
+                >
+                  <span>Explore Interactive Demo</span>
+                  <Sparkles className="w-3.5 h-3.5 ml-1.5 text-emerald-600" />
+                </Button>
+              </div>
             ) : (
               <Button
                 variant="primary"

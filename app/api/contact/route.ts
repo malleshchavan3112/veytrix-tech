@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Resend } from 'resend';
 import { InquirySchema } from '@/lib/validations/inquiry';
 import { SITE_CONFIG } from '@/lib/constants/site';
+import {
+  generateStudioNotificationEmail,
+  generateVisitorConfirmationEmail,
+} from '@/lib/email/templates';
 
 // In-memory sliding window rate limiter for development & edge environments
 // Production persistent limiter can bind to Upstash Redis when configured
@@ -40,11 +45,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Parse JSON body
-    const body = await req.json();
+    // 2. Parse JSON body safely
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid JSON request payload.' },
+        { status: 400 }
+      );
+    }
+
+    const payload = body as Record<string, unknown>;
 
     // 3. Cryptographic Bot Honeypot Defense
-    if (body.website_url_confirm && body.website_url_confirm.trim() !== '') {
+    if (
+      typeof payload?.website_url_confirm === 'string' &&
+      payload.website_url_confirm.trim() !== ''
+    ) {
       // Silently accept bot submission without dispatching email
       return NextResponse.json(
         { success: true, message: SITE_CONFIG.responseCopy },
@@ -53,7 +71,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 4. Server-Side Zod Schema Validation
-    const validationResult = InquirySchema.safeParse(body);
+    const validationResult = InquirySchema.safeParse(payload);
     if (!validationResult.success) {
       const issues = validationResult.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`);
       return NextResponse.json(
@@ -63,57 +81,82 @@ export async function POST(req: NextRequest) {
     }
 
     const validData = validationResult.data;
+    const timestamp = new Date().toISOString();
 
-    // 5. Transactional Dispatch / Development Console Logger
-    const resendApiKey = process.env.RESEND_API_KEY;
+    // 5. Email Templates Synthesis
+    const studioEmail = generateStudioNotificationEmail({
+      ...validData,
+      timestamp,
+      ip,
+    });
+
+    const visitorEmail = generateVisitorConfirmationEmail({
+      fullName: validData.fullName,
+      companyName: validData.companyName,
+      projectType: validData.projectType,
+    });
+
+    // 6. Resend Server-Side Integration
+    const resendApiKey = process.env.RESEND_API_KEY?.trim();
+    const fromEmail = process.env.CONTACT_FROM_EMAIL?.trim() || 'Veytrix Tech <intake@veytrix.tech>';
+    const toEmail = process.env.CONTACT_TO_EMAIL?.trim() || 'intake@veytrix.tech';
 
     if (resendApiKey) {
-      // In production environment with Resend API key configured
       try {
-        const emailResponse = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${resendApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: 'Veytrix Studio Intake <intake@veytrix.tech>',
-            to: process.env.CONTACT_EMAIL || 'intake@veytrix.tech',
-            subject: `[STUDIO INTAKE] Architecture Consultation: ${validData.companyName} (${validData.projectType})`,
-            text: `
-NEW ARCHITECTURE INQUIRY RECEIVED
+        const resend = new Resend(resendApiKey);
 
-Full Name: ${validData.fullName}
-Work Email: ${validData.workEmail}
-Company: ${validData.companyName}
-Project Type: ${validData.projectType}
-Architecture Scope: ${validData.scope}
-Investment Range: ${validData.budgetRange}
-
-Project Summary & Requirements:
-${validData.projectSummary}
-
-Telemetry Timestamp: ${new Date().toISOString()}
-Origin IP: ${ip}
-            `.trim(),
-          }),
+        // Dispatch Veytrix Studio Notification
+        const studioResult = await resend.emails.send({
+          from: fromEmail,
+          to: toEmail,
+          replyTo: validData.workEmail,
+          subject: studioEmail.subject,
+          text: studioEmail.text,
+          html: studioEmail.html,
         });
 
-        if (!emailResponse.ok) {
-          console.error('[Resend Dispatch Error]:', await emailResponse.text());
+        if (studioResult.error) {
+          console.error('[Resend Studio Dispatch Error]:', studioResult.error.message);
+          return NextResponse.json(
+            {
+              error:
+                'Unable to deliver inquiry notification. Please retry shortly or email intake@veytrix.tech directly.',
+            },
+            { status: 502 }
+          );
+        }
+
+        // Dispatch Visitor Confirmation Acknowledgment
+        const visitorResult = await resend.emails.send({
+          from: fromEmail,
+          to: validData.workEmail,
+          subject: visitorEmail.subject,
+          text: visitorEmail.text,
+          html: visitorEmail.html,
+        });
+
+        if (visitorResult.error) {
+          // Log visitor confirmation failure safely without breaking the successful intake
+          console.error('[Resend Visitor Acknowledgment Warning]:', visitorResult.error.message);
         }
       } catch (err) {
-        console.error('[Email Dispatch Network Error]:', err);
+        console.error('[Email Dispatch Network Error]:', err instanceof Error ? err.message : 'Unknown network failure');
+        return NextResponse.json(
+          {
+            error:
+              'A mail delivery network interruption occurred. Please retry shortly or email intake@veytrix.tech directly.',
+          },
+          { status: 502 }
+        );
       }
     } else {
-      // In local development or pre-production testing: log cleanly without leaking secrets
+      // Local development or preview without API key: log cleanly without leaking secrets
       console.log('--------------------------------------------------');
-      console.log('⚡ [DEV INTAKE DISPATCH] New Architecture Inquiry:');
-      console.log(`From: ${validData.fullName} <${validData.workEmail}>`);
-      console.log(`Company: ${validData.companyName}`);
-      console.log(`Type: ${validData.projectType} // Scope: ${validData.scope}`);
-      console.log(`Investment: ${validData.budgetRange}`);
-      console.log(`Summary: ${validData.projectSummary}`);
+      console.log('⚡ [DEV INTAKE DISPATCH] Simulated Resend Transactional Emails:');
+      console.log(`[Studio Notification] To: ${toEmail} | From: ${fromEmail}`);
+      console.log(`Subject: ${studioEmail.subject}`);
+      console.log(`From Client: ${validData.fullName} <${validData.workEmail}> (${validData.companyName})`);
+      console.log(`[Visitor Confirmation] To: ${validData.workEmail} | Subject: ${visitorEmail.subject}`);
       console.log('--------------------------------------------------');
     }
 
@@ -125,7 +168,7 @@ Origin IP: ${ip}
       { status: 200 }
     );
   } catch (error) {
-    console.error('[Inquiry API Fatal Error]:', error);
+    console.error('[Inquiry API Fatal Error]:', error instanceof Error ? error.message : 'Unknown error');
     return NextResponse.json(
       { error: 'An unexpected internal error occurred. Please contact intake@veytrix.tech.' },
       { status: 500 }
