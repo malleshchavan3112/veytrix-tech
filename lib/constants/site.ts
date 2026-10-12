@@ -1,11 +1,15 @@
 export const SITE_CONFIG = {
   name: 'Veytrix Tech',
-  legalName: 'Veytrix Tech Studio',
+  legalName: 'Veytrix Tech',
   domain: 'https://veytrix.tech',
   tagline: 'Design + Technology + Product Thinking',
   description:
-    'A modern digital product and technology studio bridging high-craft design, resilient engineering, and product thinking.',
-  email: 'intake@veytrix.tech',
+    'Veytrix Tech is a digital product and technology studio focused on UI/UX design, web and mobile development, AI-powered solutions, and custom digital products.',
+  founderEmail: 'founder@veytrix.tech',
+  intakeEmail: 'intake@veytrix.tech',
+  email: 'founder@veytrix.tech',
+  projectMilestoneDate: '25 September 2026',
+  foundingDateStatus: 'REQUIRES CONFIRMATION',
   responseCopy: "We'll review your inquiry and get back to you shortly.",
   systemStatus: 'SYS // OPERATIONAL',
   triadMetadata: {
@@ -18,11 +22,14 @@ export const SITE_CONFIG = {
     { label: 'Work', href: '/#work' },
     { label: 'Services', href: '/#services' },
     { label: 'Approach', href: '/#approach' },
+    { label: 'About', href: '/#about' },
     { label: 'Contact', href: '/#contact' },
   ],
   footerLinks: [
     { label: 'Selected Work', href: '/#work' },
     { label: 'Services Matrix', href: '/#services' },
+    { label: 'About Studio', href: '/#about' },
+    { label: 'Founder Inquiries', href: 'mailto:founder@veytrix.tech' },
     { label: 'Aahar Nearby Case Study', href: '/work/aahar-nearby' },
     { label: 'DateInvite Case Study', href: '/work/dateinvite' },
     { label: 'Privacy Architecture', href: '/privacy' },

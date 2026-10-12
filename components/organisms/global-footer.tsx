@@ -17,10 +17,25 @@ export function GlobalFooter() {
           <div className="md:col-span-5 flex flex-col items-start">
             <BrandMark />
             <p className="mt-4 text-sm text-content-secondary leading-relaxed max-w-sm">
-              A modern digital product and technology studio bridging high-craft design, resilient engineering, and product thinking.
+              {SITE_CONFIG.description}
             </p>
 
-            <div className="mt-6 flex items-center gap-3">
+            {/* Official Founder Contact Card */}
+            <div className="mt-5 flex flex-col items-start gap-1 p-3.5 rounded-lg bg-canvas-subtle border border-border-hairline max-w-sm w-full">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-content-tertiary font-medium">
+                Founder Official Contact
+              </span>
+              <a
+                href={`mailto:${SITE_CONFIG.founderEmail}`}
+                className="font-mono text-xs sm:text-sm text-veytrix-blue hover:text-veytrix-electric font-semibold transition-colors flex items-center gap-1.5 group"
+                aria-label={`Send email to founder at ${SITE_CONFIG.founderEmail}`}
+              >
+                <span>{SITE_CONFIG.founderEmail}</span>
+                <span className="text-xs transition-transform group-hover:translate-x-0.5">→</span>
+              </a>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-canvas-subtle border border-border-hairline font-mono text-xs text-content-tertiary">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
                 <span>SYS // OPERATIONAL</span>
@@ -63,11 +78,28 @@ export function GlobalFooter() {
               </li>
               <li>
                 <Link
+                  href="/#about"
+                  className="text-content-secondary hover:text-content-primary transition-colors py-1 inline-block"
+                >
+                  About &amp; Studio Profile
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/#contact"
                   className="text-content-secondary hover:text-content-primary transition-colors py-1 inline-block"
                 >
                   Architecture Consultation
                 </Link>
+              </li>
+              <li>
+                <a
+                  href={`mailto:${SITE_CONFIG.founderEmail}`}
+                  className="text-veytrix-blue hover:text-veytrix-electric transition-colors py-1 inline-flex items-center gap-1 font-mono text-xs"
+                >
+                  <span>founder@veytrix.tech</span>
+                  <span>↗</span>
+                </a>
               </li>
             </ul>
           </div>
@@ -148,8 +180,8 @@ export function GlobalFooter() {
           <div>
             © {currentYear} {SITE_CONFIG.legalName}. All rights reserved.
           </div>
-          <div className="flex items-center gap-6">
-            <span>DISCIPLINED DIGITAL ENGINEERING</span>
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+            <span>PROJECT INITIATED // {SITE_CONFIG.projectMilestoneDate}</span>
             <span>veytrix.tech</span>
           </div>
         </div>

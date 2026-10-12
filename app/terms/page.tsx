@@ -128,8 +128,9 @@ export default function TermsPage() {
               For legal inquiries, contractual questions, or formal notices, contact our studio administration team at:
             </p>
             <div className="mt-3 p-4 rounded-md bg-canvas-subtle border border-border-hairline font-mono text-xs text-content-primary">
-              <div>Veytrix Tech Studio — Legal &amp; Commercial Affairs</div>
-              <div className="mt-1">Inquiry Intake: <a href="mailto:intake@veytrix.tech" className="text-accent-blue hover:underline">intake@veytrix.tech</a></div>
+              <div>Veytrix Tech — Legal &amp; Commercial Affairs</div>
+              <div className="mt-1">Founder Contact: <a href="mailto:founder@veytrix.tech" className="text-accent-blue hover:underline">founder@veytrix.tech</a></div>
+              <div>Inquiry Intake: <a href="mailto:intake@veytrix.tech" className="text-accent-blue hover:underline">intake@veytrix.tech</a></div>
               <div>Domain: <a href="https://veytrix.tech" className="text-accent-blue hover:underline">https://veytrix.tech</a></div>
             </div>
             <p className="mt-4 text-xs text-content-tertiary">

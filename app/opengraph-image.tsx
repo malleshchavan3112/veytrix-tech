@@ -88,7 +88,7 @@ export default async function Image() {
               lineHeight: 1.4,
             }}
           >
-            A modern digital product and technology studio bridging high-craft design, resilient engineering, and product thinking.
+            Veytrix Tech is a digital product and technology studio focused on UI/UX design, web and mobile development, AI-powered solutions, and custom digital products.
           </div>
         </div>
 

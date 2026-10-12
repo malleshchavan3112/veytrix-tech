@@ -19,15 +19,13 @@ export const metadata: Metadata = {
   title: {
     absolute: 'Veytrix Tech — UI/UX Design, Web & Mobile App Development',
   },
-  description:
-    'Veytrix Tech is a digital product and technology studio specializing in UI/UX design, modern web development, cross-platform mobile apps, and custom AI solutions.',
+  description: SITE_CONFIG.description,
   alternates: {
     canonical: `${SITE_CONFIG.domain}/`,
   },
   openGraph: {
     title: 'Veytrix Tech — UI/UX Design, Web & Mobile App Development',
-    description:
-      'Veytrix Tech is a digital product and technology studio specializing in UI/UX design, modern web development, cross-platform mobile apps, and custom AI solutions.',
+    description: SITE_CONFIG.description,
     url: `${SITE_CONFIG.domain}/`,
     siteName: SITE_CONFIG.name,
     type: 'website',
@@ -272,6 +270,138 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================================= */}
+      {/* 5. STUDIO PROFILE & FOUNDER DIRECT CONTACT (#about)                       */}
+      {/* ========================================================================= */}
+      <section
+        id="about"
+        aria-label="Studio Profile and Founder Contact"
+        className="w-full py-20 sm:py-28 border-b border-border-hairline bg-white relative"
+      >
+        <Container size="ultra">
+          <ScrollReveal stagger={0}>
+            <SectionHeader
+              eyebrow="05 // STUDIO PROFILE & GOVERNANCE"
+              title="Independent Product & Technology Studio"
+              subtitle="Direct founder collaboration, high-craft engineering, and transparent technical execution."
+            />
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start mt-12">
+            {/* Left 7 cols: Identity, Purpose, Capabilities */}
+            <div className="lg:col-span-7 flex flex-col space-y-6">
+              <div className="p-8 rounded-2xl bg-canvas-base border border-border-hairline">
+                <span className="font-mono text-xs uppercase tracking-wider text-veytrix-blue font-semibold block mb-3">
+                  CORE IDENTITY
+                </span>
+                <p className="text-base sm:text-lg text-content-primary leading-relaxed font-medium">
+                  {SITE_CONFIG.description}
+                </p>
+                <p className="mt-4 text-sm text-content-secondary leading-relaxed">
+                  Unlike conventional agency arrangements that outsource execution or separate design from software development, Veytrix Tech operates as an integrated product practice. We guide projects from foundational requirements and tokenized design systems to production-grade mobile and web codebases.
+                </p>
+              </div>
+
+              {/* 3 Pillars of Practice */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="p-5 rounded-xl bg-canvas-base border border-border-hairline">
+                  <span className="font-mono text-[11px] font-bold text-content-tertiary block mb-1">
+                    01 // CRAFT
+                  </span>
+                  <h4 className="font-display text-sm font-bold text-content-primary mb-1">
+                    Design Systems
+                  </h4>
+                  <p className="text-xs text-content-secondary leading-relaxed">
+                    WCAG 2.1 AA tokenized components, fluid typography, and optical micro-interactions.
+                  </p>
+                </div>
+
+                <div className="p-5 rounded-xl bg-canvas-base border border-border-hairline">
+                  <span className="font-mono text-[11px] font-bold text-content-tertiary block mb-1">
+                    02 // RIGOR
+                  </span>
+                  <h4 className="font-display text-sm font-bold text-content-primary mb-1">
+                    Modern Stack
+                  </h4>
+                  <p className="text-xs text-content-secondary leading-relaxed">
+                    Flutter Clean Architecture, Next.js App Router, Supabase RLS, and strict type safety.
+                  </p>
+                </div>
+
+                <div className="p-5 rounded-xl bg-canvas-base border border-border-hairline">
+                  <span className="font-mono text-[11px] font-bold text-content-tertiary block mb-1">
+                    03 // INTEGRITY
+                  </span>
+                  <h4 className="font-display text-sm font-bold text-content-primary mb-1">
+                    Direct Ownership
+                  </h4>
+                  <p className="text-xs text-content-secondary leading-relaxed">
+                    Zero non-technical account middlemen. Direct collaboration with the studio founder.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right 5 cols: Founder Contact & Project Milestone Card */}
+            <div className="lg:col-span-5 flex flex-col space-y-6">
+              {/* Founder Contact Card */}
+              <div className="p-8 rounded-2xl bg-canvas-elevated border border-border-hairline shadow-sm relative overflow-hidden">
+                <div className="flex items-center justify-between pb-4 border-b border-border-hairline">
+                  <span className="font-mono text-xs uppercase tracking-wider text-veytrix-blue font-semibold">
+                    FOUNDER DIRECT CHANNEL
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono text-[10px] font-medium">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    DIRECT INBOX
+                  </span>
+                </div>
+
+                <h4 className="font-display text-xl font-bold text-content-primary mt-4 mb-2">
+                  Founder Inquiries &amp; Advisory
+                </h4>
+                <p className="text-xs text-content-secondary leading-relaxed mb-6">
+                  For venture partnerships, technical advisory, co-founder dialogue, or enterprise scoping, connect directly with the founder:
+                </p>
+
+                <div className="p-4 rounded-xl bg-canvas-subtle border border-border-hairline flex flex-col gap-2">
+                  <span className="font-mono text-[11px] text-content-tertiary uppercase">
+                    Official Founder Address
+                  </span>
+                  <a
+                    href={`mailto:${SITE_CONFIG.founderEmail}`}
+                    className="font-mono text-sm sm:text-base font-bold text-veytrix-blue hover:text-veytrix-electric transition-colors flex items-center gap-2 group"
+                    aria-label={`Email the founder directly at ${SITE_CONFIG.founderEmail}`}
+                  >
+                    <span>{SITE_CONFIG.founderEmail}</span>
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </a>
+                </div>
+
+                <div className="mt-5 flex items-center justify-between pt-4 border-t border-border-hairline text-xs font-mono text-content-tertiary">
+                  <span>DISPATCH // ENCRYPTED IN TRANSIT</span>
+                  <span>DOMAIN // veytrix.tech</span>
+                </div>
+              </div>
+
+              {/* Verified Project Milestone Card */}
+              <div className="p-6 rounded-xl bg-canvas-subtle border border-border-hairline">
+                <div className="flex items-center justify-between text-xs font-mono text-content-tertiary mb-2">
+                  <span>PROJECT WORKFLOW RECORD</span>
+                  <span className="text-content-secondary font-medium">VERIFIED MILESTONE</span>
+                </div>
+                <div className="flex items-baseline justify-between mt-1">
+                  <span className="font-mono text-xs text-content-secondary">Website &amp; Studio Initiative:</span>
+                  <span className="font-mono text-sm font-semibold text-content-primary">{SITE_CONFIG.projectMilestoneDate}</span>
+                </div>
+                <p className="mt-2 text-[11px] text-content-tertiary leading-relaxed">
+                  *Note: 25 September 2026 marks the documented commencement of the studio website project workflow. Formal corporate entity registration details remain under active governance.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* ========================================================================= */}
       {/* 6. INQUIRY ENGINE SECTION (#contact)                                      */}
       {/* ========================================================================= */}
       <section
@@ -282,7 +412,7 @@ export default function HomePage() {
         <Container size="std">
           <ScrollReveal stagger={0}>
             <SectionHeader
-              eyebrow="05 // INITIATE A PROJECT"
+              eyebrow="06 // INITIATE A PROJECT"
               title="Let's Build Something Exceptional"
               subtitle="Direct communication with founding engineers. Non-disclosure protected by default."
               align="center"
@@ -292,6 +422,23 @@ export default function HomePage() {
           <ScrollReveal stagger={1}>
             <SingleInquiryForm />
           </ScrollReveal>
+
+          {/* Direct Founder Contact Channel Banner */}
+          <div className="mt-8 p-6 rounded-xl bg-canvas-subtle/80 border border-border-hairline text-center max-w-form mx-auto">
+            <span className="font-mono text-xs uppercase tracking-wider text-content-tertiary block mb-1">
+              DIRECT FOUNDER COMMUNICATION
+            </span>
+            <p className="text-sm text-content-secondary leading-relaxed">
+              Prefer direct email over structured forms? Reach our founder directly at{' '}
+              <a
+                href={`mailto:${SITE_CONFIG.founderEmail}`}
+                className="font-mono text-veytrix-blue hover:text-veytrix-electric font-semibold underline underline-offset-4 decoration-accent-blue/30 hover:decoration-accent-blue transition-colors"
+                aria-label={`Send direct email to ${SITE_CONFIG.founderEmail}`}
+              >
+                {SITE_CONFIG.founderEmail}
+              </a>
+            </p>
+          </div>
         </Container>
       </section>
     </div>

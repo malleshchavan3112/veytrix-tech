@@ -14,7 +14,7 @@ export function PlatformGovernanceDemo() {
         {/* Left: 3-Step Admin Narrative (6 cols) */}
         <div className="lg:col-span-6 flex flex-col items-start text-left">
           <span className="font-mono text-xs uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
-            PLATFORM GOVERNANCE // AUDIT WORKFLOW
+            SIMULATED DEMONSTRATION // PLATFORM GOVERNANCE WORKFLOW
           </span>
 
           <h3 className="mt-3 font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#18221D]">
@@ -22,7 +22,7 @@ export function PlatformGovernanceDemo() {
           </h3>
 
           <p className="mt-2 text-sm text-[#4E5C53] leading-relaxed">
-            Every dining experience is anchored by deterministic compliance audits. Platform administrators inspect kitchen FSSAI certificates, storefront photographs, and GPS geofence bounds before issuing verified partner trust badges.
+            Every dining experience is anchored by deterministic compliance audits. This interactive walkthrough simulates how platform administrators inspect kitchen FSSAI certificates, storefront photographs, and GPS geofence bounds before issuing verified partner trust badges in the Flutter multi-role architecture.
           </p>
 
           {/* 3 Step Audit Navigation Cards */}

@@ -93,7 +93,8 @@ export function SingleInquiryForm() {
       if (!res.ok) {
         setStatus('error');
         setServerMessage(
-          data.error || 'Dispatch limit reached or network error. Your inputs are preserved.'
+          data.error ||
+            `Dispatch limit reached or network error. Please email ${SITE_CONFIG.founderEmail} directly.`
         );
         return;
       }
@@ -103,7 +104,7 @@ export function SingleInquiryForm() {
     } catch {
       setStatus('error');
       setServerMessage(
-        'A network interruption occurred. Your inquiry entries have been safely preserved. Please retry.'
+        `A network interruption occurred. Your entries are preserved. You can also email ${SITE_CONFIG.founderEmail} directly.`
       );
     }
   };
@@ -135,7 +136,7 @@ export function SingleInquiryForm() {
 
         <div className="mt-8 pt-6 border-t border-border-hairline flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-content-tertiary gap-3">
           <span className="text-emerald-700 font-medium">DISPATCH // LOGGED SECURELY</span>
-          <span>DIRECT INTAKE: {SITE_CONFIG.email}</span>
+          <span>INTAKE: {SITE_CONFIG.intakeEmail} · FOUNDER: {SITE_CONFIG.founderEmail}</span>
         </div>
 
         <div className="mt-6">

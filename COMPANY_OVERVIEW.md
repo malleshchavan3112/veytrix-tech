@@ -64,14 +64,18 @@ Veytrix Tech engages through three structured engagement formats:
 ## 4. Confirmed Facts vs. Items Requiring Definition
 
 ### Confirmed Information
-- Entity Focus: Digital product & technology studio.
-- Disciplines: 8 core areas (Web, Web Apps, Mobile, UI/UX, Graphic Design, AI Solutions, Custom Software, Product Development).
+- Entity Focus: Digital product & technology studio focused on UI/UX design, web and mobile development, AI-powered solutions, and custom digital products.
+- Disciplines: 8 core areas (Website Development, Web Apps, Mobile Apps, UI/UX Design, Graphic Design, AI Solutions, Custom Software, Product Development).
 - Studio Website Purpose: Portfolio showcase of shipped systems + qualified inquiry generation.
-- Validated Past Systems: Aahar Nearby (hyperlocal food discovery mobile app) and DateInvite (interactive invitation web platform).
+- Validated Past Systems: Aahar Nearby (hyperlocal food discovery mobile app) and DateInvite (interactive invitation web platform at dateinvite.me).
+- Official Domain: `https://veytrix.tech`
+- Official Founder Email: `founder@veytrix.tech`
+- Automated Intake Destination: `intake@veytrix.tech`
+- Verified Project Workflow Milestone: `25 September 2026` (Commencement of website project & system architecture documentation).
 
 ### Open Items & Confirmation Required
-- `[TO BE DEFINED]` Official legal registration name, company identification numbers, and founding year.
+- `[REQUIRES CONFIRMATION]` Company Startup / Founding Date (Distinct from 25 September 2026 website milestone; pending founder confirmation).
+- `[REQUIRES CONFIRMATION]` Official legal entity registration name, incorporation certificate, and corporate registration numbers (CIN, LLC, etc.).
 - `[TO BE DEFINED]` Physical office location / primary timezones for client communications.
 - `[TO BE DEFINED]` Studio team size and leadership biographies (e.g., founder/principal profiles).
-- `[TO BE DEFINED]` Official studio contact channels (email, phone, domain name, social profiles).
 - `[REQUIRES CONFIRMATION]` Standard pricing structures or public/private engagement minimums.

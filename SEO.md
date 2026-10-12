@@ -29,19 +29,19 @@ The SEO architecture ensures organic search visibility for high-intent queries a
 ## 3. Metadata Standards & OpenGraph Architecture
 
 ### Title & Description Formula
-- **Homepage Title**: `Veytrix Tech — Design + Technology + Product Thinking`
-- **Homepage Meta Description**: *"Veytrix Tech is a modern digital product and technology studio bridging high-craft design, resilient engineering, and product thinking."*
+- **Homepage Title**: `Veytrix Tech — UI/UX Design, Web & Mobile App Development`
+- **Homepage Meta Description**: *"Veytrix Tech is a digital product and technology studio focused on UI/UX design, web and mobile development, AI-powered solutions, and custom digital products."*
 - **Case Study Titles**:
-  - `Aahar Nearby Case Study — Mobile Food Discovery Platform | Veytrix Tech`
-  - `DateInvite Case Study — Interactive Web Invitation Platform | Veytrix Tech`
+  - `Aahar Nearby Case Study — Hyperlocal Food Discovery App | Veytrix Tech`
+  - `DateInvite Case Study — Digital Invitation Platform | Veytrix Tech`
 
 ### OpenGraph & Twitter Card Standards
 ```html
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Veytrix Tech" />
-<meta property="og:title" content="Veytrix Tech — Design + Technology + Product Thinking" />
-<meta property="og:description" content="A modern digital product and technology studio bridging high-craft design, resilient engineering, and product thinking." />
-<meta property="og:image" content="https://veytrix.tech/og/default-cover.png" />
+<meta property="og:title" content="Veytrix Tech — UI/UX Design, Web & Mobile App Development" />
+<meta property="og:description" content="Veytrix Tech is a digital product and technology studio focused on UI/UX design, web and mobile development, AI-powered solutions, and custom digital products." />
+<meta property="og:image" content="https://veytrix.tech/opengraph-image" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
@@ -51,26 +51,40 @@ The SEO architecture ensures organic search visibility for high-intent queries a
 
 ## 4. Structured Data (JSON-LD) Schemas
 
-### 4.1 Organization & Professional Service Schema
+### 4.1 Organization Schema
 ```json
 {
   "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  "name": "Veytrix Tech",
-  "url": "https://veytrix.tech",
-  "logo": "https://veytrix.tech/branding/veytrix-logo.png",
-  "description": "A modern digital product and technology studio bridging high-craft design, resilient engineering, and product thinking.",
-  "knowsAbout": [
-    "Web Application Development",
-    "Mobile App Development",
-    "UI/UX Design",
-    "Custom Software Engineering",
-    "Artificial Intelligence Solutions",
-    "Design Systems"
-  ],
-  "priceRange": "$$$$"
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://veytrix.tech/#organization",
+      "name": "Veytrix Tech",
+      "legalName": "Veytrix Tech",
+      "url": "https://veytrix.tech",
+      "logo": "https://veytrix.tech/brand/logo.png",
+      "description": "Veytrix Tech is a digital product and technology studio focused on UI/UX design, web and mobile development, AI-powered solutions, and custom digital products.",
+      "email": "founder@veytrix.tech",
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "contactType": "Founder & Executive Contact",
+          "email": "founder@veytrix.tech",
+          "url": "https://veytrix.tech/#contact"
+        },
+        {
+          "@type": "ContactPoint",
+          "contactType": "Project Intake & Technical Inquiries",
+          "email": "intake@veytrix.tech",
+          "url": "https://veytrix.tech/#contact"
+        }
+      ],
+      "sameAs": ["https://github.com/malleshchavan3112/veytrix-tech"]
+    }
+  ]
 }
 ```
+*Note: `foundingDate` is strictly omitted from structured data until the company startup date is independently confirmed.*
 
 ---
 

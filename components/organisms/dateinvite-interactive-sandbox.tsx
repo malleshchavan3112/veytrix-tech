@@ -43,7 +43,7 @@ export function DateInviteInteractiveSandbox() {
       <div className="flex items-center justify-between pb-3 border-b border-rose-100 text-xs font-mono">
         <div className="flex items-center gap-1.5 text-rose-600 font-semibold">
           <Heart className="w-3.5 h-3.5 fill-rose-500" />
-          <span>DATEINVITE // PLAYFUL DODGE PHYSICS SANDBOX</span>
+          <span>SIMULATED DEMO // DODGE PHYSICS SANDBOX</span>
         </div>
         <span className="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-rose-200">
           {dodgeCount > 0 ? `${dodgeCount} EVASIONS` : 'HOVER "NO"'}

@@ -138,8 +138,9 @@ export default function PrivacyPage() {
               To exercise any privacy rights, request data deletion, or report a security concern, contact our studio engineering team directly at:
             </p>
             <div className="mt-3 p-4 rounded-md bg-canvas-subtle border border-border-hairline font-mono text-xs text-content-primary">
-              <div>Veytrix Tech Studio — Privacy Architecture</div>
-              <div className="mt-1">Inquiry Intake: <a href="mailto:intake@veytrix.tech" className="text-accent-blue hover:underline">intake@veytrix.tech</a></div>
+              <div>Veytrix Tech — Privacy Architecture</div>
+              <div className="mt-1">Founder Contact: <a href="mailto:founder@veytrix.tech" className="text-accent-blue hover:underline">founder@veytrix.tech</a></div>
+              <div>Inquiry Intake: <a href="mailto:intake@veytrix.tech" className="text-accent-blue hover:underline">intake@veytrix.tech</a></div>
               <div>Security Telemetry: <a href="mailto:security@veytrix.tech" className="text-accent-blue hover:underline">security@veytrix.tech</a></div>
             </div>
             <p className="mt-4 text-xs text-content-tertiary">

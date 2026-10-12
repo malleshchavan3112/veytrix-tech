@@ -128,6 +128,13 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
             Start a Project
           </Button>
 
+          <a
+            href={`mailto:${SITE_CONFIG.founderEmail}`}
+            className="text-center font-mono text-xs text-veytrix-blue hover:text-veytrix-electric transition-colors py-1"
+          >
+            Founder: {SITE_CONFIG.founderEmail}
+          </a>
+
           <div className="flex items-center justify-between font-mono text-[10px] text-content-tertiary pt-2">
             <span>SYS // OPERATIONAL</span>
             <span>BUILD // ACTIVE</span>

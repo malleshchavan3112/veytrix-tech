@@ -30,8 +30,7 @@ export const metadata: Metadata = {
     default: 'Veytrix Tech — UI/UX Design, Web & Mobile App Development',
     template: '%s | Veytrix Tech',
   },
-  description:
-    'Veytrix Tech is a digital product and technology studio specializing in UI/UX design, modern web development, cross-platform mobile apps, and custom AI solutions.',
+  description: SITE_CONFIG.description,
   applicationName: SITE_CONFIG.name,
   authors: [{ name: SITE_CONFIG.legalName, url: SITE_CONFIG.domain }],
   generator: 'Next.js',
@@ -62,8 +61,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Veytrix Tech — UI/UX Design, Web & Mobile App Development',
-    description:
-      'Veytrix Tech is a digital product and technology studio specializing in UI/UX design, modern web development, cross-platform mobile apps, and custom AI solutions.',
+    description: SITE_CONFIG.description,
     url: SITE_CONFIG.domain,
     siteName: SITE_CONFIG.name,
     locale: 'en_US',
@@ -80,8 +78,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Veytrix Tech — UI/UX Design, Web & Mobile App Development',
-    description:
-      'Veytrix Tech is a digital product and technology studio specializing in UI/UX design, modern web development, cross-platform mobile apps, and custom AI solutions.',
+    description: SITE_CONFIG.description,
     images: [`${SITE_CONFIG.domain}/opengraph-image`],
   },
   icons: {
@@ -102,6 +99,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   // JSON-LD structured data for Organization and WebSite per Technical SEO standards
+  // Note: foundingDate is excluded until company founding date is independently confirmed
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -112,9 +110,22 @@ export default function RootLayout({
         legalName: SITE_CONFIG.legalName,
         url: SITE_CONFIG.domain,
         logo: `${SITE_CONFIG.domain}/brand/logo.png`,
-        description:
-          'A modern digital product and technology studio bridging high-craft design, resilient engineering, and product thinking.',
-        email: SITE_CONFIG.email,
+        description: SITE_CONFIG.description,
+        email: SITE_CONFIG.founderEmail,
+        contactPoint: [
+          {
+            '@type': 'ContactPoint',
+            contactType: 'Founder & Executive Contact',
+            email: SITE_CONFIG.founderEmail,
+            url: `${SITE_CONFIG.domain}/#contact`,
+          },
+          {
+            '@type': 'ContactPoint',
+            contactType: 'Project Intake & Technical Inquiries',
+            email: SITE_CONFIG.intakeEmail,
+            url: `${SITE_CONFIG.domain}/#contact`,
+          },
+        ],
         sameAs: ['https://github.com/malleshchavan3112/veytrix-tech'],
       },
       {
@@ -122,8 +133,7 @@ export default function RootLayout({
         '@id': `${SITE_CONFIG.domain}/#website`,
         url: SITE_CONFIG.domain,
         name: SITE_CONFIG.name,
-        description:
-          'Veytrix Tech is a digital product and technology studio specializing in UI/UX design, modern web development, cross-platform mobile apps, and custom AI solutions.',
+        description: SITE_CONFIG.description,
         publisher: {
           '@id': `${SITE_CONFIG.domain}/#organization`,
         },
